@@ -8,7 +8,7 @@ import utils.Constants
 
 class UkkonenNode(var id: Integer = Constants.NODE_INDEX) {
     var index: Integer = id
-    var outgoingEdges: Array[UkkonenEdge] = Array[UkkonenEdge]() // czy to jest potrzebne?
+    var outgoingEdges: Array[UkkonenEdge] = Array[UkkonenEdge]()
 
     override def toString(): String = {
         return s"Node $index"

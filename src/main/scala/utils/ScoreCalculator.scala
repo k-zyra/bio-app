@@ -42,6 +42,7 @@ object ScoreCalculator {
         return math.pow(base, exp)
     }   
 
+    
     /**  Gets base calling error
      */
     def getBaseCalling64Error(Q: Char) : Double = {

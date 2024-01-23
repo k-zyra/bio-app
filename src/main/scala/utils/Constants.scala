@@ -29,6 +29,14 @@ object Constants {
     val WEAK_KMER_THRESHOLD: Integer = 10
     val SOLID_KMER_THRESHOLD: Integer = 90
 
+    // Alignment constants
+    val DEFAULT_GAP_PENALTY: Integer = -1
+    val DEFAULT_MATCH_REWARD: Integer = 1
+
+    val ALIGN: Integer = 1
+    val HORIZONTAL_GAP: Integer = 2
+    val VERTiCAL_GAP: Integer = 3
+
     // Cluster constants
     val NUMBER_OF_CLUSTERS: Integer = 4
     val NUMBER_OF_ROWS: Integer = 20
@@ -37,9 +45,14 @@ object Constants {
     val CONTENT_BASED: Integer = 1
     val FREQUENCY_BASED: Integer = 2
 
+    // Numerical constants
+    val EMPTY_INTEGER_ARRAY = Array[Integer]()
+    val EMPTY_FLOAT_ARRAY = Array[Float]()
+
     // String constants 
     val EMPTY_STRING: String = ""
     val EMPTY_SENTINEL: String = ""
+    val EMPTY_STRING_ARRAY = Array[String]()
     
     val DEFAULT_SENTINEL: String = "$"
     

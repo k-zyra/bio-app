@@ -2,6 +2,7 @@ package app
 
 /* External imports */ 
 import java.nio.file.Paths
+import java.io.File
 
 import org.apache.spark.rdd.PairRDDFunctions
 import org.apache.spark.SparkConf
@@ -17,58 +18,31 @@ import bio.ukkonen.UkkonenEdge
 import bio.ukkonen.UkkonenNode
 
 import examples.BwtExample
+import examples.LocalAlignmentExample
 
 import utils._
 import bio.clustering.BasicCluster
 import bio.clustering.KmeansCluster
-import com.fasterxml.jackson.databind.introspect.TypeResolutionContext.Basic
+import bio.searchers.AlignSearcher
 
 
 object BioApplication extends App {
-	def main: Unit = 
-		println("Hello")
+	def main: Unit = {
+		var arguments = utils.OptionParser.parseArguments(args)
 
-		val fastqFile = "C:\\Users\\karzyr\\Desktop\\pacbio.fastq"
-		FileUtils.statistics(fastqFile)
+        var first = "ACCA"
+        var second = "CCACC"
 
-		val fastqContent = FileUtils.readFile(fastqFile)
-		println(fastqContent)
+        val scores: Array[Array[Integer]] = Array.ofDim[Integer](2, 2)
+        scores(0)(0) = 2
+        scores(1)(1) = 2
+        scores(0)(1) = -1 
+        scores(1)(0) = -1
 
-		val reads = fastqContent.getReads()
-
-		val allkmerspar = KmerCounter.prepareAllKmers(reads.slice(0, 50), k=13, verbose = true)
-		val allkmers = KmerCounter.prepareAllKmers(reads.slice(0,50), k=13, verbose = true)
-		println("Number of kmers: " + allkmers.length)
-
-		var exampleKmer = allkmers(10)
-		println(s"Example kmer: $exampleKmer")
-		var candidates = StringUtils.findOverlapCandidates(exampleKmer._1, KmerCounter.getKmers(allkmers), overlapLength=5, verbose=true)
-
-		var candidate = candidates(10)
-		println(s"Choosen candidate: $candidate")
-
-		KmeansCluster.createClusters(KmerCounter.getKmers(allkmers))
-		// KmeansCluster.showClusters(rows = 40, filter = Some(1))
-
-		var clusters = KmeansCluster.getClusterAsArray()
-		println("Without filtering: " + clusters.length)
-
-		var filteredClusters = KmeansCluster.getClusterAsArray(prediction = Some(2))
-		println("With filtering: " + filteredClusters.length)
-		println("filtered cluster type: " + filteredClusters.getClass() + ", should be array")
-		// filteredClusters.foreach(println)
-
-		// for (element <- filteredClusters) {
-		// 	println(element.toString())
-		// }
-		var clusterId = KmeansCluster.findCluster("ACCATGCGGCCTT")
-		println(clusterId)
-
-
-
-		BasicCluster.createClusters(KmerCounter.getKmers(allkmers), clusters = 6)
-
+        AlignSearcher.displayScoreMatrix(scores)
+        AlignSearcher.smithWatermanSearch(Array(first, second), scores, penalty = -3)
 
 		SparkController.destroy()
 	}
 
+}

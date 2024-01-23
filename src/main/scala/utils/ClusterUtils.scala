@@ -21,7 +21,7 @@ object ClusterUtils {
     }
 
 
-    /*
+    /* Get GC-content for given sequences
      */
     def getContentFeature(data: Array[String]): Array[Float] = {
         val featureValues = data.map( str => MetricsUtils.getGcContent(str, verbose = false) )
@@ -29,7 +29,7 @@ object ClusterUtils {
     }
 
     
-    /*
+    /* Get frequency of each base in given sequences
      */
     def getFrequencyFeature(data: Array[String]): Array[Array[Float]] = {
         val aContent = data.map( str => MetricsUtils.getBasesFrequency('A', str) )
@@ -40,17 +40,4 @@ object ClusterUtils {
         return Array(aContent, cContent, gContent, tContent)
     }
 
-
-    /*
-     */
-    def getPrefixFeature(str: String): Unit = {
-        // TBD
-    }
-
-
-    /*
-     */
-    def getTandemFeature(data: Array[String]): Unit = {
-        // TBD
-    } 
 }

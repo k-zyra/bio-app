@@ -1,17 +1,18 @@
 package utils
 
+/* External imports */
 import scala.io.Source
 
+/* Internal imports */
 import bio.datatypes.File
 import bio.datatypes.Sequence
-import spire.random.Const
 
 
 object FileUtils {
 	private val logger = new Logger("FileUtils")
 
 
-    /**  Reads given file
+    /**  Read given file
      *   Runs proper function, based on the file type
      *   If file type not supported, returns empty List 
      */
@@ -30,7 +31,7 @@ object FileUtils {
     }
 
 
-	/**  Reads given FASTA file
+	/**  Read given FASTA file
      */
     private def readFastaFile(filename: String): File = {
         def parse(lines: Iterator[String]): List[Sequence] = {
@@ -49,7 +50,7 @@ object FileUtils {
     }
 
 
-	/**  Reads given FASTQ file
+	/**  Read given FASTQ file
      */
 	private def readFastqFile(filename: String): File = {
         def parse(lines: Iterator[String]): List[Sequence] = {
@@ -68,7 +69,7 @@ object FileUtils {
     }
 
 
-	/**  Analyses content of given file
+	/**  Analyze content of given file
      */
 	def analyzeFile(filename: String, verbose: Boolean = false): Map[String, Int] = {
         var statistics = Map[String, Int]()
@@ -93,7 +94,7 @@ object FileUtils {
     }
 
 
-    /**  Prints statistics for given file
+    /**  Print statistics for given file
      */
     def statistics(filename: String): Unit = {
         if (!filename.endsWith(Constants.FASTQ_EXT)) {

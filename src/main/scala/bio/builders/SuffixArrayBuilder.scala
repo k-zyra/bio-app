@@ -1,13 +1,18 @@
 package bio.builders
 
+/* External imports */
 import java.util.Arrays._
+
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.{Row, SparkSession}
+
 import scala.util.Sorting._
 
+/* Internal imports */
 import app.SparkController
+
 import utils.Constants
 import utils.Logger
 import utils.StringUtils
@@ -18,7 +23,7 @@ object SuffixArrayBuilder {
 
 
     /**  Generate suffixes from given string 
-     *   Returns list of tuples where first element is the suffix id and second is a suffix
+     *   Return list of tuples where first element is the suffix id and second is a suffix
      */
     def generateSuffixesInParallel(str: String,
                                 eof: String = Constants.DEFAULT_SENTINEL,
@@ -57,8 +62,9 @@ object SuffixArrayBuilder {
         else return suffixes
     }
 
+
     /**  Create a suffix array from given string 
-     *   Returns dataset of tuples where first element is the suffix id and second is a suffix
+     *   Return dataset of tuples where first element is the suffix id and second is a suffix
      *   Can be unsorted.
      */
     def createFullSuffixArray(str: String,
@@ -172,27 +178,6 @@ object SuffixArrayBuilder {
         }
 
         return squashedSa
-    }
-
-
-    /**  TBD
-     */
-    def createHeatArray(sa: Seq[Int]): Array[Integer] = {
-        var heatArray = Array[Integer]()
-        var omitted: Integer = 0
-
-        for (n <- 1 to sa.length-1) {
-            if ((sa(n-1)-sa(n)) == 1) {
-                println("squashing")
-                omitted += 1
-            } else {
-                println("stop squashing")
-                heatArray :+= omitted
-                omitted = 0
-            }
-        }
-
-        return heatArray
     }
 
 }

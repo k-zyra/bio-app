@@ -1,10 +1,13 @@
 package app
 
+/* External imports */
 import org.apache.spark.{SparkContext, SparkConf}
 import org.apache.spark.SparkContext._
-
-import utils.Logger
 import org.apache.spark.sql.SparkSession
+
+/* Internal imports */
+import utils.Logger
+
 
 
 object SparkController {
@@ -16,7 +19,7 @@ object SparkController {
     private val context = this.session.sparkContext
 
 
-    /** Stops Spark session
+    /** Stop Spark session
      *  Before shutting down, to discard stack traces, log level is set to WARN 
      */
     def destroy(verbose: Boolean = false): Unit = {
@@ -24,22 +27,23 @@ object SparkController {
         this.session.stop()
     }
 
-    /** Gets Spark Session object
+
+    /** Get Spark Session object
      */
     def getSession(): SparkSession = {
         return this.session
     }
 
 
-    /** Gets Spark Context object
+    /** Get Spark Context object
      */
     def getContext(): SparkContext = {
         return this.context
     }
 
 
-    /** Sets log level
-    *   Defines log level for SparkContext
+    /** Set log level
+    *   Define log level for SparkContext
      */
     def setLogLevel(level: String) : Unit = {
         context.setLogLevel(level)

@@ -21,20 +21,20 @@ object MetricsUtils {
     private val logger = new Logger("MetricsUtils")
 
 
-    /**  Calculate mean frequency for given kmers
+    /**  Calculate mean frequency for given k-mers
      */
     def calculateMean(kmers: Array[(String, Int)]): Float = {
-        val numberOfKmers: Float = KmerCounter.getNumberOfKmers(kmers).toFloat
+        val numberOfKmers: Float = KmerUtils.getNumberOfKmers(kmers).toFloat
         val kmerFrequencies = kmers.map(kmer => kmer._2/numberOfKmers)
 
         return kmerFrequencies.sum/numberOfKmers
     }
 
 
-    /**  Calculate standard deviation of frequency for given kmers
+    /**  Calculate standard deviation of frequency for given k-mers
      */
     def calculateStdDev(kmers: Array[(String, Int)]): Float = {
-        val numberOfKmers: Float = KmerCounter.getNumberOfKmers(kmers).toFloat
+        val numberOfKmers: Float = KmerUtils.getNumberOfKmers(kmers).toFloat
         val meanFrequency: Float = this.calculateMean(kmers)
         val stdDevCounter: Float = kmers.map(kmer => math.pow(kmer._2 - meanFrequency, 2)).sum.toFloat
 
@@ -53,22 +53,13 @@ object MetricsUtils {
         }   
 
         val kmerCounter: Float = kmerWithCounter.get._2.toFloat
-        val numberOfKmers: Float = KmerCounter.getNumberOfKmers(kmers).toFloat
+        val numberOfKmers: Float = KmerUtils.getNumberOfKmers(kmers).toFloat
 
         val kmerFrequency: Float = kmerCounter/numberOfKmers
         val meanFrequency: Float = this.calculateMean(kmers)
         val stdDevFrequency: Float = this.calculateStdDev(kmers)
 
         return (kmerFrequency - meanFrequency)/stdDevFrequency
-    }
-
-
-    /**  Calculate frequency P value for given kmer 
-     *   P-value 
-     */
-    def calculatePvalue(): Float = {
-        // TBD
-        return 0
     }
 
 
@@ -91,7 +82,7 @@ object MetricsUtils {
     }
 
 
-	/**  Calculate GC content for a read/sequence  
+	/**  Calculate GC-content for a sequence  
      */
     def getGcContent(seq: String, verbose: Boolean = logger.isVerbose()): Float = {
         val atcg: Float = seq.length.toFloat
@@ -101,7 +92,7 @@ object MetricsUtils {
     }
 
 
-    /**  Calculate frequency of bases for a read/sequence  
+    /**  Calculate frequency of bases for a sequence  
      */
     def getBasesFrequency(base: Char, seq: String): Float = {
         var stdBase = base.toUpper

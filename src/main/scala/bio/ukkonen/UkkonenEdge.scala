@@ -14,7 +14,7 @@ class UkkonenEdge(var start: Integer = Constants.EDGE_START, var end: Integer = 
     }
 
     def setEndIndex(activeLength: Integer): Unit = {
-        this.endIndex = this.startIndex + activeLength - 1  /// remainder ma za duza wartosc chyba, przez to nalezaloby odjac tu 2
+        this.endIndex = this.startIndex + activeLength - 1
     }
 
     def getDestination(): Integer = {

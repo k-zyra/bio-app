@@ -7,7 +7,7 @@ object BwtExample {
 
     }
 
-    def run(): Unit = {
+    def runSequential(): Unit = {
 		// var original = reads(0)
 		// var bwt = StringUtils.transformBurrowsWheeler(original, verbose = true)
 		// println(bwt)
@@ -16,5 +16,8 @@ object BwtExample {
 		// var expected = original + "$"
 		// if (expected == inverted) println("Same")
 		// else println("Different")
+    }
+
+	def runParallel(): Unit = {
     }
 }

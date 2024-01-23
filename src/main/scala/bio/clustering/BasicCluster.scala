@@ -17,7 +17,6 @@ import utils.MetricsUtils
 object BasicCluster {
     var logger = new Logger("BasicCluster")
 
-    // var clusters = Array[Array[String]]()
     var clusters = Map[Integer, Array[String]]()
     var aCluster = Array[String]()
     var cCluster = Array[String]()
@@ -39,6 +38,7 @@ object BasicCluster {
         return Constants.SUCCESS
     }
 
+    
     /*  Divide given array of substrings into clusters
     *   Number of clusters can be given as a parameter
     */

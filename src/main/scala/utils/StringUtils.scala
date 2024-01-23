@@ -11,15 +11,13 @@ import org.apache.spark.sql.types._
 import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.{Row, SparkSession}
 
+import scala.collection.immutable
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.{Map => MutableMap}
 import scala.collection.mutable.StringBuilder
 
 /* Internal imports */
 import app.SparkController
-import scala.collection.immutable
-import spire.std.string
-import com.codahale.metrics.Metric
 
 
 object StringUtils {

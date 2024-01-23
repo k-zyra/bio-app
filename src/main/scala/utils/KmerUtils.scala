@@ -12,8 +12,8 @@ import app.SparkController
 import bio.datatypes.Sequence
 
 
-object KmerCounter {
-    private val logger = new Logger("KmerCounter")
+object KmerUtils {
+    private val logger = new Logger("KmerUtils")
 
     
     /** Get only kmers from array containing kmers with counters
@@ -65,7 +65,6 @@ object KmerCounter {
                     k: Integer,
                     verbose: Boolean = logger.isVerbose()): Seq[String] = {
         val context = SparkController.getContext()
-
         val start = System.currentTimeMillis()
 
         val L = read.length()
@@ -190,9 +189,6 @@ object KmerCounter {
                     k: Integer,
                     verbose: Boolean = logger.isVerbose()): Unit = {
         val frequencies = this.countKmerFrequencies(seq, k, verbose = false)
-        // kmer spektra liczymy dla konkretnego k=? 
-        // na osi x są czestotliwosci
-        // na osi y sumujemy ilosc kmerow ktory wystapily x razy
     }
 
 

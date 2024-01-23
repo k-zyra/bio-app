@@ -69,9 +69,14 @@ class Logger(name: String) {
         }
     }
 
-    def logCriticalError(msg: String): Unit = {
+    def logError(msg: String): Unit = {
         var now: String = this.getTimestamp()
         println(s"$now - $errorHeader: $msg")
+    }
+
+    def logCriticalError(msg: String): Unit = {
+        var now: String = this.getTimestamp()
+        println(s"$now - $criticalHeader: $msg")
     }
 
     def setLogHeader(header: String): Unit = {
