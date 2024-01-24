@@ -38,7 +38,6 @@ According to [Apache Spark documentation](https://spark.apache.org/docs/latest/s
 
 "_The launch scripts do not currently support Windows.<br> To run a Spark cluster on Windows, start the master and workers by hand._"
 
-
 To create a standalone cluster on Windows, use:
 ```bash
 # Start master node
