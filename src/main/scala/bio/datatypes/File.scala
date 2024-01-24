@@ -2,9 +2,9 @@ package bio.datatypes
 
 
 class File(_path: String, _filetype: String, _sequences: Array[Sequence]) {
-    val path: String = _path
-    val filetype: String = _filetype
-    val sequences: Array[Sequence] = _sequences
+    private val path: String = _path
+    private val filetype: String = _filetype
+    private val sequences: Array[Sequence] = _sequences
 
 
     /** Print File class header
@@ -25,6 +25,13 @@ class File(_path: String, _filetype: String, _sequences: Array[Sequence]) {
      */
     def getFileType(): String = {
         return this.filetype
+    }
+
+
+    /** Get all sequences from given file 
+     */
+    def getSequences(): Array[Sequence] = {
+        return this.sequences
     }
 
 

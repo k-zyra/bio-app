@@ -81,4 +81,7 @@ object Constants {
     val ROOT: UkkonenNode = new UkkonenNode(0)
     val DUMMY_NODE: UkkonenNode = new UkkonenNode(NODE_INDEX)
     val DUMMY_EDGE: Integer = -1
+
+    // Utils 
+    val DEFAULT_PROMPT: String = "bio-app> "
 }

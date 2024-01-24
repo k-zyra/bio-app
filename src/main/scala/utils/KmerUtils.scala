@@ -115,7 +115,7 @@ object KmerUtils {
         }
         var duration = System.currentTimeMillis() - start
 
-        if (verbose) logger.logInfo(s"Time spent in <prepareAllKmers>: $duration ms")
+        if (verbose) logger.logInfo(s"Time spent in <prepareAllKmersSequential>: $duration ms")
         return allKmers
     }
 

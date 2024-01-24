@@ -12,8 +12,9 @@ import utils.Logger
 
 object SparkController {
     private val session: SparkSession = SparkSession.builder
-            .appName("ToDataFrameExample")
-            .master("local[*]")
+            .appName("BIO-APP")
+            // .master("local[*]")
+            .master("spark://192.168.1.31:7077")
             .config("spark.log.level", "WARN")
             .getOrCreate()
     private val context = this.session.sparkContext

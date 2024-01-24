@@ -16,6 +16,7 @@ import app.SparkController
 import utils.Constants
 import utils.Logger
 import utils.StringUtils
+import scala.collection.parallel.ParSeq
 
 
 object SuffixArrayBuilder {
@@ -27,7 +28,7 @@ object SuffixArrayBuilder {
      */
     def generateSuffixesInParallel(str: String,
                                 eof: String = Constants.DEFAULT_SENTINEL,
-                                verbose: Boolean = logger.isVerbose()): Unit = {
+                                verbose: Boolean = logger.isVerbose()): ParSeq[ParSeq[Char]] = {
         val inputString: String = str + eof
         val parallelString = inputString.par
 
@@ -37,7 +38,9 @@ object SuffixArrayBuilder {
         val returnVal = suffixes.toList
 
         var duration = System.currentTimeMillis() - start
-        if (verbose) logger.logInfo(suffixes.length + " suffixes generated in " + duration + " ms")
+        if (verbose) logger.logInfo(suffixes.length + " suffixes generated in parallel in " + duration + " ms")
+
+        return suffixes.toSeq
     }
 
 
@@ -57,7 +60,7 @@ object SuffixArrayBuilder {
         }
         var duration = System.currentTimeMillis() - start  
 
-        if (verbose) logger.logInfo(suffixes.length + " suffixes generated in " + duration + " ms")
+        if (verbose) logger.logInfo(suffixes.length + " suffixes generated sequentially in " + duration + " ms")
         if (sorted) return suffixes.sortBy(_._2) 
         else return suffixes
     }

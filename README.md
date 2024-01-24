@@ -2,6 +2,13 @@
 
 ## General informations
 
+## Table of contents
+* [Prerequisities](Prerequisites)
+* [Usage](Usage)
+* [Monitoring](Monitoring)
+* [Examples](Examples)
+* [References](References)
+
 ## Prerequisites
 
 ## Building an application
@@ -61,6 +68,38 @@ Additional flags which could be useful while running an application:
 ```
 For other options, see `spark-submit --help`.
 
+## Monitoring
+
+Information about running nodes are available in a browser on `<master-URL>`, which was displayed during starting the master node.
+```bash
+localhost:<master-port>
+```
+By default, it is binded to the port `localhost:8080`
+____
+
+To access Spark Web UI and display information about jobs, stages, storage, etc., open a browser and go to:
+```bash
+localhost:4040
+```
+If you have more than one application up at the same time, they are binded to the subsequent ports: `localhost:4041`, `localhost:4042`,
+ and so on.
+
+**Note:** this UI is available only when the application is running.
+To restore UI from already finished applications, see [Monitoring and instrumentation](https://spark.apache.org/docs/3.0.0-preview/monitoring.html)
+page.
+
+## Examples
+To run one of the provided examples, build an application according to instructions above and use:
+```bash
+spark-submit --class "examples.<example-name>" --master <master-URL> <path-to-JAR>
+```
+
+
 ## References
 [Apache Spark documentation](https://spark.apache.org/docs/latest/spark-standalone.html)<br>
-[sbt Reference Manual](https://www.scala-sbt.org/1.x/docs/index.html)
+[sbt Reference Manual](https://www.scala-sbt.org/1.x/docs/index.html)<br>
+[Scala documentation](https://docs.scala-lang.org/style/scaladoc.html)
+
+
+##
+[Return to the top](bio-app)

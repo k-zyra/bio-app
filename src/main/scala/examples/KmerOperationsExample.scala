@@ -1,14 +1,32 @@
 package examples
 
+/* External imports */
+import scala.io.StdIn
+
+/* Internal imports */
+import app.SparkController
+
 import utils.KmerUtils
+import utils.Console
 
 
 object KmerOperationsExample {
-    def runSequential(): Unit = {
+	def main(args: Array[String]): Unit = {
+        
+        val session = SparkController.getSession()
+        val context = SparkController.getContext()
 
+        println("Hello from KmerOperationsExample")
+
+        Console.exiting()        
+        SparkController.destroy()
     }
 
-    def runParallel(): Unit = {
+    // def runSequential(): Unit = {
 
-    }
+    // }
+
+    // def runParallel(): Unit = {
+
+    // }
 }
