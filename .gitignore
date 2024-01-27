@@ -3,6 +3,10 @@
 .metals
 .vscode
 
-project/*
+project/.bloop
+project/project
+project/target
+
+dumps/*
 target/*
 src/test/*
