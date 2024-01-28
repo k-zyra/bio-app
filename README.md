@@ -3,11 +3,13 @@
 ## General informations
 
 ## Table of contents
-* [Prerequisities](Prerequisites)
-* [Usage](Usage)
-* [Monitoring](Monitoring)
-* [Examples](Examples)
-* [References](References)
+* [Prerequisites](#Prerequisites)
+* [Usage](#Usage)
+* [Configuration](#Configuration)
+* [Monitoring](#Monitoring)
+* [Troubleshooting](#Troubleshooting)
+* [Examples](#Examples)
+* [References](#References)
 
 ## Prerequisites
 
@@ -68,6 +70,10 @@ Additional flags which could be useful while running an application:
 ```
 For other options, see `spark-submit --help`.
 
+## Configuration
+To be done.
+
+
 ## Monitoring
 
 Information about running nodes are available in a browser on `<master-URL>`, which was displayed during starting the master node.
@@ -88,12 +94,23 @@ If you have more than one application up at the same time, they are binded to th
 To restore UI from already finished applications, see [Monitoring and instrumentation](https://spark.apache.org/docs/3.0.0-preview/monitoring.html)
 page.
 
+____
+Web UI for HDFS management is accesible via:
+```bash
+localhost:9870
+```
+
+## Troubleshooting
+The following problems may occur while submitting the application to Apache Spark:
+
+#### Issue 1 - Connection refused: localhost/{ip_addres}:{port} 
+The most common reason for this issue is IP address mismatch between the value given in `SparkController.scala` while building SparkSession and the value of env variable `SPARK_LOCAL_IP` set in `${SPARK_HOME}/conf/spark-env.sh`
+
 ## Examples
 To run one of the provided examples, build an application according to instructions above and use:
 ```bash
 spark-submit --class "examples.<example-name>" --master <master-URL> <path-to-JAR>
 ```
-
 
 ## References
 [Apache Spark documentation](https://spark.apache.org/docs/latest/spark-standalone.html)<br>
