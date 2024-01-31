@@ -65,13 +65,13 @@ object KmerUtils {
                     k: Integer,
                     verbose: Boolean = logger.isVerbose()): Seq[String] = {
         val context = SparkController.getContext()
-        val start = System.currentTimeMillis()
+        val start: Long = System.nanoTime()
 
         val L = read.length()
         val iterRange = Seq.range(0, L-k+1, 1)
         var kmers = collection.mutable.ArraySeq[String]()
         var kmersSeq = for (n <- iterRange) yield read.slice(n, n+k)
-        val duration = System.currentTimeMillis() - start
+        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
 
         if (verbose) logger.logInfo(s"Time spent in <generateKmers> $duration ms")
         return kmersSeq
@@ -84,10 +84,10 @@ object KmerUtils {
     def countKmers(kmers: Seq[String], verbose: Boolean = logger.isVerbose()): Array[(String, Int)] = {
         val context = SparkController.getContext()
 
-        val start = System.currentTimeMillis()
+        val start: Long = System.nanoTime()
         val rddKmers = context.parallelize(kmers).map(kmer => (kmer, 1))
         val countedKmers = rddKmers.reduceByKey(_ + _) 
-        val duration = System.currentTimeMillis() - start
+        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
 
         if (verbose) logger.logInfo(s"Time spent in <countKmers> $duration ms")
         return countedKmers.collect()
@@ -100,7 +100,7 @@ object KmerUtils {
     def prepareAllKmersSequential(reads: Array[String],
                         k: Integer = Constants.PARAMETER_UNSPECIFIED, 
                         verbose: Boolean = logger.isVerbose()): Array[(String, Int)] = {
-        var start = System.currentTimeMillis()
+        val start: Long = System.nanoTime()
 
         var kmerLength: Integer = k
         if (kmerLength == Constants.PARAMETER_UNSPECIFIED) {
@@ -113,7 +113,7 @@ object KmerUtils {
             var tempArray = this._prepareKmers(read, kmerLength, false) 
             allKmers ++= tempArray 
         }
-        var duration = System.currentTimeMillis() - start
+        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
 
         if (verbose) logger.logInfo(s"Time spent in <prepareAllKmersSequential>: $duration ms")
         return allKmers
@@ -126,7 +126,7 @@ object KmerUtils {
     def prepareAllKmers(reads: Array[String],
                         k: Integer = Constants.PARAMETER_UNSPECIFIED, 
                         verbose: Boolean = logger.isVerbose()): Array[(String, Int)] = {
-        var start = System.currentTimeMillis()
+        val start: Long = System.nanoTime()
         var kmerLength: Integer = k
         if (kmerLength == Constants.PARAMETER_UNSPECIFIED) {
             kmerLength = (2 * FileUtils.getAverageReadLength(reads) / 3).toInt
@@ -136,7 +136,7 @@ object KmerUtils {
         var readsPar = reads.par 
         var allKmersPar = readsPar.flatMap(read => this.generateKmers(read, kmerLength, verbose=false))
         var allKmers = this.countKmers(allKmersPar.to[Seq], verbose=false)
-        var duration = System.currentTimeMillis() - start
+        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
 
         if (verbose) logger.logInfo(s"Time spent in <prepareAllKmers>: $duration ms")
         return allKmers

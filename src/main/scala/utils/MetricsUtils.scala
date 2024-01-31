@@ -48,7 +48,7 @@ object MetricsUtils {
     def calculateZscore(kmer: String, kmers: Array[(String, Int)]): Float = {
         val kmerWithCounter = kmers.find(_._1 == kmer)
         if (kmerWithCounter.isEmpty) {
-            logger.logWarn(s"Given kmer: $kmer not found!")
+            logger.logWarn(f"Given kmer: $kmer not found!")
             return Constants.NOT_FOUND_F
         }   
 
@@ -115,12 +115,12 @@ object MetricsUtils {
                 verbose: Boolean = logger.isVerbose()): RDD[(Char, Int)] = {
         val context = SparkController.getContext()
         
-        val start = System.currentTimeMillis()
+        val start: Long = System.nanoTime()
         val rddSeq = context.parallelize(seq).map(kmer => (kmer, 1))
         val countedBases = rddSeq.reduceByKey(_ + _) 
-        val stop = System.currentTimeMillis()
+        val duration: Float = (System.nanoTime()-start)/Constants.NANO_IN_MILLIS
 
-        if (verbose) logger.logInfo(s"Time spent in <countBases>: " + (stop-start) + "ms")
+        if (verbose) logger.logInfo(f"Time spent in <countBases>: $duration ms")
         return countedBases
     }
 
@@ -141,14 +141,14 @@ object MetricsUtils {
      */
     def countBasesToPar(seq: String,
                 verbose: Boolean = logger.isVerbose()): ParMap[Char, Int] = {
-        val start = System.currentTimeMillis()
+        val start: Long = System.nanoTime()
         val parallelSeq = seq.par
         val countedBases = parallelSeq
             .groupBy(identity)
             .mapValues(_.size)
-        val duration = System.currentTimeMillis() - start
+        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
 
-        if (verbose) logger.logInfo(s"Time spent in <countBasesUsingPar>: $duration ms")
+        if (verbose) logger.logInfo(f"Time spent in <countBasesUsingPar>: $duration ms")
         return countedBases
     }
 
@@ -161,11 +161,11 @@ object MetricsUtils {
         val seqLen: Float = seq.length()
         var basesCounts = this.countBases(seq, verbose)
 
-        val start = System.currentTimeMillis()  
+        val start: Long = System.nanoTime()  
         val basesFreq = basesCounts.map(base => (base._1, base._2/seqLen)) 
-        val duration = System.currentTimeMillis() - start
+        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
 
-        if (verbose) logger.logInfo(s"Time spent in <countBasesFrequencies>: $duration ms")
+        if (verbose) logger.logInfo(f"Time spent in <countBasesFrequencies>: $duration ms")
         return basesFreq
     }
 
@@ -188,11 +188,11 @@ object MetricsUtils {
         val kmer = strings(id)
         var rddStrings = context.parallelize(strings)
 
-        val start = System.currentTimeMillis()  
+        val start: Long = System.nanoTime()  
         var metrics = rddStrings.map(element => Jaccard.score(element, kmer))
-        val duration = System.currentTimeMillis() - start
+        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
 
-        if (verbose) logger.logInfo("Time spent in <getJaccardSimilarity>: $duration ms")
+        if (verbose) logger.logInfo(f"Time spent in <getJaccardSimilarity>: $duration ms")
         return metrics
     }
 
@@ -206,11 +206,11 @@ object MetricsUtils {
         val kmer = strings(id)
         var rddStrings = context.parallelize(strings)
 
-        val start = System.currentTimeMillis()  
+        val start: Long = System.nanoTime()  
         var metrics = rddStrings.map(element => Hamming.distance(element, kmer))
-        val duration = System.currentTimeMillis()
+        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
 
-        if (verbose) logger.logInfo(s"Time spent in <getHammingDistance>: $duration ms")
+        if (verbose) logger.logInfo(f"Time spent in <getHammingDistance>: $duration ms")
         return metrics
     }
 }

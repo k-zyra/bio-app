@@ -145,7 +145,7 @@ object AlignSearcher {
         for (n <- 0 to N) helper(0)(n) = 0
 
         var id = N + 2
-        var start = System.currentTimeMillis()
+        val start: Long = System.nanoTime()
         for (m <- 1 to M) {
             for  (n <- 1 to N) {
                 var alignmentsMap: mutable.Map[Integer, Integer] = mutable.Map[Integer, Integer]()
@@ -195,7 +195,7 @@ object AlignSearcher {
 
         val result = arrayOfPairsBuffer.result().toArray
 
-        val duration = System.currentTimeMillis() - start
+        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
         if (verbose) {
             logger.logInfo(f"Matches found: ${result.size}")
             logger.logInfo(f"Alignments using Smith-Waterman method found in $duration ms")

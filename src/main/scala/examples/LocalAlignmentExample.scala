@@ -12,6 +12,7 @@ import bio.searchers.AlignSearcher
 import utils.Console
 import utils.FileUtils
 import utils.KmerUtils
+import utils.Constants
 
 
 
@@ -36,12 +37,12 @@ object LocalAlignmentExample {
     def runSequential(sequences: Array[String]): Array[Integer] = {
         var buffer: ArrayBuffer[Integer] = new ArrayBuffer[Integer]
 
-        val start: Float = System.currentTimeMillis()
+        val start: Long = System.nanoTime()
         for (sequence <- sequences) {
             val alignments: Integer = this.getAllAlignments(sequence, sequences)
             buffer += alignments
         }
-        val duration: Float = System.currentTimeMillis() - start
+        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
         
         println("Time spent in sequential LocalAlignmentExample: " + duration + " ms")
         return buffer.toArray
@@ -51,9 +52,9 @@ object LocalAlignmentExample {
     def runParallel(sequences: Array[String]): Array[Integer] = {
         val sequencesPar: ParArray[String] = sequences.par
 
-        val start: Float = System.currentTimeMillis()
+        val start: Long = System.nanoTime()
         val alignemnts = sequencesPar.map(sequence => this.getAllAlignments(sequence, sequences))
-        val duration: Float = System.currentTimeMillis() - start
+        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
 
         println("Time spent in parallel LocalAlignmentExample: " + duration + " ms")
         return alignemnts.toArray

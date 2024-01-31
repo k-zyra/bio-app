@@ -317,11 +317,11 @@ object StringUtils {
     def getTandemRepeats(sa: Seq[(Int, String)], verbose: Boolean = logger.isVerbose()): Array[String] = {
         var tandems = Array[String]()
 
-        val start = System.currentTimeMillis()
+        val start: Long = System.nanoTime()
 		sa.foreach(suffix => tandems :+= StringUtils.getRepeatedSubstring(suffix._2, sa))
-        val duration = System.currentTimeMillis() - start
+        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
 
-        if (verbose) logger.logInfo(s"Tandem repeats found in $duration ms")
+        if (verbose) logger.logInfo(f"Tandem repeats found in $duration ms")
 		return tandems.distinct.filter(element => element != Constants.EMPTY_STRING)
     }
 
@@ -336,14 +336,14 @@ object StringUtils {
         val context = SparkController.getContext()
         var tandems = Array[String]()
 
-        val start = System.currentTimeMillis()
+        val start: Long = System.nanoTime()
 		sa.foreach(suffix => tandems :+= StringUtils.getRepeatedSubstring(suffix._2, sa))
 
         val rddTandems = context.parallelize(tandems).map(tandem => (tandem, 1))
         val countedTandems = rddTandems.reduceByKey(_ + _) 
-        val duration = System.currentTimeMillis() - start
+        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
 
-        if (verbose) logger.logInfo(s"Tandem repeats found in $duration ms")
+        if (verbose) logger.logInfo(f"Tandem repeats found in $duration ms")
 		return countedTandems.filter(tandem => 
                 tandem._1 != Constants.EMPTY_STRING && 
                 tandem._2 > threshold)
@@ -383,11 +383,11 @@ object StringUtils {
                     verbose: Boolean = logger.isVerbose()): Array[String] = {
         val strBuilder = new StringBuilder(str)                
         if (!hasSuffixFormat(str, sentinel)) {
-            if (verbose) logger.logWarn(s"Given string does not have a correct suffix format! Appending sentinel: $sentinel")    
+            if (verbose) logger.logWarn(f"Given string does not have a correct suffix format! Appending sentinel: $sentinel")    
             strBuilder.append(sentinel)
         } 
 
-        var start = System.currentTimeMillis()
+        val start: Long = System.nanoTime()
         var strToRotate = strBuilder.result()
 		var strLength = strToRotate.length()
         var rotations = Array[String]()
@@ -396,8 +396,8 @@ object StringUtils {
 			rotations :+= (strToRotate.slice(strLength-n, strLength) + strToRotate.slice(0, strLength-n)) 
 		}
 
-        var duration = System.currentTimeMillis() - start
-        if (verbose) logger.logInfo("Performed cyclic rotate for " + strLength + " suffixes in " + duration + " ms")
+        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+        if (verbose) logger.logInfo(f"Performed cyclic rotate for $strLength suffixes in $duration ms")
 		return rotations
 	}
 
@@ -411,7 +411,6 @@ object StringUtils {
 		var rotations: Array[String] = this.cyclicRotate(strToTransform, verbose = verbose)        
         
         rotations.sorted.foreach(substr => transform ++= substr.takeRight(1))
-        // println(transform.result())
 		return transform.result()
 	}
 
@@ -460,7 +459,7 @@ object StringUtils {
         var nextId: Int = 0
         var char = strToInvert.charAt(nextId)
         
-        val start = System.currentTimeMillis()
+        val start: Long = System.nanoTime()
         while (char != '$') {
             char match {
                 case 'A' => {
@@ -481,9 +480,9 @@ object StringUtils {
             char = strToInvert.charAt(nextId)
         }
         inversedBwt.append(sentinel)
-        val duration = System.currentTimeMillis() - start
+        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
 
-        if (verbose) logger.logInfo(s"Time spent in <inverseBurrowsWheeler>: $duration ms")
+        if (verbose) logger.logInfo(f"Time spent in <inverseBurrowsWheeler>: $duration ms")
         return inversedBwt.result()
     }
 
