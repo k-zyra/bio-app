@@ -103,8 +103,21 @@ localhost:9870
 ## Troubleshooting
 The following problems may occur while submitting the application to Apache Spark:
 
-#### Issue 1 - Connection refused: localhost/{ip_addres}:{port} 
+#### Issue 1 - Failed to load class [class name]
+
+#### Solution
+Ensure that correct class and package names are given as arguments to the `spark-submit` and that chosen class has `main` function implemented.
+
+#### Issue 2 - Connection refused: localhost/[ip_addres]:[port] 
 The most common reason for this issue is IP address mismatch between the value given in `SparkController.scala` while building SparkSession and the value of env variable `SPARK_LOCAL_IP` set in `${SPARK_HOME}/conf/spark-env.sh`
+
+
+#### Issue 3 - Did not find winutils.exe (Windows only)
+
+
+#### Solution
+_Step 1._ Install `winutils.exe` file from a directory dedicated for used Apache Spark version from [this website](https://github.com/kontext-tech/winutils). <br>
+_Step 2._ Create a directory `C:\\Program Files\Hadoop\bin` and place the `winutils.exe` file inside.
 
 ## Examples
 To run one of the provided examples, build an application according to instructions above and use:

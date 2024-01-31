@@ -383,7 +383,7 @@ object StringUtils {
                     verbose: Boolean = logger.isVerbose()): Array[String] = {
         val strBuilder = new StringBuilder(str)                
         if (!hasSuffixFormat(str, sentinel)) {
-            logger.logWarn(s"Given string does not have a correct suffix format! Appending sentinel: $sentinel")    
+            if (verbose) logger.logWarn(s"Given string does not have a correct suffix format! Appending sentinel: $sentinel")    
             strBuilder.append(sentinel)
         } 
 
@@ -405,12 +405,13 @@ object StringUtils {
     /**  Perform Burrows-Wheeler transform.
      *   Returns only last column from array created during cyclic rotation.
      */
-	def transformBurrowsWheeler(str: String, verbose: Boolean = logger.isVerbose()): String = {
+	def burrowsWheelerTransform(str: String, verbose: Boolean = logger.isVerbose()): String = {
         var strToTransform: String = StringUtils.standardize(str)
 		var transform: StringBuilder = new StringBuilder(Constants.EMPTY_STRING)
-		var rotations: Array[String] = this.cyclicRotate(strToTransform)        
+		var rotations: Array[String] = this.cyclicRotate(strToTransform, verbose = verbose)        
         
         rotations.sorted.foreach(substr => transform ++= substr.takeRight(1))
+        // println(transform.result())
 		return transform.result()
 	}
 

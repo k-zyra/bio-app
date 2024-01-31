@@ -1,15 +1,21 @@
 package bio.searchers
 
 /* External imports */
+import java.nio.file.{Files, Path, Paths}
 import java.util.Arrays
+
+import org.apache.spark.sql.{DataFrame, Row}
 
 import scala.annotation.switch
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuilder
 import scala.collection.mutable.StringBuilder
 import scala.collection.mutable.Map
+import scala.xml.XML
 
 /* Internal imports */
+import app.SparkController
+
 import utils.Constants
 import utils.Logger
 
@@ -18,17 +24,25 @@ import utils.Logger
 object AlignSearcher {
     private var logger = new Logger("AlignSearcher")
 
-
-    /*  Prepare alignment matrix
+    /* Prepare score matrix 
+     * Read XML file and prepare score matrix
     */
-    def prepareScoreMatrix(scores: Map[Char, Float]): Unit = {
+     def prepareScoreMatrix(filename: String = Constants.EXAMPLE_SCORE_MATRIX): Array[Array[Int]] = {
+        val filePath: Path = Paths.get(Constants.DATA_DIR + "\\" + filename)
+        if (Files.notExists(filePath)) {
+            logger.logError(f"File ${filePath} does not exist. Cannot prepare score matrix.")
+        } 
 
+        val xml = XML.loadFile(filePath.toString())
+        val scoreMatrix: Array[Array[Int]] = (xml \ "row").map { row => (row \ "column").map(_.text.toInt).toArray}.toArray
+
+        return scoreMatrix
     }
 
 
     /*  Display score matrix in readible format
     */
-    def displayScoreMatrix(matrix: Array[Array[Integer]], 
+    def displayScoreMatrix(matrix: Array[Array[Int]], 
                         rows: Array[String] = Constants.EMPTY_STRING_ARRAY,
                         columns: Array[String] = Constants.EMPTY_STRING_ARRAY): Unit = {
         val rows: Integer = matrix.size
@@ -63,7 +77,7 @@ object AlignSearcher {
     /*  Display alignment matrix in readible format
     */
     private def isScoreMatrixCorrectSize(sequences: Array[String], 
-                                        scoreMatrix: Array[Array[Integer]]): Boolean = {
+                                        scoreMatrix: Array[Array[Int]]): Boolean = {
         val rows: Integer = scoreMatrix.length
         val columns: Integer = scoreMatrix(0).length
         if (rows != columns) {
@@ -105,14 +119,16 @@ object AlignSearcher {
     /*  Find local alignment using Smith-Waterman algorithm
     */
     def smithWatermanSearch(sequences: Array[String],
-                            scoreMatrix: Array[Array[Integer]],
+                            scoreMatrix: Array[Array[Int]],
                             penalty: Integer = Constants.DEFAULT_GAP_PENALTY,
-                            verbose: Boolean = logger.isVerbose()): Array[String] = {
+                            verbose: Boolean = logger.isVerbose()): Int = {
+                            // verbose: Boolean = logger.isVerbose()): Array[String] = {
         var matches = Constants.EMPTY_STRING_ARRAY
         var numberOfSequences = sequences.length 
         if (numberOfSequences != 2) {
             logger.logWarn(f"Incorrect number of sequences. Actual:$numberOfSequences, expected: 2")
-            return matches
+            return 0
+            // return matches
         }
 
         val firstSequence = this.encodeSequence(sequences(0))
@@ -177,15 +193,16 @@ object AlignSearcher {
             arrayOfPairsBuffer ++= alter.map(value => (i, value))
         }
 
-        val resalt = arrayOfPairsBuffer.result().toArray
+        val result = arrayOfPairsBuffer.result().toArray
 
         val duration = System.currentTimeMillis() - start
         if (verbose) {
-            logger.logInfo(f"Matches found: ${resalt.size}")
+            logger.logInfo(f"Matches found: ${result.size}")
             logger.logInfo(f"Alignments using Smith-Waterman method found in $duration ms")
         }
 
-        return matches
+        // return matches
+        return result.size
     }
 
 

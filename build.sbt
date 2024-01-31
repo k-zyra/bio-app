@@ -14,10 +14,12 @@ lazy val root = project
     libraryDependencies += "org.apache.spark" %% "spark-core" % "3.5.0" % "provided",
     libraryDependencies += "org.apache.spark" %% "spark-sql" % "3.1.2" % "provided",
     libraryDependencies += "org.apache.spark" %% "spark-mllib" % "3.2.0" % "provided",
-    
     libraryDependencies += "org.scalanlp" %% "breeze" % "2.1.0",
     libraryDependencies += "org.scalanlp" %% "breeze-viz" % "0.13.2",
+    
     libraryDependencies += "com.github.scopt" %% "scopt" % "4.1.0",
     libraryDependencies += "com.github.mrpowers" %% "spark-daria" % "1.2.3",
     libraryDependencies += "com.github.vickumar1981" %% "stringdistance" % "1.2.7",
+
+    libraryDependencies += "com.nvidia" %% "rapids-4-spark" % "23.12.0" % "provided"
   )

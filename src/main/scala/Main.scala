@@ -28,56 +28,54 @@ import org.apache.spark.SparkContext
 
 import org.apache.log4j.Logger
 import org.apache.log4j.Level
+import examples.KmerOperationsExample
+import org.apache.spark.sql.Dataset
+
 
 
 object BioApp {
 	def main(args: Array[String]): Unit = {
-		// var arguments = utils.OptionParser.parseArguments(args)
-
+    	// var arguments = utils.OptionParser.parseArguments(args)
+ 
         val session = SparkController.getSession()
         val context = SparkController.getContext()
 
-		val fastqFile = "C:\\Users\\karzyr\\Desktop\\pacbio.fastq"
-		FileUtils.statistics(fastqFile)
+		// val fastqFile = "C:\\Users\\karzyr\\Desktop\\pacbio.fastq"
+		// FileUtils.statistics(fastqFile)
 
-		val fastqContent = FileUtils.readFile(fastqFile)
-		println(fastqContent)
+		// val fastqContent = FileUtils.readFile(fastqFile)
+		// println(fastqContent)
 
-        val sequences = fastqContent.getSequences()
-        val reads = fastqContent.getReads()
-
-        for (n <- 0 to 10) println(sequences(0))
-        println("Number of reads: " + fastqContent.getNumberOfReads())
-
-		val allkmersSeq = KmerUtils.prepareAllKmersSequential(reads.slice(0, 50), k=13, verbose = true)
-		val allkmersPar = KmerUtils.prepareAllKmers(reads.slice(0, 50), k=13, verbose = true)
-
-		println("Number of kmers (sequential): " + allkmersSeq.length)
-		println("Number of kmers (parallel): " + allkmersPar.length)
+        // val sequences = fastqContent.getSequences()
+        // val reads = fastqContent.getReads()
 
 
-        val realParKmers = allkmersPar.par
-        val start = System.currentTimeMillis()
-        val allSufsPar = realParKmers.map(kmer => SuffixArrayBuilder.generateSuffixes(kmer._1, verbose = false))
-        val duration = System.currentTimeMillis()  - start
-        println(f"Duration for parallel version: $duration")
+        // val realParKmers = allkmersPar.par
+        // val start = System.currentTimeMillis()
+        // val allSufsPar = realParKmers.map(kmer => SuffixArrayBuilder.generateSuffixes(kmer._1, verbose = false))
+        // val duration = System.currentTimeMillis()  - start
+        // println(f"Duration for parallel version: $duration")
 
-        val anotherStart = System.currentTimeMillis()
-        for (kmer <- allkmersPar) {
-            SuffixArrayBuilder.generateSuffixes(kmer._1, verbose = false)
-        }
-        val anotherDuration = System.currentTimeMillis()  - anotherStart
-        println(f"Duration for sequential version: $anotherDuration")
+        // val anotherStart = System.currentTimeMillis()
+        // for (kmer <- allkmersPar) {
+        //     SuffixArrayBuilder.generateSuffixes(kmer._1, verbose = false)
+        // }
+        // val anotherDuration = System.currentTimeMillis()  - anotherStart
+        // println(f"Duration for sequential version: $anotherDuration")
 
-        val example = allkmersPar(0)._1
-        println("Creating a suffix array for example" + example)
-        val startSA = System.currentTimeMillis()
-        SuffixArrayBuilder.createFullSuffixArray(example, verbose = false)
-        val durationSA = System.currentTimeMillis() - startSA
-        println(f"Created suffix array in $durationSA")
+        // val example = reads(0)
+        // println("Creating a suffix array for example" + example)
+
+        // val startSA = System.currentTimeMillis()
+        // // println(example)        
+        // val sufArr: Dataset[Row] = SuffixArrayBuilder.createFullSuffixArray(example, verbose = false)
+        // val durationSA = System.currentTimeMillis() - startSA
+        // println(f"Created suffix array in $durationSA ms")
+        
+        // println(sufArr.getClass())
 
 
-
+        Console.exiting()
 		SparkController.destroy()
 	}
 

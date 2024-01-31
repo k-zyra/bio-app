@@ -15,13 +15,18 @@ object Console {
         this.PROMPT = prompt
     }
 
-    def running(): Unit = {
+    def waiting(): Unit = {
         StdIn.readLine(this.PROMPT)
         
     }
 
-    def getInput(): Unit = {
+    def readingString(): String = {
+        return StdIn.readLine(this.PROMPT)
+    }
 
+    def readingInt(): Int = {
+        print(PROMPT)
+        return StdIn.readInt()
     }
 
     def exiting(): Unit = {

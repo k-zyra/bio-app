@@ -13,8 +13,9 @@ import utils.Logger
 object SparkController {
     private val session: SparkSession = SparkSession.builder
             .appName("BIO-APP")
-            // .master("local[*]")
-            .master("spark://192.168.1.31:7077")
+            // .master("local[*]")                              // Locally, max. number of cores
+            // .master("spark://192.168.1.32:7077")             // Ubuntu
+            .master("spark://192.168.1.101:7077")               // Windows
             .config("spark.log.level", "WARN")
             .getOrCreate()
     private val context = this.session.sparkContext

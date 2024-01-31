@@ -10,7 +10,7 @@ import bio.ukkonen.UkkonenNode
 object Constants {
     val BASES: Array[Char] = Array('A', 'C', 'G', 'T')
     val AMBIGUOUS: Char = 'N'
-
+    
     // General
     val SUCCESS: Boolean = true
     val FAILURE: Boolean = true
@@ -28,6 +28,8 @@ object Constants {
     val MIN_THRESHOLD: Integer = 1
     val WEAK_KMER_THRESHOLD: Integer = 10
     val SOLID_KMER_THRESHOLD: Integer = 90
+
+    val NANO_IN_MILLIS: Integer = 1000
 
     // Alignment constants
     val DEFAULT_GAP_PENALTY: Integer = -1
@@ -84,4 +86,8 @@ object Constants {
 
     // Utils 
     val DEFAULT_PROMPT: String = "bio-app> "
+
+    val DATA_DIR = "C:\\Users\\karzyr\\Desktop\\bio-app\\data"
+    val EXAMPLE_SCORE_MATRIX: String = "scoreMatrix.xml"
+    val EMPTY_SCORE_MATRIX: String = "scoreMatrix_template.xml"
 }

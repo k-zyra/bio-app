@@ -12,6 +12,12 @@ object FileUtils {
 	private val logger = new Logger("FileUtils")
 
 
+    def getRoot(): String = {
+        val currentDirectory: String = System.getProperty("user.dir");
+        return currentDirectory
+    }
+
+
     /**  Read given file
      *   Runs proper function, based on the file type
      *   If file type not supported, returns empty List 
