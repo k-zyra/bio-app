@@ -1,0 +1,26 @@
+<root>
+  <row>
+    <column>A->A</column>
+    <column>A->C</column>
+    <column>A->G</column>
+    <column>A->T</column>
+  </row>
+  <row>
+    <column>C->A</column>
+    <column>C->C</column>
+    <column>C->G</column>
+    <column>C->T</column>
+  </row>
+  <row>
+    <column>G->A</column>
+    <column>G->C</column>
+    <column>G->G</column>
+    <column>G->T</column>
+  </row>
+  <row>
+    <column>T->A</column>
+    <column>T->C</column>
+    <column>T->G</column>
+    <column>T->T</column>
+  </row>
+</root>

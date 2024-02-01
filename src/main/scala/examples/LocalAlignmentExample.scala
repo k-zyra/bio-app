@@ -10,54 +10,47 @@ import app.SparkController
 import bio.searchers.AlignSearcher
 
 import utils.Console
+import utils.Constants
 import utils.FileUtils
 import utils.KmerUtils
-import utils.Constants
 
 
 
 object LocalAlignmentExample {
     def getAllAlignments(firstSequence: String,
-                        sequences: Array[String]): Integer = {
-        val scoreMatrix: Array[Array[Int] ]= AlignSearcher.prepareScoreMatrix()
-        var numberOfAlignments: Integer = 0
+                        sequences: Array[String]): Unit = {
+        val substitutionMatrix: Array[Array[Int] ]= AlignSearcher.prepareSubstitutionMatrix()
 
         for (secondSequence <- sequences) {
             if (firstSequence != secondSequence) {
-                var matches = AlignSearcher.smithWatermanSearch(Array(firstSequence, secondSequence),
-                                                                scoreMatrix, verbose = false)
-                numberOfAlignments += matches
+                var matches = AlignSearcher.smithWatermanAlignment(Array(firstSequence, secondSequence),
+                                                                substitutionMatrix, verbose = false)
             } 
         }
-
-        return numberOfAlignments
     }
 
 
-    def runSequential(sequences: Array[String]): Array[Integer] = {
+    def runSequential(sequences: Array[String]): Unit = {
         var buffer: ArrayBuffer[Integer] = new ArrayBuffer[Integer]
 
         val start: Long = System.nanoTime()
         for (sequence <- sequences) {
-            val alignments: Integer = this.getAllAlignments(sequence, sequences)
-            buffer += alignments
+            this.getAllAlignments(sequence, sequences)
         }
         val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
         
         println("Time spent in sequential LocalAlignmentExample: " + duration + " ms")
-        return buffer.toArray
     }
 
 
-    def runParallel(sequences: Array[String]): Array[Integer] = {
+    def runParallel(sequences: Array[String]): Unit = {
         val sequencesPar: ParArray[String] = sequences.par
 
         val start: Long = System.nanoTime()
-        val alignemnts = sequencesPar.map(sequence => this.getAllAlignments(sequence, sequences))
+        sequencesPar.map(sequence => this.getAllAlignments(sequence, sequences))
         val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
 
         println("Time spent in parallel LocalAlignmentExample: " + duration + " ms")
-        return alignemnts.toArray
     }
 
 

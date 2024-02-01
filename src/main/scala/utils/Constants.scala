@@ -33,6 +33,7 @@ object Constants {
 
     // Alignment constants
     val DEFAULT_GAP_PENALTY: Integer = -1
+    val DEFAULT_MISMATCH_PENALTY: Integer = -1
     val DEFAULT_MATCH_REWARD: Integer = 1
 
     val ALIGN: Integer = 1
@@ -88,6 +89,6 @@ object Constants {
     val DEFAULT_PROMPT: String = "bio-app> "
 
     val DATA_DIR = "C:\\Users\\karzyr\\Desktop\\bio-app\\data"
-    val EXAMPLE_SCORE_MATRIX: String = "scoreMatrix.xml"
-    val EMPTY_SCORE_MATRIX: String = "scoreMatrix_template.xml"
+    val EXAMPLE_SUBSTITUTION_MATRIX: String = "substitutionMatrix.xml"
+    val EMPTY_SUBSTITUTION_MATRIX: String = "substitutionMatrix_template.xml"
 }
