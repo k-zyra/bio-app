@@ -49,7 +49,7 @@ object MetricsUtils {
         val kmerWithCounter = kmers.find(_._1 == kmer)
         if (kmerWithCounter.isEmpty) {
             logger.logWarn(f"Given kmer: $kmer not found!")
-            return Constants.NOT_FOUND_F
+            return Constants.NotFoundFloat
         }   
 
         val kmerCounter: Float = kmerWithCounter.get._2.toFloat
@@ -96,9 +96,9 @@ object MetricsUtils {
      */
     def getBasesFrequency(base: Char, seq: String): Float = {
         var stdBase = base.toUpper
-        if (!Constants.BASES.contains(stdBase)) {
+        if (!Constants.Bases.contains(stdBase)) {
             logger.logCriticalError(s"Incorrect base given: $base")
-            return Constants.NOT_FOUND_F
+            return Constants.NotFoundFloat
         }
 
         val atcg: Float = seq.length()
@@ -118,7 +118,7 @@ object MetricsUtils {
         val start: Long = System.nanoTime()
         val rddSeq = context.parallelize(seq).map(kmer => (kmer, 1))
         val countedBases = rddSeq.reduceByKey(_ + _) 
-        val duration: Float = (System.nanoTime()-start)/Constants.NANO_IN_MILLIS
+        val duration: Float = (System.nanoTime()-start)/Constants.NanoInMillis
 
         if (verbose) logger.logInfo(f"Time spent in <countBases>: $duration ms")
         return countedBases
@@ -146,7 +146,7 @@ object MetricsUtils {
         val countedBases = parallelSeq
             .groupBy(identity)
             .mapValues(_.size)
-        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) logger.logInfo(f"Time spent in <countBasesUsingPar>: $duration ms")
         return countedBases
@@ -163,7 +163,7 @@ object MetricsUtils {
 
         val start: Long = System.nanoTime()  
         val basesFreq = basesCounts.map(base => (base._1, base._2/seqLen)) 
-        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) logger.logInfo(f"Time spent in <countBasesFrequencies>: $duration ms")
         return basesFreq
@@ -190,7 +190,7 @@ object MetricsUtils {
 
         val start: Long = System.nanoTime()  
         var metrics = rddStrings.map(element => Jaccard.score(element, kmer))
-        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) logger.logInfo(f"Time spent in <getJaccardSimilarity>: $duration ms")
         return metrics
@@ -208,7 +208,7 @@ object MetricsUtils {
 
         val start: Long = System.nanoTime()  
         var metrics = rddStrings.map(element => Hamming.distance(element, kmer))
-        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) logger.logInfo(f"Time spent in <getHammingDistance>: $duration ms")
         return metrics

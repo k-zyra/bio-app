@@ -6,7 +6,7 @@ import scala.collection.mutable
 import utils.Constants
 
 
-class UkkonenNode(var id: Integer = Constants.NODE_INDEX) {
+class UkkonenNode(var id: Integer = Constants.NodeIndex) {
     var index: Integer = id
     var outgoingEdges: Array[UkkonenEdge] = Array[UkkonenEdge]()
 

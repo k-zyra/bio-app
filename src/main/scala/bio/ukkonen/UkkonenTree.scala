@@ -10,7 +10,7 @@ import utils.Logger
 
 
 class UkkonenTree {
-    val root: UkkonenNode = Constants.ROOT
+    val root: UkkonenNode = Constants.Root
     val linker: UkkonenLinker = new UkkonenLinker
     var nodes: Array[UkkonenNode] = Array(root)
     var edges: Array[UkkonenEdge] = Array[UkkonenEdge]()

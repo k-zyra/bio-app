@@ -28,14 +28,14 @@ object BasicCluster {
      */
     private def _unpackData(elements: Array[String]): Boolean = {
         var clusters = ClusterUtils.makeBaseClusters(elements)
-        if (clusters.isEmpty) return Constants.FAILURE
+        if (clusters.isEmpty) return Constants.Failure
 
         this.aCluster = clusters(0)
         this.cCluster = clusters(1)
         this.gCluster = clusters(2)
         this.tCluster = clusters(3)
 
-        return Constants.SUCCESS
+        return Constants.Success
     }
 
     
@@ -43,14 +43,14 @@ object BasicCluster {
     *   Number of clusters can be given as a parameter
     */
     def createClusters(elements: Array[String],
-                    clusters: Integer = Constants.NUMBER_OF_CLUSTERS): Unit = {
+                    clusters: Integer = Constants.NumberOfClusters): Unit = {
         val isDataPrepared: Boolean = this._unpackData(elements)
         if (!isDataPrepared) {
             logger.logCriticalError("No data available for create clusters.")
             return
         }
         
-        if (clusters == Constants.NUMBER_OF_CLUSTERS) {
+        if (clusters == Constants.NumberOfClusters) {
             logger.logInfo("Created base clusters")
             return
         }

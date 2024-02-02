@@ -23,11 +23,11 @@ object FileUtils {
      *   If file type not supported, returns empty List 
      */
     def readFile(filename: String): File = {
-        var file: File = Constants.EMPTY_FILE
+        var file: File = Constants.EmptyFile
 
-        if (filename.endsWith(Constants.FASTQ_EXT)) {
+        if (filename.endsWith(Constants.FastqExtension)) {
             file = readFastqFile(filename)
-        } else if (filename.endsWith(Constants.FASTA_EXT)) {
+        } else if (filename.endsWith(Constants.FastaExtension)) {
             file = readFastaFile(filename)
         } else {
             logger.logCriticalError(s"Not supported type of file: $filename!")
@@ -44,8 +44,8 @@ object FileUtils {
             if (lines.isEmpty) return List()
 
             val name = lines.next.drop(1)
-            val (content, rest) = lines.span(_(0) != StringUtils.toChar(Constants.HEADER_TAG))
-            val (read, score) = content.span(_(0) != StringUtils.toChar(Constants.SEQID_TAG))
+            val (content, rest) = lines.span(_(0) != StringUtils.toChar(Constants.HeaderTag))
+            val (read, score) = content.span(_(0) != StringUtils.toChar(Constants.SequenceIdTag))
             val seq = new Sequence(name, read.mkString, score.mkString)
             
             (seq)::parse(rest)
@@ -63,8 +63,8 @@ object FileUtils {
             if (lines.isEmpty) return List()
 
             val name = lines.next.drop(1)
-            val (content, rest) = lines.span(_(0) != StringUtils.toChar(Constants.HEADER_TAG))
-            val (read, score) = content.span(_(0) != StringUtils.toChar(Constants.SEQID_TAG))
+            val (content, rest) = lines.span(_(0) != StringUtils.toChar(Constants.HeaderTag))
+            val (read, score) = content.span(_(0) != StringUtils.toChar(Constants.SequenceIdTag))
             val seq = new Sequence(name, read.mkString, score.mkString)
             
             (seq)::parse(rest)
@@ -84,7 +84,7 @@ object FileUtils {
 
         var lines = Source.fromFile(filename).getLines().size
         for (line <- Source.fromFile(filename).getLines()) {
-            if (line.startsWith(Constants.HEADER_TAG) | line.startsWith(">")) headers = headers + 1
+            if (line.startsWith(Constants.HeaderTag) | line.startsWith(">")) headers = headers + 1
             else if (line.startsWith("+")) scores = scores + 1          
         }
 
@@ -103,7 +103,7 @@ object FileUtils {
     /**  Print statistics for given file
      */
     def statistics(filename: String): Unit = {
-        if (!filename.endsWith(Constants.FASTQ_EXT)) {
+        if (!filename.endsWith(Constants.FastqExtension)) {
             logger.logWarn(s"File $filename is not FASTQ file!")
             return
         }
@@ -124,7 +124,7 @@ object FileUtils {
      *      g - y-coordinate of the cluster within the lane
      */
 	def parseReadHeader(header: String = "", verbose: Boolean = logger.isVerbose()): Unit = {
-		if (header == Constants.EMPTY_STRING || !(header.startsWith(Constants.HEADER_TAG))) {
+		if (header == Constants.EmptyString || !(header.startsWith(Constants.HeaderTag))) {
 			logger.logCriticalError("No valid header given.")
 			return
 		}
@@ -180,6 +180,6 @@ object FileUtils {
      *   Return array of filtered reads
      */
     def filterAmbiguousReads(reads: Array[String]): Array[String] = {
-        return reads.filterNot(read => read.contains(Constants.AMBIGUOUS))
+        return reads.filterNot(read => read.contains(Constants.Ambiguous))
     }
 }

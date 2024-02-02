@@ -37,7 +37,7 @@ object LocalAlignmentExample {
         for (sequence <- sequences) {
             this.getAllAlignments(sequence, sequences)
         }
-        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
         
         println("Time spent in sequential LocalAlignmentExample: " + duration + " ms")
     }
@@ -48,7 +48,7 @@ object LocalAlignmentExample {
 
         val start: Long = System.nanoTime()
         sequencesPar.map(sequence => this.getAllAlignments(sequence, sequences))
-        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         println("Time spent in parallel LocalAlignmentExample: " + duration + " ms")
     }

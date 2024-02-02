@@ -69,11 +69,11 @@ object KmeansCluster {
     def findCluster(element: String): Integer = {
         if (clusters.isEmpty) {
             logger.logCriticalError("No clusters exist.")
-            return Constants.NOT_FOUND_I
+            return Constants.NotFoundInteger
         }
 
         val results = this.clusters.get.filter(col("id") === element)
-        if (results.count() == 0) return Constants.NOT_FOUND_I
+        if (results.count() == 0) return Constants.NotFoundInteger
         else {
             return results.first().getAs[Int]("prediction")
         }
@@ -84,10 +84,10 @@ object KmeansCluster {
      *  Return cluster index to which element is added
      */
     def joinToCluster(element: String, 
-                    clusterType: Int = Constants.PREFIX_BASED): Integer = {
+                    clusterType: Int = Constants.PrefixBased): Integer = {
         if (this.model == None || this.assembler == None) {
             logger.logCriticalError("Model do not exists yet.")
-            return Constants.NOT_FOUND_I
+            return Constants.NotFoundInteger
         }
 
         // val features
@@ -101,7 +101,7 @@ object KmeansCluster {
     /*  Display created clusters in readible format
      *  Could be filtered by cluster index
      */
-    def showClusters(rows: Integer = Constants.NUMBER_OF_ROWS,
+    def showClusters(rows: Integer = Constants.NumberOfRows,
                     filter: Option[Integer] = None): Unit = {
         var data: Option[DataFrame] = None
         if (filter.isDefined) {
@@ -123,14 +123,14 @@ object KmeansCluster {
      */
     private def _unpackData(elements: Array[String]): Boolean = {
         var clusters = ClusterUtils.makeBaseClusters(elements)
-        if (clusters.isEmpty) return Constants.FAILURE
+        if (clusters.isEmpty) return Constants.Failure
 
         this.aCluster = clusters(0)
         this.cCluster = clusters(1)
         this.gCluster = clusters(2)
         this.tCluster = clusters(3)
 
-        return Constants.SUCCESS
+        return Constants.Success
     }
 
 
@@ -138,8 +138,8 @@ object KmeansCluster {
      *  Number of clusters can be specified using method argument, default 4
      */
     def createClusters(elements: Array[String],
-                    clusters: Int = Constants.NUMBER_OF_CLUSTERS,
-                    clusterType: Int = Constants.PREFIX_BASED): Unit = {
+                    clusters: Int = Constants.NumberOfClusters,
+                    clusterType: Int = Constants.PrefixBased): Unit = {
         val isDataPrepared: Boolean = this._unpackData(elements)
         if (!isDataPrepared) {
             logger.logCriticalError("No data available to create clusters.")

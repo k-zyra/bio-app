@@ -27,8 +27,8 @@ object AlignSearcher {
     /* Prepare score matrix 
      * Read XML file and prepare score matrix
     */
-     def prepareSubstitutionMatrix(filename: String = Constants.EXAMPLE_SUBSTITUTION_MATRIX): Array[Array[Int]] = {
-        val filePath: Path = Paths.get(Constants.DATA_DIR + "\\" + filename)
+     def prepareSubstitutionMatrix(filename: String = Constants.ExampleSubstitutionMatrix): Array[Array[Int]] = {
+        val filePath: Path = Paths.get(Constants.DataDir + "\\" + filename)
         if (Files.notExists(filePath)) {
             logger.logError(f"File ${filePath} does not exist. Cannot prepare substitution matrix.")
         } 
@@ -43,8 +43,8 @@ object AlignSearcher {
     /*  Display score matrix in readible format
     */
     def displaySubstitutionMatrix(matrix: Array[Array[Int]], 
-                        rows: Array[String] = Constants.EMPTY_STRING_ARRAY,
-                        columns: Array[String] = Constants.EMPTY_STRING_ARRAY): Unit = {
+                        rows: Array[String] = Constants.EmptyStringArray,
+                        columns: Array[String] = Constants.EmptyStringArray): Unit = {
         val rows: Integer = matrix.size
         val columns: Integer = matrix(0).size
 
@@ -60,8 +60,8 @@ object AlignSearcher {
     /*  Display alignment matrix in readible format
     */
     def displayAlignmentMatrix(matrix: Array[Array[Integer]],
-                            rows: Array[String] = Constants.EMPTY_STRING_ARRAY,
-                            columns: Array[String] = Constants.EMPTY_STRING_ARRAY): Unit = {
+                            rows: Array[String] = Constants.EmptyStringArray,
+                            columns: Array[String] = Constants.EmptyStringArray): Unit = {
         val rows: Integer = matrix.size
         val columns: Integer = matrix(0).size
 
@@ -120,9 +120,9 @@ object AlignSearcher {
     */
     def smithWatermanAlignment(sequences: Array[String],
                             substitutionMatrix: Array[Array[Int]],
-                            penalty: Integer = Constants.DEFAULT_GAP_PENALTY,
+                            penalty: Integer = Constants.DefaultGapPenalty,
                             verbose: Boolean = logger.isVerbose()): Array[String] = {
-        var matches = Constants.EMPTY_STRING_ARRAY
+        var matches = Constants.EmptyStringArray
         var numberOfSequences = sequences.length 
         if (numberOfSequences != 2) {
             logger.logWarn(f"Incorrect number of sequences. Actual:$numberOfSequences, expected: 2")
@@ -135,9 +135,9 @@ object AlignSearcher {
         val M: Integer = firstSequence.length
         val N: Integer = secondSequence.length
 
-        val moves: Array[Array[Integer]] = Array.ofDim[Integer]((M + Constants.ARRAY_PADDING) * (N + Constants.ARRAY_PADDING), 3)
-        val temp  = mutable.ArrayBuffer.fill((M + Constants.ARRAY_PADDING) * (N + Constants.ARRAY_PADDING))(0)
-        val helper: Array[Array[Integer]] = Array.ofDim[Integer](M + Constants.ARRAY_PADDING, N + Constants.ARRAY_PADDING)
+        val moves: Array[Array[Integer]] = Array.ofDim[Integer]((M + Constants.ArrayPadding) * (N + Constants.ArrayPadding), 3)
+        val temp  = mutable.ArrayBuffer.fill((M + Constants.ArrayPadding) * (N + Constants.ArrayPadding))(0)
+        val helper: Array[Array[Integer]] = Array.ofDim[Integer](M + Constants.ArrayPadding, N + Constants.ArrayPadding)
 
         for (m <- 0 to M) helper(m)(0) = 0
         for (n <- 0 to N) helper(0)(n) = 0
@@ -151,19 +151,19 @@ object AlignSearcher {
 
                 var alignValue: Integer = prev + substitutionMatrix(firstSequence(m-1))(secondSequence(n-1))
                 if (alignValue >= 0) {
-                    alignmentsMap += (Constants.ALIGN -> alignValue)
+                    alignmentsMap += (Constants.Align -> alignValue)
                 }
 
                 var upper: Integer =  helper(m-1)(n)
                 var horizontalGap: Integer = upper + penalty
                 if (horizontalGap >= 0) {
-                    alignmentsMap += (Constants.HORIZONTAL_GAP -> horizontalGap)
+                    alignmentsMap += (Constants.HorizontalGap -> horizontalGap)
                 }
 
                 var left: Integer = helper(m)(n-1)
                 var verticalGap: Integer = left + penalty
                 if (verticalGap >= 0) {
-                    alignmentsMap += (Constants.VERTiCAL_GAP -> verticalGap)
+                    alignmentsMap += (Constants.VerticalGap -> verticalGap)
                 }
 
                 if (alignmentsMap.nonEmpty) {
@@ -193,7 +193,7 @@ object AlignSearcher {
 
         val result = arrayOfPairsBuffer.result().toArray
 
-        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
         if (verbose) {
             logger.logInfo(f"Matches found: ${result.size}")
             logger.logInfo(f"Alignments using Smith-Waterman algorithm collected in $duration ms")
@@ -207,11 +207,11 @@ object AlignSearcher {
     */
     def needlemanWunschAlignment(sequences: Array[String],
                             substitutionMatrix: Array[Array[Int]],
-                            reward: Integer = Constants.DEFAULT_MATCH_REWARD,
-                            gapPenalty: Integer = Constants.DEFAULT_GAP_PENALTY, 
-                            mismatchPenalty: Integer = Constants.DEFAULT_MISMATCH_PENALTY,  
+                            reward: Integer = Constants.DefaultMatchReward,
+                            gapPenalty: Integer = Constants.DefaultGapPenalty, 
+                            mismatchPenalty: Integer = Constants.DefaultMismatchPenalty,  
                             verbose: Boolean = logger.isVerbose()): Array[String] = {
-        var matches = Constants.EMPTY_STRING_ARRAY
+        var matches = Constants.EmptyStringArray
         var numberOfSequences = sequences.length 
         if (numberOfSequences != 2) {
             logger.logWarn(f"Incorrect number of sequences. Actual:$numberOfSequences, expected: 2")
@@ -224,9 +224,9 @@ object AlignSearcher {
         val M: Integer = firstSequence.length
         val N: Integer = secondSequence.length
 
-        val moves: Array[Array[Integer]] = Array.ofDim[Integer]((M + Constants.ARRAY_PADDING) * (N + Constants.ARRAY_PADDING), 3)
-        val temp  = mutable.ArrayBuffer.fill((M + Constants.ARRAY_PADDING) * (N + Constants.ARRAY_PADDING))(0)
-        val helper: Array[Array[Integer]] = Array.ofDim[Integer](M + Constants.ARRAY_PADDING, N + Constants.ARRAY_PADDING)
+        val moves: Array[Array[Integer]] = Array.ofDim[Integer]((M + Constants.ArrayPadding) * (N + Constants.ArrayPadding), 3)
+        val temp  = mutable.ArrayBuffer.fill((M + Constants.ArrayPadding) * (N + Constants.ArrayPadding))(0)
+        val helper: Array[Array[Integer]] = Array.ofDim[Integer](M + Constants.ArrayPadding, N + Constants.ArrayPadding)
 
         for (m <- 0 to M) helper(m)(0) = m * gapPenalty
         for (n <- 0 to N) helper(0)(n) = n * gapPenalty
@@ -239,15 +239,15 @@ object AlignSearcher {
                 var prev: Integer = helper(m-1)(n-1)
 
                 var alignValue: Integer = prev + substitutionMatrix(firstSequence(m-1))(secondSequence(n-1))
-                alignmentsMap += (Constants.ALIGN -> alignValue)
+                alignmentsMap += (Constants.Align -> alignValue)
 
                 var upper: Integer =  helper(m-1)(n)
                 var horizontalGap: Integer = upper + gapPenalty
-                alignmentsMap += (Constants.HORIZONTAL_GAP -> horizontalGap)
+                alignmentsMap += (Constants.HorizontalGap -> horizontalGap)
 
                 var left: Integer = helper(m)(n-1)
                 var verticalGap: Integer = left + gapPenalty
-                alignmentsMap += (Constants.VERTiCAL_GAP -> verticalGap)
+                alignmentsMap += (Constants.VerticalGap -> verticalGap)
 
                 if (alignmentsMap.nonEmpty) {
                     val optimalValue = alignmentsMap.values.max
@@ -276,7 +276,7 @@ object AlignSearcher {
 
         val result = arrayOfPairsBuffer.result().toArray
 
-        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
         if (verbose) {
             logger.logInfo(f"Matches found: ${result.size}")
             logger.logInfo(f"Alignments using Needleman-Wunsch algorithm collected in $duration ms")
@@ -286,9 +286,9 @@ object AlignSearcher {
     }
 
 
-    /*  Find global alignment using Needleman-Wunsch algorithm with affine gap penalty
+    /*  Find global alignment using Needleman-Wunsch algorithm
     */
-    def affineNeedlemanWunschSearch(sequences: Array[String]): Unit = {
-        
+    def evolutionaryAlgorithmAlignment(): Unit = {
+
     }
 }

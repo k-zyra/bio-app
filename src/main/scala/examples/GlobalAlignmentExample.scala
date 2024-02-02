@@ -35,7 +35,7 @@ object GlobalAlignmentExample {
         for (sequence <- sequences) {
             this.getAllAlignments(sequence, sequences)
         }
-        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
         
         println("Time spent in sequential GlobalAlignmentExample: " + duration + " ms")
     }
@@ -46,7 +46,7 @@ object GlobalAlignmentExample {
 
         val start: Long = System.nanoTime()
         sequencesPar.map(sequence => this.getAllAlignments(sequence, sequences))
-        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         println("Time spent in parallel GlobalAlignmentExample: " + duration + " ms")
     }

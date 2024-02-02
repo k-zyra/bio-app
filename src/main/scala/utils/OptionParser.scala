@@ -7,7 +7,7 @@ import scopt.OParser
 
 object Examples extends Enumeration {
     type Examples = Value
-    val NONE, KMERS, CLUSTERS = Value
+    val NONE, KMERS, GLOBAL, LOCAL, CLUSTERS = Value
 }
 
 
@@ -31,8 +31,8 @@ class Arguments {
 
 
 case class Config(
-    input: String = Constants.EMPTY_STRING,
-    output: String = Constants.EMPTY_STRING,
+    input: String = Constants.EmptyString,
+    output: String = Constants.EmptyString,
 
     kmerLen: Int = 0,
     motifLen: Int = 0,
@@ -116,7 +116,7 @@ object OptionParser {
     private def checkStringArgument(arg: String): Boolean = {
         var result = false
 
-        if (arg.endsWith(Constants.FASTA_EXT) || arg.endsWith(Constants.FASTQ_EXT)) {
+        if (arg.endsWith(Constants.FastaExtension) || arg.endsWith(Constants.FastqExtension)) {
             result = true
         }
 

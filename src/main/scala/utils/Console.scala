@@ -5,10 +5,10 @@ import scala.io.StdIn
 
 
 object Console {
-    private var PROMPT: String = Constants.DEFAULT_PROMPT
+    private var PROMPT: String = Constants.DefaultPrompt
 
     def setDefaultPrompt(): Unit = {
-        this.PROMPT = Constants.DEFAULT_PROMPT
+        this.PROMPT = Constants.DefaultPrompt
     }
 
     def setCommandPrompt(prompt: String): Unit = {

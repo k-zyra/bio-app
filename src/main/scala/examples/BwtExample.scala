@@ -17,7 +17,7 @@ object BwtExample {
 		for (sequence <- sequences) {
 			StringUtils.burrowsWheelerTransform(sequence, verbose = false)
 		}
-		val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+		val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
 		println(f"Time spent in sequential BwtExample: ${duration} ms")
     }
@@ -28,7 +28,7 @@ object BwtExample {
 
 		val start: Long = System.nanoTime()
 		val bwtsPar = sequenesPar.map(sequence => StringUtils.burrowsWheelerTransform(sequence, verbose = false))
-		val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+		val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
 		println(f"Time spent in parallel BwtExample: ${duration} ms")
     }

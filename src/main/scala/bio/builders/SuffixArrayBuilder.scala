@@ -27,7 +27,7 @@ object SuffixArrayBuilder {
      *   Return list of tuples where first element is the suffix id and second is a suffix
      */
     def generateSuffixesInParallel(str: String,
-                                eof: String = Constants.DEFAULT_SENTINEL,
+                                eof: String = Constants.DefaultSentinel,
                                 verbose: Boolean = logger.isVerbose()): ParSeq[ParSeq[Char]] = {
         val inputString: String = str + eof
         val parallelString = inputString.par
@@ -37,7 +37,7 @@ object SuffixArrayBuilder {
         val suffixes = parallelString.zipWithIndex.map{ case (_, i) => parallelString.drop(i) }
         val returnVal = suffixes.toList
 
-        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
         if (verbose) logger.logInfo(suffixes.length + " suffixes generated in parallel in " + duration + " ms")
 
         return suffixes.toSeq
@@ -48,17 +48,17 @@ object SuffixArrayBuilder {
      *   Returns list of tuples where first element is the suffix id and second is a suffix
      */
     def generateSuffixes(str: String,
-                        eof: String = Constants.DEFAULT_SENTINEL,
+                        eof: String = Constants.DefaultSentinel,
                         sorted: Boolean = false,
                         verbose: Boolean = logger.isVerbose()): Seq[(Int, String)] = {
         var word: String = str + eof
         var suffixes = Array[(Int, String)]()
 
         val start: Long = System.nanoTime()
-        for(n : Int <- 0 to word.length-Constants.ARRAY_PADDING) {
+        for(n : Int <- 0 to word.length-Constants.ArrayPadding) {
             suffixes :+= (n, word.drop(n))
         }
-        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) logger.logInfo(suffixes.length + " suffixes generated sequentially in " + duration + " ms")
         if (sorted) return suffixes.sortBy(_._2) 
@@ -71,7 +71,7 @@ object SuffixArrayBuilder {
      *   Can be unsorted.
      */
     def createFullSuffixArray(str: String,
-                        eof: String = Constants.DEFAULT_SENTINEL,
+                        eof: String = Constants.DefaultSentinel,
                         sorted: Boolean = false,
                         verbose: Boolean = logger.isVerbose()): Dataset[Row] = {
 
@@ -86,7 +86,7 @@ object SuffixArrayBuilder {
                         .withColumnRenamed("_1", "ID")
                         .withColumnRenamed("_2", "Suffix")
         
-        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
         if (verbose) logger.logInfo("Full suffix array generated in " + duration + " ms")
         return suffixDf
     }
@@ -97,7 +97,7 @@ object SuffixArrayBuilder {
      *   Sorted by default.
      */
     def createCompressedSuffixArray(str: String,
-                                eof: String = Constants.DEFAULT_SENTINEL, 
+                                eof: String = Constants.DefaultSentinel, 
                                 verbose: Boolean = logger.isVerbose()): Seq[Int] = {
 
         val session = SparkController.getSession()
@@ -106,7 +106,7 @@ object SuffixArrayBuilder {
         var dataset = this.generateSuffixes(str, sorted=true)
         val compressedSa: Seq[Int] = dataset.map {case (firstElement, _) => firstElement}
 
-        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
         if (verbose) logger.logInfo("Compressed suffix array generated in " + duration + " ms")
         return compressedSa
     }
@@ -118,7 +118,7 @@ object SuffixArrayBuilder {
      */
     def createInverseSuffixArray(sa: Seq[Int]): Seq[(Int, Int)] = {
         var inverseSa = Seq[(Int, Int)]()
-        for (id <- 0 to sa.length-Constants.ARRAY_PADDING) {
+        for (id <- 0 to sa.length-Constants.ArrayPadding) {
             inverseSa :+= (sa(id), id)
         }
         
@@ -169,7 +169,7 @@ object SuffixArrayBuilder {
         var omitted: Float = 0
         var factor: Float = 10
 
-        for (n <- 1 to sa.length-Constants.ARRAY_PADDING) {
+        for (n <- 1 to sa.length-Constants.ArrayPadding) {
             if ((sa(n-1)-sa(n)) == 1) {
                 println("squashing")
                 omitted += 1

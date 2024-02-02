@@ -3,8 +3,8 @@ package bio.ukkonen
 import utils.Constants
 
 
-class UkkonenEdge(var start: Integer = Constants.EDGE_START, var end: Integer = Constants.EDGE_END, 
-                  var dest: Integer = Constants.NODE_INDEX) {
+class UkkonenEdge(var start: Integer = Constants.EdgeStart, var end: Integer = Constants.EdgeEnd, 
+                  var dest: Integer = Constants.NodeIndex) {
     var startIndex: Integer = start
     var endIndex: Integer = end
     var destination: Integer = dest

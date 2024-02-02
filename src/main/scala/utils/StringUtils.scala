@@ -44,9 +44,9 @@ object StringUtils {
      *   Can be used only for number of repeats estimation. 
      */
     def simplify(seq: String): String = {
-        var simplified: StringBuilder = new StringBuilder(Constants.EMPTY_STRING)
+        var simplified: StringBuilder = new StringBuilder(Constants.EmptyString)
     
-        for (n <- 1 to seq.length() - Constants.ARRAY_PADDING) {
+        for (n <- 1 to seq.length() - Constants.ArrayPadding) {
             if (seq(n-1) != seq(n)) simplified.append(seq(n-1))
         }
         simplified.append(seq.takeRight(1))
@@ -56,7 +56,7 @@ object StringUtils {
 
 	/**  Check if given string has suffix format (ends with a sentinel)  
      */
-    def hasSuffixFormat(str: String, sentinel: String = Constants.DEFAULT_SENTINEL): Boolean = {
+    def hasSuffixFormat(str: String, sentinel: String = Constants.DefaultSentinel): Boolean = {
         if (str.endsWith(sentinel)) return true
         else return false
     }
@@ -67,14 +67,14 @@ object StringUtils {
      */
     def areOverlapping(firstStr: String, 
                        secondStr: String, 
-                       overlapLength: Integer = Constants.PARAMETER_UNSPECIFIED): Boolean = {
+                       overlapLength: Integer = Constants.ParameterUnspecified): Boolean = {
         if (firstStr.length() != secondStr.length()) {
             logger.logWarn("Given strings are different length. Cannot check overlap.")
             return false
         }
 
         var overlap: Integer = overlapLength
-        if (overlap == Constants.PARAMETER_UNSPECIFIED) overlap = firstStr.length()-1
+        if (overlap == Constants.ParameterUnspecified) overlap = firstStr.length()-1
 
         if (firstStr.takeRight(overlapLength) == secondStr.take(overlapLength)) {
             return true
@@ -93,7 +93,7 @@ object StringUtils {
                     secondStr: String,
                     overlapLength: Int): Int = {
         var len: Int = firstStr.length() - 1
-        var score: Int = Constants.NOT_FOUND_I
+        var score: Int = Constants.NotFoundInteger
         
         for (offset <- 0 to overlapLength) {
             println("offset: " + offset)
@@ -112,7 +112,7 @@ object StringUtils {
      *   Return -1 if match not found 
      */
     def _estimatedMatch(firstStr: String, secondStr: String): Float = {
-        var score: Float = Constants.NOT_FOUND_F
+        var score: Float = Constants.NotFoundFloat
 
         if (firstStr.length() == secondStr.length()) {
             score = (Hamming.distance(firstStr, secondStr).toFloat/firstStr.length().toFloat)
@@ -127,13 +127,13 @@ object StringUtils {
      */
     def getBestOverlap(firstStr: String, 
                     secondStr: String, 
-                    overlapLength: Int = Constants.PARAMETER_UNSPECIFIED,
-                    forceExact: Boolean = Constants.FORCE,
+                    overlapLength: Int = Constants.ParameterUnspecified,
+                    forceExact: Boolean = Constants.Force,
                     verbose: Boolean = logger.isVerbose()): (String, Int) = {
-        var bestOverlap: (String, Int) = (Constants.EMPTY_STRING, Constants.NOT_FOUND_I)
+        var bestOverlap: (String, Int) = (Constants.EmptyString, Constants.NotFoundInteger)
         var overlapLen: Int = overlapLength
 
-        if (overlapLen == Constants.PARAMETER_UNSPECIFIED) {
+        if (overlapLen == Constants.ParameterUnspecified) {
             overlapLen = firstStr.length - 1
             if (verbose) logger.logInfo(s"Parameter [overlapLength] not specified. Value set to $overlapLen")
         } 
@@ -157,7 +157,7 @@ object StringUtils {
             //     }
             // }
         } else {
-            var overlapFound: Float = Constants.NOT_FOUND_F
+            var overlapFound: Float = Constants.NotFoundFloat
             this._estimatedMatch(firstStr, secondStr)
         }
 
@@ -169,10 +169,10 @@ object StringUtils {
      */
     def findOverlapCandidates(str: String,
                     kmers: Seq[String],
-                    overlapLength: Int = Constants.PARAMETER_UNSPECIFIED,
+                    overlapLength: Int = Constants.ParameterUnspecified,
                     verbose: Boolean = logger.isVerbose()): Array[String] = {
         var overlapLen: Int = overlapLength
-        if (overlapLen == Constants.PARAMETER_UNSPECIFIED || overlapLen >= str.length()) {
+        if (overlapLen == Constants.ParameterUnspecified || overlapLen >= str.length()) {
             overlapLen = str.length() - 1
         }
 
@@ -210,10 +210,10 @@ object StringUtils {
      */
     def getCommonPrefix(suffix: String, sa: Seq[(Int, String)]): Seq[(Int, String)] = {
         var suffixId: Integer = sa.indexWhere(suf => suf._2 == suffix)        
-        if (suffixId == sa.length - Constants.ARRAY_PADDING) return Seq()
+        if (suffixId == sa.length - Constants.ArrayPadding) return Seq()
 
-        var prefix: String = this.getLongestCommonPrefix(sa(suffixId)._2, sa(suffixId + Constants.ARRAY_PADDING)._2) 
-        if (prefix == Constants.EMPTY_STRING) return Seq()
+        var prefix: String = this.getLongestCommonPrefix(sa(suffixId)._2, sa(suffixId + Constants.ArrayPadding)._2) 
+        if (prefix == Constants.EmptyString) return Seq()
 
         var suffixes = sa.filter(x => x._2.startsWith(prefix))
         return suffixes
@@ -234,10 +234,10 @@ object StringUtils {
      */
     def getAllWithCommonPrefix(suffix: String, sa: Seq[(Int, String)]): Seq[(Int, String)] = {
         var id: Integer = sa.indexWhere(suf => suf._2 == suffix)        
-        if (id == sa.length - Constants.ARRAY_PADDING) return Seq()
+        if (id == sa.length - Constants.ArrayPadding) return Seq()
 
-        var prefix: String = this.getLongestCommonPrefix(sa(id)._2, sa(id + Constants.ARRAY_PADDING)._2) 
-        if (prefix == Constants.EMPTY_STRING) return Seq()
+        var prefix: String = this.getLongestCommonPrefix(sa(id)._2, sa(id + Constants.ArrayPadding)._2) 
+        if (prefix == Constants.EmptyString) return Seq()
 
         var suffixes = sa.filter(x => x._2.startsWith(prefix))
         return suffixes
@@ -249,10 +249,10 @@ object StringUtils {
      */ 
     def getAllWithCommonPrefix(suffixId: Integer, sa: Seq[(Int, String)]): Seq[(Int, String)] = {
         var id: Integer = sa.indexWhere(suf => suf._1 == suffixId)
-        if (id == sa.length - Constants.ARRAY_PADDING) return Seq()
+        if (id == sa.length - Constants.ArrayPadding) return Seq()
 
-        var prefix: String = this.getLongestCommonPrefix(sa(id)._2, sa(id + Constants.ARRAY_PADDING)._2) 
-        if (prefix == Constants.EMPTY_STRING) return Seq()
+        var prefix: String = this.getLongestCommonPrefix(sa(id)._2, sa(id + Constants.ArrayPadding)._2) 
+        if (prefix == Constants.EmptyString) return Seq()
 
         var suffixes = sa.filter(x => x._2.startsWith(prefix))
         return suffixes
@@ -284,14 +284,14 @@ object StringUtils {
      */
     def getRepeatedSubstring(suffix: String, sa: Seq[(Int, String)]): String = {
         var id: Integer = sa.indexWhere(suf => suf._2 == suffix)        
-        if (id == sa.length - Constants.ARRAY_PADDING) return Constants.EMPTY_STRING
+        if (id == sa.length - Constants.ArrayPadding) return Constants.EmptyString
 
-        var prefix: String = this.getLongestCommonPrefix(sa(id)._2, sa(id + Constants.ARRAY_PADDING)._2) 
-        if (prefix == Constants.EMPTY_STRING) return Constants.EMPTY_STRING
+        var prefix: String = this.getLongestCommonPrefix(sa(id)._2, sa(id + Constants.ArrayPadding)._2) 
+        if (prefix == Constants.EmptyString) return Constants.EmptyString
     
         var repeats: Integer = sa.count(x => x._2.startsWith(prefix))
         if (repeats > 1) return prefix
-        else return Constants.EMPTY_STRING 
+        else return Constants.EmptyString 
     }
 
 
@@ -300,14 +300,14 @@ object StringUtils {
      */
     def getRepeatedSubstring(suffixId: Integer, sa: Seq[(Int, String)]): String = {
         var id: Integer = sa.indexWhere(suf => suf._1 == suffixId)
-        if (id == sa.length - Constants.ARRAY_PADDING) return Constants.EMPTY_STRING
+        if (id == sa.length - Constants.ArrayPadding) return Constants.EmptyString
 
-        var prefix: String = this.getLongestCommonPrefix(sa(id)._2, sa(id + Constants.ARRAY_PADDING)._2) 
-        if (prefix == Constants.EMPTY_STRING) return Constants.EMPTY_STRING
+        var prefix: String = this.getLongestCommonPrefix(sa(id)._2, sa(id + Constants.ArrayPadding)._2) 
+        if (prefix == Constants.EmptyString) return Constants.EmptyString
 
         var repeats: Integer = sa.count(x => x._2.startsWith(prefix))
         if (repeats > 1) return prefix
-        else return Constants.EMPTY_STRING 
+        else return Constants.EmptyString 
     }
 
 
@@ -319,10 +319,10 @@ object StringUtils {
 
         val start: Long = System.nanoTime()
 		sa.foreach(suffix => tandems :+= StringUtils.getRepeatedSubstring(suffix._2, sa))
-        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) logger.logInfo(f"Tandem repeats found in $duration ms")
-		return tandems.distinct.filter(element => element != Constants.EMPTY_STRING)
+		return tandems.distinct.filter(element => element != Constants.EmptyString)
     }
 
 
@@ -331,7 +331,7 @@ object StringUtils {
     *   Result could by filtered to show tandems which occurs more than threshold times.
      */
     def countTandemRepeats(sa: Seq[(Int, String)],
-                        threshold: Integer = Constants.MIN_THRESHOLD, 
+                        threshold: Integer = Constants.MinThreshold, 
                         verbose: Boolean = logger.isVerbose()): Array[(String, Int)] = {
         val context = SparkController.getContext()
         var tandems = Array[String]()
@@ -341,11 +341,11 @@ object StringUtils {
 
         val rddTandems = context.parallelize(tandems).map(tandem => (tandem, 1))
         val countedTandems = rddTandems.reduceByKey(_ + _) 
-        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) logger.logInfo(f"Tandem repeats found in $duration ms")
 		return countedTandems.filter(tandem => 
-                tandem._1 != Constants.EMPTY_STRING && 
+                tandem._1 != Constants.EmptyString && 
                 tandem._2 > threshold)
             .collect()
     }
@@ -356,7 +356,7 @@ object StringUtils {
      */
     def findSuffix(arr: Array[String], prefix: String): Int = {
         var low: Integer = 0;
-        var high: Integer = arr.length - Constants.ARRAY_PADDING;
+        var high: Integer = arr.length - Constants.ArrayPadding;
 
         while (low <= high) {
             var mid: Integer = (low + high) / 2;
@@ -371,7 +371,7 @@ object StringUtils {
             }
         }
 
-        return Constants.NOT_FOUND_INDEX;
+        return Constants.IndexNotFound;
     }
 
 
@@ -379,7 +379,7 @@ object StringUtils {
      *   Create an array with strings received from cyclic rotation.
      */
 	def cyclicRotate(str: String, 
-                    sentinel: String = Constants.DEFAULT_SENTINEL,
+                    sentinel: String = Constants.DefaultSentinel,
                     verbose: Boolean = logger.isVerbose()): Array[String] = {
         val strBuilder = new StringBuilder(str)                
         if (!hasSuffixFormat(str, sentinel)) {
@@ -392,11 +392,11 @@ object StringUtils {
 		var strLength = strToRotate.length()
         var rotations = Array[String]()
 		
-        for (n <- 0 to strLength-Constants.ARRAY_PADDING) {
+        for (n <- 0 to strLength-Constants.ArrayPadding) {
 			rotations :+= (strToRotate.slice(strLength-n, strLength) + strToRotate.slice(0, strLength-n)) 
 		}
 
-        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
         if (verbose) logger.logInfo(f"Performed cyclic rotate for $strLength suffixes in $duration ms")
 		return rotations
 	}
@@ -407,7 +407,7 @@ object StringUtils {
      */
 	def burrowsWheelerTransform(str: String, verbose: Boolean = logger.isVerbose()): String = {
         var strToTransform: String = StringUtils.standardize(str)
-		var transform: StringBuilder = new StringBuilder(Constants.EMPTY_STRING)
+		var transform: StringBuilder = new StringBuilder(Constants.EmptyString)
 		var rotations: Array[String] = this.cyclicRotate(strToTransform, verbose = verbose)        
         
         rotations.sorted.foreach(substr => transform ++= substr.takeRight(1))
@@ -444,7 +444,7 @@ object StringUtils {
      *   Returns the original sequence from given transform
      */
     def inverseBurrowsWheeler(transform: String, 
-                            sentinel: String = Constants.DEFAULT_SENTINEL,
+                            sentinel: String = Constants.DefaultSentinel,
                             verbose: Boolean = logger.isVerbose()): String = {
         var strToInvert: String = this.standardize(transform)
         var inversedBwt = new StringBuilder
@@ -463,16 +463,16 @@ object StringUtils {
         while (char != '$') {
             char match {
                 case 'A' => {
-                    nextId = Constants.STRING_OFFSET + lastColumn(nextId)
+                    nextId = Constants.StringOffset + lastColumn(nextId)
                 }
                 case 'C' => {
-                    nextId = Constants.STRING_OFFSET + numberOfA + lastColumn(nextId)
+                    nextId = Constants.StringOffset + numberOfA + lastColumn(nextId)
                 }
                 case 'G' => {
-                    nextId = Constants.STRING_OFFSET + numberOfA + numberOfC + lastColumn(nextId)
+                    nextId = Constants.StringOffset + numberOfA + numberOfC + lastColumn(nextId)
                 }
                 case 'T' => {
-                    nextId = Constants.STRING_OFFSET + numberOfA + numberOfC + numberOfG + lastColumn(nextId)
+                    nextId = Constants.StringOffset + numberOfA + numberOfC + numberOfG + lastColumn(nextId)
                 }
             }
 
@@ -480,7 +480,7 @@ object StringUtils {
             char = strToInvert.charAt(nextId)
         }
         inversedBwt.append(sentinel)
-        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) logger.logInfo(f"Time spent in <inverseBurrowsWheeler>: $duration ms")
         return inversedBwt.result()

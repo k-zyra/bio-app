@@ -10,33 +10,33 @@ import utils.Logger
 class UkkonenController {
     private var logger = new Logger("UkkonenController")
 
-    private var activeEdge: Integer = Constants.DUMMY_EDGE
-    private var activeNode: UkkonenNode = Constants.DUMMY_NODE
-    private var activeLength: Integer = Constants.ZERO_LENGTH
+    private var activeEdge: Integer = Constants.DummyEdge
+    private var activeNode: UkkonenNode = Constants.DummyNode
+    private var activeLength: Integer = Constants.ZeroLength
 
-    private var remainder: Integer = Constants.ZERO_REMAINING
-    private var stepCounter: Integer = Constants.INITIAL_STEP
-    private var currentString: String = Constants.EMPTY_STRING
+    private var remainder: Integer = Constants.ZeroRemaining
+    private var stepCounter: Integer = Constants.InitialStep
+    private var currentString: String = Constants.EmptyString
 
 
     /**  Reset controller
      *   Do this when there is no link from inserted node
      */
     private def resetController(): Unit = {
-        this.activeEdge = Constants.DUMMY_EDGE
-        this.activeLength = Constants.ZERO_LENGTH
-        this.activeNode = Constants.DUMMY_NODE
+        this.activeEdge = Constants.DummyEdge
+        this.activeLength = Constants.ZeroLength
+        this.activeNode = Constants.DummyNode
 
-        this.remainder = Constants.ZERO_REMAINING
-        this.stepCounter = Constants.INITIAL_STEP
-        this.currentString = Constants.EMPTY_STRING
+        this.remainder = Constants.ZeroRemaining
+        this.stepCounter = Constants.InitialStep
+        this.currentString = Constants.EmptyString
     }
 
      
     /**  Reset active point
      *   Do this when there is no link from inserted node
      */
-    private def resetActivePoint(root: UkkonenNode, edge: Integer = Constants.DUMMY_EDGE): Unit = {
+    private def resetActivePoint(root: UkkonenNode, edge: Integer = Constants.DummyEdge): Unit = {
         this.activeLength -= 0 
         this.activeEdge = edge
         this.activeNode = root
@@ -70,7 +70,7 @@ class UkkonenController {
     private def findInActiveNode(id: Integer): Integer = {
         var returnIndex: Integer = -1
 
-        if (this.activeEdge != Constants.DUMMY_EDGE) {                              // active edge set
+        if (this.activeEdge != Constants.DummyEdge) {                              // active edge set
             println(s"Active edge exists, has start index: $activeEdge")
 
             var activeEdgeChar: Char = this.currentString(this.activeEdge)
@@ -93,7 +93,7 @@ class UkkonenController {
      *  If we found such character in edge outgoing from active point just update counter
      */
     private def updateActivePoint(i: Integer, tree: UkkonenTree): Unit = {
-        if (activeEdge == Constants.DUMMY_EDGE) this.activeEdge = i
+        if (activeEdge == Constants.DummyEdge) this.activeEdge = i
         this.activeLength += 1
         this.remainder += 1
 

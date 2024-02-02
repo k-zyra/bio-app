@@ -16,12 +16,12 @@ class UkkonenLink(src: Integer, dest: Integer) {
 }
 
 class UkkonenLinker() {
-    var startNode: Integer = Constants.NODE_INDEX 
+    var startNode: Integer = Constants.NodeIndex 
 
     private var logger: Logger = new Logger("UkkonenLinker")
 
     def reset(): Unit = {
-        this.startNode = Constants.NODE_INDEX
+        this.startNode = Constants.NodeIndex
     }
 
     def saveNode(node: Integer): Unit = {
@@ -36,7 +36,7 @@ class UkkonenLinker() {
     def link(node: Integer): Option[UkkonenLink] = {
         var maybeLink: Option[UkkonenLink] = None
 
-        if (this.startNode == Constants.NODE_INDEX) {
+        if (this.startNode == Constants.NodeIndex) {
             this.saveNode(node)
         } else {
             maybeLink = Some(this.createLink(node))

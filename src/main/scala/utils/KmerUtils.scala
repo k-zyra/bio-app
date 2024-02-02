@@ -71,7 +71,7 @@ object KmerUtils {
         val iterRange = Seq.range(0, L-k+1, 1)
         var kmers = collection.mutable.ArraySeq[String]()
         var kmersSeq = for (n <- iterRange) yield read.slice(n, n+k)
-        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) logger.logInfo(s"Time spent in <generateKmers> $duration ms")
         return kmersSeq
@@ -87,7 +87,7 @@ object KmerUtils {
         val start: Long = System.nanoTime()
         val rddKmers = context.parallelize(kmers).map(kmer => (kmer, 1))
         val countedKmers = rddKmers.reduceByKey(_ + _) 
-        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) logger.logInfo(s"Time spent in <countKmers> $duration ms")
         return countedKmers.collect()
@@ -98,12 +98,12 @@ object KmerUtils {
       *  Return array of tuples (occurences, kmers)
       */
     def prepareAllKmersSequential(reads: Array[String],
-                        k: Integer = Constants.PARAMETER_UNSPECIFIED, 
+                        k: Integer = Constants.ParameterUnspecified, 
                         verbose: Boolean = logger.isVerbose()): Array[(String, Int)] = {
         val start: Long = System.nanoTime()
 
         var kmerLength: Integer = k
-        if (kmerLength == Constants.PARAMETER_UNSPECIFIED) {
+        if (kmerLength == Constants.ParameterUnspecified) {
             kmerLength = (2 * FileUtils.getAverageReadLength(reads) / 3).toInt
             if (verbose) logger.logInfo(s"Setting k to value: $kmerLength")
         }
@@ -113,7 +113,7 @@ object KmerUtils {
             var tempArray = this._prepareKmers(read, kmerLength, false) 
             allKmers ++= tempArray 
         }
-        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) logger.logInfo(s"Time spent in <prepareAllKmersSequential>: $duration ms")
         return allKmers
@@ -124,11 +124,11 @@ object KmerUtils {
      *  Return array of tuples (occurences, kmers)
      */
     def prepareAllKmers(reads: Array[String],
-                        k: Integer = Constants.PARAMETER_UNSPECIFIED, 
+                        k: Integer = Constants.ParameterUnspecified, 
                         verbose: Boolean = logger.isVerbose()): Array[(String, Int)] = {
         val start: Long = System.nanoTime()
         var kmerLength: Integer = k
-        if (kmerLength == Constants.PARAMETER_UNSPECIFIED) {
+        if (kmerLength == Constants.ParameterUnspecified) {
             kmerLength = (2 * FileUtils.getAverageReadLength(reads) / 3).toInt
             if (verbose) logger.logInfo(s"Setting k to value: $kmerLength")
         }
@@ -136,7 +136,7 @@ object KmerUtils {
         var readsPar = reads.par 
         var allKmersPar = readsPar.flatMap(read => this.generateKmers(read, kmerLength, verbose=false))
         var allKmers = this.countKmers(allKmersPar.to[Seq], verbose=false)
-        val duration: Float = (System.nanoTime() - start)/Constants.NANO_IN_MILLIS
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) logger.logInfo(s"Time spent in <prepareAllKmers>: $duration ms")
         return allKmers
@@ -147,7 +147,7 @@ object KmerUtils {
      *  Return 10% (if no different value given) of least frequent kmers 
      */
     def getWeakKmers(seq: String, k: Integer,
-                    threshold: Integer = Constants.WEAK_KMER_THRESHOLD): Array[(String, Int)] = {
+                    threshold: Integer = Constants.WeakKmerThreshold): Array[(String, Int)] = {
         val numberOfKmers: Integer = this.getNumberOfPossibleKmers(seq, k) 
         var counted = this._prepareKmers(seq, k)
         
@@ -160,7 +160,7 @@ object KmerUtils {
      *  Return 10% (if no different value given) of least frequent kmers 
      */
     def getSolidKmers(seq: String, k: Integer,
-                    threshold: Integer = Constants.WEAK_KMER_THRESHOLD): Array[(String, Int)] = {
+                    threshold: Integer = Constants.WeakKmerThreshold): Array[(String, Int)] = {
         val numberOfKmers: Integer = this.getNumberOfPossibleKmers(seq, k) 
         var counted = this._prepareKmers(seq, k)
         
@@ -204,7 +204,7 @@ object KmerUtils {
      *  Evaluate all kmers for the sequence
      *  Return an array containing filtered kmers
      */
-    def filterKmers(): Unit = {
+    def filterKmers(threshold: Integer): Unit = {
 
     }
 }
