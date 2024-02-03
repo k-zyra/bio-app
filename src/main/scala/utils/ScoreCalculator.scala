@@ -4,6 +4,7 @@ package utils
 import scala.collection.mutable.ArrayBuffer
 import breeze.linalg.sum
 import algebra.lattice.Bool
+import breeze.macros.expand
 
 
 object ScoreCalculator {
@@ -87,6 +88,18 @@ object ScoreCalculator {
     }
 
 
+    /**  Check whether given threshold for Phred quality score has correct value
+     */
+    def isThresholdCorrect(threshold: Integer): Boolean = {
+        if (threshold < 0 || threshold > Constants.PhredMaxThreshold) {
+            this.logger.logError(
+                f"Incorrect value of threshold: ${threshold}, should be in range [0, ${Constants.PhredMaxThreshold}]")
+            return false
+        }
+        return true
+    }
+
+
     /**  Calculate mean quality 
      */
     def getMeanQuality(quality: String, base: Int): Double = {
@@ -105,8 +118,7 @@ object ScoreCalculator {
                                     threshold: Integer = Constants.PhreadDefaultThreshold,
                                     base: Integer,
                                     verbose: Boolean = false): Array[(String, String)] = {
-        if (threshold < 0 || threshold > Constants.PhredMaxThreshold) {
-            this.logger.logError(f"Incorrect value of threshold: ${threshold}, should be in range [0, ${base}]")
+        if (!isThresholdCorrect(threshold)) {
             return Array[(String, String)]()
         }
 
@@ -132,8 +144,7 @@ object ScoreCalculator {
                                     threshold: Integer = Constants.PhreadDefaultThreshold,
                                     base: Integer,
                                     verbose: Boolean = false): Array[(String, String)] = {
-        if (threshold < 0 || threshold > Constants.PhredMaxThreshold) {
-            this.logger.logError(f"Incorrect value of threshold: ${threshold}, should be in range [0, ${base}]")
+        if (!isThresholdCorrect(threshold)) {
             return Array[(String, String)]()
         }
 
@@ -158,5 +169,82 @@ object ScoreCalculator {
                             verbose: Boolean = false): Array[(String, String)] = {
         if (parallelMode) return this.filterByMeanQualityParallel(sequences, threshold, base, verbose)
         else return this.filterByMeanQualitySequential(sequences, threshold, base, verbose)
+    }
+
+
+    /** Count correct (with quality equal or higher than threshold) base calls in a sequence
+     */
+    def countCorrectBaseCalls(sequence: String, 
+                            threshold: Integer): Integer = {
+        var counter: Integer = 0
+        for (basecall <- sequence) {
+            if (basecall.toInt > threshold) counter += 1
+        }
+        return counter
+    }
+
+
+    /** Filter sequences sequentially
+     *  Get only sequences which contains appropriate number of base calls with satisfying Phred quality
+     *  Return an array containing filtered sequences
+     */
+    def filterByNumberOfCorrectBaseCallSequential(sequences: Array[(String, String)],
+                            threshold: Integer = Constants.PhreadDefaultThreshold,
+                            expectedCounter: Integer,
+                            base: Integer,
+                            verbose: Boolean = false): Array[(String, String)] = {
+        if (!isThresholdCorrect(threshold)) {
+            return Array[(String, String)]()
+        }
+        var filtered: ArrayBuffer[(String, String)] = new ArrayBuffer[(String, String)]()
+
+        val start: Long = System.nanoTime()
+        for (sequence <- sequences) {
+            if (this.countCorrectBaseCalls(sequence._2, threshold) >= expectedCounter) {
+                filtered += sequence
+            }
+        }
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
+
+        if (verbose) println(f"Filtered by number of correct base calls in $duration ms")
+        return filtered.result().toArray
+    }
+
+
+    /** Filter sequences in parallel manner
+     *  Get only sequences which contains appropriate number of base calls with satisfying Phred quality
+     *  Return an array containing filtered sequences
+     */
+    def filterByNumberOfCorrectBaseCallParallel(sequences: Array[(String, String)],
+                            threshold: Integer = Constants.PhreadDefaultThreshold,
+                            expectedCounter: Integer,
+                            base: Integer,
+                            verbose: Boolean = false): Array[(String, String)] = {
+        if (!isThresholdCorrect(threshold)) {
+            return Array[(String, String)]()
+        }
+
+        val sequencesPar = sequences.par
+        val start: Long = System.nanoTime()
+        var filtered = sequencesPar.filter( { case (sequence) => sequence._2.count( character => character>threshold ) > expectedCounter })
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
+
+        if (verbose) println(f"Filtered by number of correct base calls in $duration ms")
+        return filtered.toArray
+    }
+
+
+    /** Filter sequences in chosen manner
+     *  Get only kmers with mean Phred quality score not worse than given threshold
+     *  Return an array containing filtered kmers
+     */
+    def filterByNumberOfCorrectBaseCall(sequences: Array[(String, String)],
+                            threshold: Integer = Constants.PhreadDefaultThreshold,
+                            expectedCounter: Integer,
+                            base: Integer,
+                            parallelMode: Boolean = false,
+                            verbose: Boolean = false): Array[(String, String)] = {
+        if (parallelMode) return this.filterByNumberOfCorrectBaseCallSequential(sequences, threshold, expectedCounter, base, verbose)
+        else return this.filterByNumberOfCorrectBaseCallSequential(sequences, threshold, expectedCounter, base, verbose)
     }
 }

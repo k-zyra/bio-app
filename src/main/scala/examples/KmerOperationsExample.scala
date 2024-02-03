@@ -1,8 +1,5 @@
 package examples
 
-/* External imports */
-import scala.io.StdIn
-
 /* Internal imports */
 import app.SparkController
 
