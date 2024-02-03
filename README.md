@@ -16,7 +16,7 @@
 ## Building an application
 
 To build an application, the Scala Build Tool should be installed.
-Check the version of installed SBT by command:
+Check the installed version of SBT by command:
 
 ```bash
 sbt --version

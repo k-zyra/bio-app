@@ -10,6 +10,7 @@ import org.apache.spark.SparkContext
 /* Internal imports */
 import app.SparkController
 import bio.datatypes.Sequence
+import scala.collection.mutable.ArrayBuffer
 
 
 object KmerUtils {
@@ -189,22 +190,5 @@ object KmerUtils {
                     k: Integer,
                     verbose: Boolean = logger.isVerbose()): Unit = {
         val frequencies = this.countKmerFrequencies(seq, k, verbose = false)
-    }
-
-
-    /** Evaluate kmer
-     *  Decides whether given kmer should be discarded due to low importance or high error rate
-     */
-    def evaluateKmer(kmer: String, kmers: Array[(String, Int)]): Unit = {
-
-    }
-
-
-    /** Filter kmers 
-     *  Evaluate all kmers for the sequence
-     *  Return an array containing filtered kmers
-     */
-    def filterKmers(threshold: Integer): Unit = {
-
     }
 }

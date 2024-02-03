@@ -40,59 +40,15 @@ object BioApp {
         val session = SparkController.getSession()
         val context = SparkController.getContext()
 
-		// val fastqFile = "C:\\Users\\karzyr\\Desktop\\pacbio.fastq"
-		// FileUtils.statistics(fastqFile)
+		val fastqFile = "C:\\Users\\karzyr\\Desktop\\pacbio.fastq"
+		FileUtils.statistics(fastqFile)
 
-		// val fastqContent = FileUtils.readFile(fastqFile)
-		// println(fastqContent)
-
-        // val sequences = fastqContent.getSequences()
-        // val reads = fastqContent.getReads()
-
-
-        // val realParKmers = allkmersPar.par
-        // val start = System.currentTimeMillis()
-        // val allSufsPar = realParKmers.map(kmer => SuffixArrayBuilder.generateSuffixes(kmer._1, verbose = false))
-        // val duration = System.currentTimeMillis()  - start
-        // println(f"Duration for parallel version: $duration")
-
-        // val anotherStart = System.currentTimeMillis()
-        // for (kmer <- allkmersPar) {
-        //     SuffixArrayBuilder.generateSuffixes(kmer._1, verbose = false)
-        // }
-        // val anotherDuration = System.currentTimeMillis()  - anotherStart
-        // println(f"Duration for sequential version: $anotherDuration")
-
-        // val example = reads(0)
-        // println("Creating a suffix array for example" + example)
-
-        // val startSA = System.currentTimeMillis()
-        // // println(example)        
-        // val sufArr: Dataset[Row] = SuffixArrayBuilder.createFullSuffixArray(example, verbose = false)
-        // val durationSA = System.currentTimeMillis() - startSA
-        // println(f"Created suffix array in $durationSA ms")
-        
-        // println(sufArr.getClass())
-
+		val fastqContent = FileUtils.readFile(fastqFile)
+        val reads = fastqContent.getReads()
+		val readsAndScores = fastqContent.getReadsAndScores()
 
         Console.exiting()
 		SparkController.destroy()
 	}
 
 }
-
-
-
-        // var first = "ACCA"
-        // var second = "CCACC"
-        // println(f"First seqeuence: " + first)
-        // println(f"Second sequence: " + second)
-
-        // val scores: Array[Array[Integer]] = Array.ofDim[Integer](2, 2)
-        // scores(0)(0) = 2
-        // scores(1)(1) = 2
-        // scores(0)(1) = -1 
-        // scores(1)(0) = -1
-
-        // AlignSearcher.displayScoreMatrix(scores)
-        // AlignSearcher.smithWatermanSearch(Array(first, second), scores, penalty = -3)

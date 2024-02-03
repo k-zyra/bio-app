@@ -40,8 +40,8 @@ object KmerOperationsExample {
         val reads = fastqContent.getReads()
         println("Number of reads: " + fastqContent.getNumberOfReads())
 
-        this.runParallel(reads)
         this.runSequential(reads)
+        this.runParallel(reads)
 
         Console.exiting()
         SparkController.destroy(verbose = true)

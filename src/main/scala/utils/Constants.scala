@@ -29,6 +29,9 @@ object Constants {
     val WeakKmerThreshold: Integer = 10
     val SolidKmerThreshold: Integer = 90
 
+    val PhredMaxThreshold: Integer = 65
+    val PhreadDefaultThreshold: Integer = 30
+
     val NanoInMillis: Integer = 1000
 
     // Alignment constants

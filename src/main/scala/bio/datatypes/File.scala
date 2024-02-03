@@ -35,10 +35,31 @@ class File(_path: String, _filetype: String, _sequences: Array[Sequence]) {
     }
 
 
-    /** Get only reads from List of Sequences
+    /** Get only headers from list of sequences
+     */
+    def getHeaders(): Array[String] = {
+        return this.sequences.map(_.header).toArray
+    }
+
+
+    /** Get only reads from list of sequences
      */
     def getReads(): Array[String] = {
         return sequences.map(_.read).toArray    
+    }
+
+
+    /** Get only scores from list of sequences
+     */
+    def getScores(): Array[String] = {
+        return sequences.map(_.score).toArray    
+    }
+
+    
+    /** Return all sequences with quality scores
+     */
+    def getReadsAndScores(): Array[(String, String)] = {
+        return this.getReads() zip this.getScores()
     }
 
 
@@ -49,9 +70,9 @@ class File(_path: String, _filetype: String, _sequences: Array[Sequence]) {
     }
 
 
-    /** Get only headers from List of Sequences
+    /** Get number of scores in a file
      */
-    def getHeaders(): Array[String] = {
-        return this.sequences.map(_.header).toArray
+    def getNumberOfScores(): Integer = {
+        return this.getScores().length
     }
 }
