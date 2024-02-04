@@ -204,8 +204,6 @@ object AlignSearcher {
     private def getNeedlemanWunschAlignments(sequences: Array[String],
                                             matrix: Array[Array[Integer]],
                                             moves: Array[String]): Array[(String, String)] = {
-        this.displayAlignmentMatrix(matrix)
-
         var row: Int = matrix.length - 1
         var column: Int = matrix(0).length - 1
 
@@ -225,11 +223,13 @@ object AlignSearcher {
 
         var run: Int = 0
         var step: Int = 0
+        var maxNumberOfSteps: Int = row.max(column) - 1
+
         var keepReading: Boolean = true
         var toVisit: ArrayBuffer[(Int, Int, Char, Int)] = new ArrayBuffer()
 
         while (keepReading) {
-            nextMove(0).toChar match {    
+            nextMove(0).toChar match {
                 case '1' => {
                     nextMoveId = nextMoveId - diagonalShift
                     row -= 1
@@ -253,7 +253,7 @@ object AlignSearcher {
                     secondAlignment.insert(0, '-')
                 } 
             }
-            if (nextMoveId > 0) { // Sequences from the current run are not ready yet
+            if (step < maxNumberOfSteps) { // Sequences from the current run are not ready yet
                 step += 1
                 nextMove = moves(nextMoveId)
 
@@ -261,9 +261,6 @@ object AlignSearcher {
                     for (possibleMove <- nextMove.substring(1)) toVisit += ((step, run, possibleMove, nextMoveId))
                 }
             } else { // Sequences from the current path are ready
-                firstAlignment.insert(0, firstSequence(0))
-                secondAlignment.insert(0, secondSequence(0))
-
                 val firstAl = firstAlignment.result()
                 val secondAl = secondAlignment.result()
 
@@ -274,6 +271,7 @@ object AlignSearcher {
                 if (toVisit.size == 0)  {
                     keepReading = false
                 } else {
+                    // newBranch = (step, run, possibleMove, nextMoveId)
                     var newBranch = toVisit.remove(0)
 
                     firstAlignment.append(alignments(newBranch._2)._1.takeRight(newBranch._1))
