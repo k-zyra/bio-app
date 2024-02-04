@@ -36,6 +36,7 @@ object Constants {
 
     // Alignment constants
     val DefaultGapPenalty: Integer = -1
+    val DefaultGapExtensionPenalty: Integer = 0 
     val DefaultMismatchPenalty: Integer = -1
     val DefaultMatchReward: Integer = 1
 
@@ -58,9 +59,11 @@ object Constants {
     // String constants 
     val EmptyString: String = ""
     val EmptySentinel: String = ""
-    val EmptyStringArray = Array[String]()
     val DefaultSentinel: String = "$"
-    
+
+    val EmptyStringArray = Array[String]()
+    val EmptyMatchesArray = Array[(String, String)]()
+
     val HeaderTag: String = "@"
     val ScoreTag: String = ">"
     val SequenceIdTag: String = "+"
