@@ -23,8 +23,8 @@ object GlobalAlignmentExample {
 
         for (secondSequence <- sequences) {
             if (firstSequence != secondSequence) {
-                var matches = AlignSearcher.needlemanWunschAlignment(Array(firstSequence, secondSequence),
-                                                                substitutionMatrix, verbose = false)
+                AlignSearcher.needlemanWunschAlignment(Array(firstSequence, secondSequence),
+                                                            substitutionMatrix, verbose = false)
             } 
         }
     }
@@ -45,7 +45,7 @@ object GlobalAlignmentExample {
         val sequencesPar: ParArray[String] = sequences.par
 
         val start: Long = System.nanoTime()
-        sequencesPar.map(sequence => this.getAllAlignments(sequence, sequences))
+        var alignments = sequencesPar.map(sequence => this.getAllAlignments(sequence, sequences))
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         println("Time spent in parallel GlobalAlignmentExample: " + duration + " ms")
@@ -64,7 +64,7 @@ object GlobalAlignmentExample {
         val kmers = KmerUtils.prepareAllKmers(reads.slice(0, 10), k=13, verbose = true)
         println(f"Number of generated kmers: ${kmers.length}")
 
-        val kmerSubset = KmerUtils.getKmers(kmers.slice(0,10))
+        val kmerSubset = KmerUtils.getKmers(kmers.slice(0,100))
         this.runSequential(kmerSubset)
         this.runParallel(kmerSubset)
 

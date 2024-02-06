@@ -14,6 +14,7 @@ import scala.xml.XML
 import app.SparkController
 
 import utils.{Constants, Logger}
+import spire.std.seq
 
 
 
@@ -33,6 +34,14 @@ object AlignSearcher {
         val substitutionMatrix: Array[Array[Int]] = (xml \ "row").map { row => (row \ "column").map(_.text.toInt).toArray}.toArray
 
         return substitutionMatrix
+    }
+
+
+    /*  Display pair of alignments in readible format
+    */
+    def displayAlignments(sequences: (String, String)): Unit = {
+        println(sequences._1)
+        println(sequences._2)
     }
 
 
@@ -112,6 +121,80 @@ object AlignSearcher {
     }
 
 
+    /*  Get all alignments found using Smith-Waterman algorithm
+    */
+    def getSmithWatermanAlignments(sequences: Array[String],
+                                endingPoints: Array[(Int, Int)],
+                                moves: Array[String]): Array[(String, String)] = {
+        var alignments: ArrayBuffer[(String, String)] = new ArrayBuffer[(String, String)]
+
+        val firstSequence: String = sequences(0)
+        val secondSequence: String = sequences(1)
+
+        var numOfRows: Int = firstSequence.length() + 1
+        var numOfColumns: Int = secondSequence.length() + 1
+
+        var firstAlignment: StringBuilder = new StringBuilder(Constants.EmptyString)
+        var secondAlignment: StringBuilder = new StringBuilder(Constants.EmptyString)
+
+        val leftShift: Int = 1
+        val upShift: Int = numOfColumns
+        val diagonalShift: Int = numOfColumns + 1
+
+        for (point <- endingPoints) {
+            var row: Int = point._1 - 1
+            var column: Int = point._2 - 1
+
+            var nextMoveId: Int = column + numOfColumns * row 
+            var nextMove: String = moves(nextMoveId)
+
+            var keepReading: Boolean = true
+            while(keepReading && nextMove != null) {
+                nextMove(0).toChar match {
+                    case '1' => {
+                        firstAlignment.insert(0, firstSequence(row))
+                        secondAlignment.insert(0, secondSequence(column))
+
+                        nextMoveId = nextMoveId - diagonalShift
+                        row -= 1
+                        column -= 1                        
+                    }
+                    case '2' => {
+                        firstAlignment.insert(0, '-')
+                        secondAlignment.insert(0, secondSequence(column))
+
+                        nextMoveId = nextMoveId - leftShift
+                        column -= 1
+                    }    
+                    case '3' => {
+                        firstAlignment.insert(0, firstSequence(row))
+                        secondAlignment.insert(0, '-')
+
+                        nextMoveId = nextMoveId - upShift
+                        row -= 1
+                    }
+                }
+
+                if (row < 0 || column < 0) {
+                    keepReading = false
+                } else {
+                    nextMove = moves(nextMoveId)
+                    if (nextMove == null) {
+                        keepReading = false
+                        firstAlignment.insert(0, firstSequence(row))
+                        secondAlignment.insert(0, secondSequence(column))
+                    }
+                }
+            }
+            alignments.+= (((firstAlignment.result(), secondAlignment.result())))
+            firstAlignment.clear()
+            secondAlignment.clear()
+        }
+
+        return alignments.toArray
+    }
+
+
     /*  Find local alignment using Smith-Waterman algorithm
     */
     def smithWatermanAlignment(sequences: Array[String],
@@ -125,13 +208,16 @@ object AlignSearcher {
             return matches
         }
 
+        val rows: Int = sequences(0).length + 1
+        val columns: Int = sequences(1).length + 1
+
         val firstSequence = this.encodeSequence(sequences(0))
         val secondSequence = this.encodeSequence(sequences(1))
 
         val M: Integer = firstSequence.length
         val N: Integer = secondSequence.length
 
-        val moves: Array[Array[Integer]] = Array.ofDim[Integer]((M + Constants.ArrayPadding) * (N + Constants.ArrayPadding), 3)
+        var moves: Array[String] = Array.ofDim[String](rows * columns)
         val temp  = ArrayBuffer.fill((M + Constants.ArrayPadding) * (N + Constants.ArrayPadding))(0)
         val helper: Array[Array[Integer]] = Array.ofDim[Integer](M + Constants.ArrayPadding, N + Constants.ArrayPadding)
 
@@ -150,21 +236,21 @@ object AlignSearcher {
                     alignmentsMap += (Constants.Align -> alignValue)
                 }
 
-                var upper: Integer =  helper(m-1)(n)
-                var horizontalGap: Integer = upper + penalty
-                if (horizontalGap >= 0) {
-                    alignmentsMap += (Constants.HorizontalGap -> horizontalGap)
-                }
-
-                var left: Integer = helper(m)(n-1)
-                var verticalGap: Integer = left + penalty
+                var upper: Integer = helper(m-1)(n)
+                var verticalGap: Integer = upper + penalty
                 if (verticalGap >= 0) {
                     alignmentsMap += (Constants.VerticalGap -> verticalGap)
                 }
 
+                var left: Integer = helper(m)(n-1)
+                var horizontalGap: Integer = left + penalty
+                if (horizontalGap >= 0) {
+                    alignmentsMap += (Constants.HorizontalGap -> horizontalGap)
+                }
+
                 if (alignmentsMap.nonEmpty) {
                     val optimalValue = alignmentsMap.values.max
-                    val optimalMoves = alignmentsMap.filter(_._2 == optimalValue).keys.toArray
+                    val optimalMoves = alignmentsMap.filter(_._2 == optimalValue).keys.toArray.mkString
 
                     helper(m)(n) = optimalValue
                     temp(id) = optimalValue 
@@ -177,24 +263,18 @@ object AlignSearcher {
             id += 1
         }
 
-        var finalMatrix = temp.result()
-        var maxScore: Integer = finalMatrix.max
-        val indexes: Array[Int] = finalMatrix.zipWithIndex.filter { case (value, _) => value == maxScore }.map(_._2).toArray
-
+        var maxScore: Integer = temp.result().max
         val arrayOfPairsBuffer = ArrayBuffer[(Int, Int)]()
         for (i <- 0 to helper.size-1) {
             val alter = helper(i).zipWithIndex.filter { case (value, _) => value == maxScore }.map(_._2).toArray
             arrayOfPairsBuffer ++= alter.map(value => (i, value))
         }
-
-        val result = arrayOfPairsBuffer.result().toArray
-
+        var alignments = this.getSmithWatermanAlignments(sequences, arrayOfPairsBuffer.toArray, moves.toArray)
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
-        if (verbose) {
-            logger.logInfo(f"Matches found: ${result.size}")
-            logger.logInfo(f"Alignments using Smith-Waterman algorithm collected in $duration ms")
-        }
 
+        if (verbose) {
+            logger.logInfo(f"Alignments (${alignments.size}) using Smith-Waterman algorithm collected in ${duration} ms")
+        }
         return matches
     }
 
@@ -202,13 +282,12 @@ object AlignSearcher {
     /*  Get all alignments found using Needleman-Wunsch algorithm
     */
     private def getNeedlemanWunschAlignments(sequences: Array[String],
-                                            matrix: Array[Array[Integer]],
                                             moves: Array[String]): Array[(String, String)] = {
-        var row: Int = matrix.length - 1
-        var column: Int = matrix(0).length - 1
-
         val firstSequence: String = sequences(0)
         val secondSequence: String = sequences(1)
+
+        var row: Int = firstSequence.length - 1
+        var column: Int = secondSequence.length - 1
 
         val leftShift: Int = 1
         val upShift: Int = secondSequence.length()
@@ -253,7 +332,7 @@ object AlignSearcher {
                     secondAlignment.insert(0, '-')
                 } 
             }
-            if (step < maxNumberOfSteps) { // Sequences from the current run are not ready yet
+            if (step < maxNumberOfSteps) { // Sequences from the current path are not ready yet
                 step += 1
                 nextMove = moves(nextMoveId)
 
@@ -341,12 +420,11 @@ object AlignSearcher {
 
                 if (alignmentsMap.nonEmpty) {
                     val optimalValue = alignmentsMap.values.max
-                    val optimalMoves = alignmentsMap.filter(_._2 == optimalValue).keys.toArray
-                    val optimalStr = alignmentsMap.filter(_._2 == optimalValue).keys.toArray.mkString
+                    val optimalMoves = alignmentsMap.filter(_._2 == optimalValue).keys.toArray.mkString
 
                     helper(m)(n) = optimalValue
                     temp(id) = optimalValue 
-                    moves += optimalStr
+                    moves += optimalMoves
                 } else {
                     temp(id) = 0
                 }
@@ -355,17 +433,17 @@ object AlignSearcher {
             id += 1
         }
 
-        matches = this.getNeedlemanWunschAlignments(sequences, helper, moves.toArray)
+        matches = this.getNeedlemanWunschAlignments(sequences, moves.toArray)
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) {
-            logger.logInfo(f"Alignments: ${matches.size} using Needleman-Wunsch algorithm collected in $duration ms")
+            logger.logInfo(f"Alignments: (${matches.size}) using Needleman-Wunsch algorithm collected in ${duration} ms")
         }
         return matches
     }
 
     
-    /*  Find global alignment using Needleman-Wunsch algorithm
+    /*  Find global alignment using Needleman-Wunsch algorithm with affine gap penalty
     */
     def needlemanWunschAlignmentAffine(sequences: Array[String],
                             substitutionMatrix: Array[Array[Int]],
@@ -377,7 +455,7 @@ object AlignSearcher {
         var matches = Constants.EmptyStringArray
         var numberOfSequences = sequences.length 
         if (numberOfSequences != 2) {
-            logger.logWarn(f"Incorrect number of sequences. Actual:$numberOfSequences, expected: 2")
+            logger.logWarn(f"Incorrect number of sequences. Actual:${numberOfSequences}, expected: 2")
             return matches
         }
 
@@ -443,16 +521,12 @@ object AlignSearcher {
             val alter = helper(i).zipWithIndex.filter { case (value, _) => value == maxScore }.map(_._2).toArray
             arrayOfPairsBuffer ++= alter.map(value => (i, value))
         }
-
         val result = arrayOfPairsBuffer.result().toArray
-
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
-        if (verbose) {
-            logger.logInfo(f"Matches found: ${result.size}")
-            logger.logInfo(f"Alignments using Needleman-Wunsch algorithm collected in $duration ms")
-        }
 
-        this.displayAlignmentMatrix(helper)
+        if (verbose) {
+            logger.logInfo(f"Alignments (${result.size}) using Needleman-Wunsch algorithm collected in $duration ms")
+        }
         return matches
     }
 
@@ -460,6 +534,15 @@ object AlignSearcher {
     /*  Find global alignment using Needleman-Wunsch algorithm
     */
     def evolutionaryAlgorithmAlignment(): Unit = {
+
+
+
+    }
+
+
+    /*  Evaluate alignments
+    */
+    def evaluateAlignment(sequences: Array[String]): Unit = {
 
     }
 }

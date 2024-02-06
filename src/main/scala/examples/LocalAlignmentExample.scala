@@ -24,7 +24,7 @@ object LocalAlignmentExample {
         for (secondSequence <- sequences) {
             if (firstSequence != secondSequence) {
                 var matches = AlignSearcher.smithWatermanAlignment(Array(firstSequence, secondSequence),
-                                                                substitutionMatrix, verbose = false)
+                                                                substitutionMatrix, verbose = true)
             } 
         }
     }

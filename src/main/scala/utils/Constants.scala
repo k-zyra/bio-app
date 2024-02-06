@@ -1,10 +1,9 @@
 package utils
 
-import bio.datatypes.File
-import bio.datatypes.Sequence
-
-import bio.ukkonen._
+/* Internal imports */
+import bio.datatypes.{File, Sequence}
 import bio.ukkonen.UkkonenNode
+
 
 
 object Constants {

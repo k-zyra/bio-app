@@ -2,9 +2,7 @@ package utils
 
 /* External imports */
 import scala.collection.mutable.ArrayBuffer
-import breeze.linalg.sum
-import algebra.lattice.Bool
-import breeze.macros.expand
+
 
 
 object ScoreCalculator {
