@@ -3,7 +3,6 @@ package utils
 /* External imports */
 import java.util.Arrays
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.spark.rdd._
 import org.apache.spark.SparkContext
 
@@ -11,6 +10,7 @@ import org.apache.spark.SparkContext
 import app.SparkController
 import bio.datatypes.Sequence
 import scala.collection.mutable.ArrayBuffer
+
 
 
 object KmerUtils {
@@ -74,7 +74,7 @@ object KmerUtils {
         var kmersSeq = for (n <- iterRange) yield read.slice(n, n+k)
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
-        if (verbose) logger.logInfo(s"Time spent in <generateKmers> $duration ms")
+        if (verbose) logger.logInfo(f"Time spent in <generateKmers> ${duration} ms")
         return kmersSeq
     }
 
@@ -90,7 +90,7 @@ object KmerUtils {
         val countedKmers = rddKmers.reduceByKey(_ + _) 
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
-        if (verbose) logger.logInfo(s"Time spent in <countKmers> $duration ms")
+        if (verbose) logger.logInfo(f"Time spent in <countKmers> ${duration} ms")
         return countedKmers.collect()
     }
 
@@ -106,7 +106,7 @@ object KmerUtils {
         var kmerLength: Integer = k
         if (kmerLength == Constants.ParameterUnspecified) {
             kmerLength = (2 * FileUtils.getAverageReadLength(reads) / 3).toInt
-            if (verbose) logger.logInfo(s"Setting k to value: $kmerLength")
+            if (verbose) logger.logInfo(f"Setting k to value: ${kmerLength}")
         }
 
         var allKmers = Array[(String, Int)]()
@@ -116,7 +116,7 @@ object KmerUtils {
         }
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
-        if (verbose) logger.logInfo(s"Time spent in <prepareAllKmersSequential>: $duration ms")
+        if (verbose) logger.logInfo(f"Time spent in <prepareAllKmersSequential>: ${duration} ms")
         return allKmers
     }
 
@@ -131,7 +131,7 @@ object KmerUtils {
         var kmerLength: Integer = k
         if (kmerLength == Constants.ParameterUnspecified) {
             kmerLength = (2 * FileUtils.getAverageReadLength(reads) / 3).toInt
-            if (verbose) logger.logInfo(s"Setting k to value: $kmerLength")
+            if (verbose) logger.logInfo(f"Setting k to value: ${kmerLength}")
         }
 
         var readsPar = reads.par 
@@ -139,7 +139,7 @@ object KmerUtils {
         var allKmers = this.countKmers(allKmersPar.to[Seq], verbose=false)
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
-        if (verbose) logger.logInfo(s"Time spent in <prepareAllKmers>: $duration ms")
+        if (verbose) logger.logInfo(f"Time spent in <prepareAllKmers>: ${duration} ms")
         return allKmers
     }
 

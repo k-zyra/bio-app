@@ -29,13 +29,10 @@ object FilteringExample {
 
 
 	def main(args: Array[String]): Unit = {
-        // var arguments = utils.OptionParser.parseArguments(args)
         val session = SparkController.getSession()
         val context = SparkController.getContext()
 
         val fastqFile = "C:\\Users\\karzyr\\Desktop\\pacbio.fastq"
-        FileUtils.statistics(fastqFile)
-
         val fastqContent = FileUtils.readFile(fastqFile)
         val readsAndScores = fastqContent.getReadsAndScores()
 

@@ -6,13 +6,8 @@ import scala.collection.parallel.mutable.ParArray
 
 /* Internal imports */
 import app.SparkController
-
 import bio.searchers.AlignSearcher
-
-import utils.Console
-import utils.Constants
-import utils.FileUtils
-import utils.KmerUtils
+import utils.{Console, Constants, FileUtils, KmerUtils}
 
 
 
@@ -37,7 +32,7 @@ object GlobalAlignmentExample {
         }
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
         
-        println("Time spent in sequential GlobalAlignmentExample: " + duration + " ms")
+        println(f"Time spent in sequential GlobalAlignmentExample: ${duration} ms")
     }
 
 
@@ -48,7 +43,22 @@ object GlobalAlignmentExample {
         var alignments = sequencesPar.map(sequence => this.getAllAlignments(sequence, sequences))
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
-        println("Time spent in parallel GlobalAlignmentExample: " + duration + " ms")
+        println(f"Time spent in parallel GlobalAlignmentExample: ${duration} ms")
+    }
+
+
+    def runSingle(): Unit = {
+        val firstSequence: String = "GATTA"
+        val secondSequence: String = "GAATTC"
+        val substitutionMatrix: Array[Array[Int]] =
+                                AlignSearcher.prepareSubstitutionMatrix("substitutionMatrix_global.xml")
+                                AlignSearcher.displaySubstitutionMatrix(substitutionMatrix)
+        val alignments: Array[(String, String)] =
+                                AlignSearcher.needlemanWunschAlignment(Array(firstSequence, secondSequence), substitutionMatrix,
+                                5, -5, -5)
+
+        println(f"Alignments for sequences: ${firstSequence} and ${secondSequence}: ${substitutionMatrix.length}")
+        for (pair <- alignments) AlignSearcher.displayAlignments(pair)
     }
 
 
@@ -56,9 +66,13 @@ object GlobalAlignmentExample {
         val session = SparkController.getSession()
         val context = SparkController.getContext()
 
-		val fastqFile = "C:\\Users\\karzyr\\Desktop\\pacbio.fastq"
-		FileUtils.statistics(fastqFile)
+        // ======================================
 
+        this.runSingle()
+
+        // ======================================
+
+		val fastqFile = "C:\\Users\\karzyr\\Desktop\\pacbio.fastq"
 		val fastqContent = FileUtils.readFile(fastqFile)
         val reads = fastqContent.getReads()
         val kmers = KmerUtils.prepareAllKmers(reads.slice(0, 10), k=13, verbose = true)

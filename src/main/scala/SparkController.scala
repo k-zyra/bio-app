@@ -13,10 +13,14 @@ import utils.Logger
 object SparkController {
     private val session: SparkSession = SparkSession.builder
             .appName("BIO-APP")
-            // .master("local[*]")                              // Locally, max. number of cores
-            // .master("spark://192.168.1.32:7077")             // Ubuntu
-            // .master("spark://192.168.1.101:7077")               // Windows
-            .master("spark://10.1.138.96:7077")
+            // .master("local[*]")                                  // Locally, max. number of cores
+            // .master("spark://192.168.1.32:7077")                 // Ubuntu
+//            .master("spark://192.168.1.100:7077")                // Windows
+//             .master("spark://192.168.1.101:7077")
+             .master("spark://192.168.1.102:7077")
+            // .master("spark://10.1.138.96:7077")
+
+            // .master("spark://192.168.245.168:7077")
             .config("spark.log.level", "WARN")
             .getOrCreate()
     private val context = this.session.sparkContext

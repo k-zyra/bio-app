@@ -4,6 +4,7 @@
 
 ## Table of contents
 * [Prerequisites](#Prerequisites)
+* [Dependencies](#Dependencies)
 * [Usage](#Usage)
 * [Configuration](#Configuration)
 * [Monitoring](#Monitoring)
@@ -28,6 +29,8 @@ Later, go to the project's main directory and type:
 sbt assembly
 ```
 
+## Dependencies
+To be done.
 
 ## Deploying an application to Apache Spark
 ### Linux

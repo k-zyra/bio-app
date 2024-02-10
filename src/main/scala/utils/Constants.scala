@@ -39,9 +39,9 @@ object Constants {
     val DefaultMismatchPenalty: Integer = -1
     val DefaultMatchReward: Integer = 1
 
-    val Align: Integer = 1
-    val HorizontalGap: Integer = 2
-    val VerticalGap: Integer = 3
+    val Align: Int = 1
+    val HorizontalGap: Int = 2
+    val VerticalGap: Int = 3
 
     // Cluster constants
     val NumberOfClusters: Integer = 4
@@ -61,7 +61,7 @@ object Constants {
     val DefaultSentinel: String = "$"
 
     val EmptyStringArray = Array[String]()
-    val EmptyMatchesArray = Array[(String, String)]()
+    val EmptyAlignmentsArray = Array[(String, String)]()
 
     val HeaderTag: String = "@"
     val ScoreTag: String = ">"

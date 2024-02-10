@@ -1,13 +1,14 @@
 val scala2Version = "2.12.13"
 
+enablePlugins(JavaAppPackaging)
+
 lazy val root = project
   .in(file("."))
   .settings(
     name := "bio-app",
     version := "1.0.0",
-
     scalaVersion := scala2Version,
-    
+  
     libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test,
     libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "2.1.1" % Test,
 
@@ -20,6 +21,6 @@ lazy val root = project
     libraryDependencies += "com.github.scopt" %% "scopt" % "4.1.0",
     libraryDependencies += "com.github.mrpowers" %% "spark-daria" % "1.2.3",
     libraryDependencies += "com.github.vickumar1981" %% "stringdistance" % "1.2.7",
-
-    libraryDependencies += "com.nvidia" %% "rapids-4-spark" % "23.12.0" % "provided"
-  )
+    
+    libraryDependencies += "com.nvidia" %% "rapids-4-spark" % "23.12.0" % "provided",
+)

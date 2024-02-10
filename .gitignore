@@ -1,6 +1,8 @@
 .bloop
 .bsp
+.idea
 .metals
+.scalafmt.conf
 .vscode
 
 project/.bloop

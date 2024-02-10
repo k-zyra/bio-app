@@ -8,13 +8,11 @@ import java.util.HashMap
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.Dataset
-import org.apache.spark.sql.{Row, SparkSession}
+import org.apache.spark.sql.{Dataset, Row, SparkSession}
 
 import scala.collection.immutable
-import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.{Map => MutableMap}
-import scala.collection.mutable.StringBuilder
+import scala.collection.mutable.{ArrayBuffer, StringBuilder}
 
 /* Internal imports */
 import app.SparkController
@@ -135,7 +133,7 @@ object StringUtils {
 
         if (overlapLen == Constants.ParameterUnspecified) {
             overlapLen = firstStr.length - 1
-            if (verbose) logger.logInfo(s"Parameter [overlapLength] not specified. Value set to $overlapLen")
+            if (verbose) logger.logInfo(f"Parameter [overlapLength] not specified. Value set to ${overlapLen}")
         } 
 
         if (forceExact) {
@@ -321,7 +319,7 @@ object StringUtils {
 		sa.foreach(suffix => tandems :+= StringUtils.getRepeatedSubstring(suffix._2, sa))
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
-        if (verbose) logger.logInfo(f"Tandem repeats found in $duration ms")
+        if (verbose) logger.logInfo(f"Tandem repeats found in ${duration} ms")
 		return tandems.distinct.filter(element => element != Constants.EmptyString)
     }
 
@@ -343,7 +341,7 @@ object StringUtils {
         val countedTandems = rddTandems.reduceByKey(_ + _) 
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
-        if (verbose) logger.logInfo(f"Tandem repeats found in $duration ms")
+        if (verbose) logger.logInfo(f"Tandem repeats found in ${duration} ms")
 		return countedTandems.filter(tandem => 
                 tandem._1 != Constants.EmptyString && 
                 tandem._2 > threshold)
@@ -383,7 +381,7 @@ object StringUtils {
                     verbose: Boolean = logger.isVerbose()): Array[String] = {
         val strBuilder = new StringBuilder(str)                
         if (!hasSuffixFormat(str, sentinel)) {
-            if (verbose) logger.logWarn(f"Given string does not have a correct suffix format! Appending sentinel: $sentinel")    
+            if (verbose) logger.logWarn(f"Given string does not have a correct suffix format! Appending sentinel: ${sentinel}")    
             strBuilder.append(sentinel)
         } 
 
@@ -397,7 +395,7 @@ object StringUtils {
 		}
 
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
-        if (verbose) logger.logInfo(f"Performed cyclic rotate for $strLength suffixes in $duration ms")
+        if (verbose) logger.logInfo(f"Performed cyclic rotate for ${strLength} suffixes in ${duration} ms")
 		return rotations
 	}
 
@@ -482,7 +480,7 @@ object StringUtils {
         inversedBwt.append(sentinel)
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
-        if (verbose) logger.logInfo(f"Time spent in <inverseBurrowsWheeler>: $duration ms")
+        if (verbose) logger.logInfo(f"Time spent in <inverseBurrowsWheeler>: ${duration} ms")
         return inversedBwt.result()
     }
 

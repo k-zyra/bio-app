@@ -2,12 +2,7 @@ package examples
 
 /* Internal imports */
 import app.SparkController
-
-import utils.Console
-import utils.Constants
-import utils.FileUtils
-import utils.KmerUtils
-import utils.StringUtils
+import utils.{Console, Constants, FileUtils, KmerUtils, StringUtils}
 
 
 
@@ -34,15 +29,26 @@ object BwtExample {
     }
 
 
+	def runSingle(): Unit = {
+		val sequence: String = "MISSISSIPPI"
+		val bwt = StringUtils.burrowsWheelerTransform(sequence, verbose = true)
+
+		println(f"Burrows-Wheeler transform generated from sequence: ${sequence}")
+		println(bwt)
+	}
+
+
 	def main(args: Array[String]): Unit = {
-		// var arguments = utils.OptionParser.parseArguments(args)
-        
         val session = SparkController.getSession()
         val context = SparkController.getContext()
 
-		val fastqFile = "C:\\Users\\karzyr\\Desktop\\pacbio.fastq"
-		FileUtils.statistics(fastqFile)
+        // ======================================
 
+        this.runSingle()
+
+        // ======================================
+
+		val fastqFile = "C:\\Users\\karzyr\\Desktop\\pacbio.fastq"
 		val fastqContent = FileUtils.readFile(fastqFile)
         val reads = fastqContent.getReads()
 		val kmersWithCounters = KmerUtils.prepareAllKmers(reads.slice(0, 10), k=13, verbose = true)
@@ -52,6 +58,8 @@ object BwtExample {
 		this.runSequential(kmers)
 		this.runParallel(kmers)
 	
+        // ======================================
+
 		Console.exiting()
         SparkController.destroy(verbose = true)
 	}
