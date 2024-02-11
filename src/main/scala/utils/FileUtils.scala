@@ -1,6 +1,8 @@
 package utils
 
 /* External imports */
+import misc.{Constants, Logger}
+
 import scala.io.Source
 
 /* Internal imports */

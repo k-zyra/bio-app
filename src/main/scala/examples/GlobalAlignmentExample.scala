@@ -7,7 +7,8 @@ import scala.collection.parallel.mutable.ParArray
 /* Internal imports */
 import app.SparkController
 import bio.searchers.AlignSearcher
-import utils.{Console, Constants, FileUtils, KmerUtils}
+import misc.{Console, Constants}
+import utils.{FileUtils, KmerUtils}
 
 
 

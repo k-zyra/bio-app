@@ -1,8 +1,9 @@
 package utils
 
 /* External imports */
-import java.util.Arrays
+import misc.{Constants, Logger}
 
+import java.util.Arrays
 import org.apache.spark.rdd._
 import org.apache.spark.SparkContext
 
@@ -80,7 +81,7 @@ object KmerUtils {
 
 
     /** Count kmers
-     *  Calculate occurences of each kmer in given array
+     *  Calculate occurrences of each kmer in given array
      */
     def countKmers(kmers: Seq[String], verbose: Boolean = logger.isVerbose()): Array[(String, Int)] = {
         val context = SparkController.getContext()
@@ -96,7 +97,7 @@ object KmerUtils {
 
 
     /** Prepare kmers for further steps
-      *  Return array of tuples (occurences, kmers)
+      *  Return array of tuples (occurrences, kmers)
       */
     def prepareAllKmersSequential(reads: Array[String],
                         k: Integer = Constants.ParameterUnspecified, 

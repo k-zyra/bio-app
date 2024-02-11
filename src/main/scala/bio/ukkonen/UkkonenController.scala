@@ -1,10 +1,8 @@
 package bio.ukkonen
 
+import misc.{Constants, Logger}
 import java.util.Arrays._
 import scala.util.control.Breaks._
-
-import utils.Constants
-import utils.Logger
 
 
 class UkkonenController {

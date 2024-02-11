@@ -2,10 +2,10 @@ package utils
 
 /* External imports */
 import com.github.vickumar1981.stringdistance.StringDistance._
+import misc.{Constants, Logger}
 
 import java.util.Arrays._
 import java.util.HashMap
-
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Dataset, Row, SparkSession}

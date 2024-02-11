@@ -1,84 +1,53 @@
 package utils
 
 /* External imports */
-import java.util.Dictionary
-import java.util.HashMap
-
 import com.github.vickumar1981.stringdistance.StringDistance._
+
+import java.util.{Dictionary, HashMap}
+
 import org.apache.spark.rdd._
 import org.apache.spark.SparkContext
+
 import scala.collection.Map
 import scala.collection.parallel.ParMap
 import scala.math
 
 /* Internal imports */
-import bio.datatypes.Sequence
 import app.SparkController
-import _root_.bio.datatypes.File
+import bio.datatypes.{File, Sequence}
+import misc.{Constants, Logger}
+
 
 
 object MetricsUtils {
     private val logger = new Logger("MetricsUtils")
 
 
-    /**  Calculate mean frequency for given k-mers
+    /** Estimate total coverage
+     *  To estimate total coverage, genome size must be specified by an user
      */
-    def calculateMean(kmers: Array[(String, Int)]): Float = {
-        val numberOfKmers: Float = KmerUtils.getNumberOfKmers(kmers).toFloat
-        val kmerFrequencies = kmers.map(kmer => kmer._2/numberOfKmers)
+    def estimateTotalCoverage(file: File,
+                            genomeSize: Double,
+                            precision: Int = 2,
+                            verbose: Boolean = logger.isVerbose): Double = {
+        val numberOfBases: Double = this.getTotalNumberOfBases(file).toDouble
 
-        return kmerFrequencies.sum/numberOfKmers
+        if (verbose) logger.logInfo(f"Genome size: ${genomeSize}, number of bases: ${numberOfBases}")
+        return BigDecimal(numberOfBases/genomeSize).setScale(precision, BigDecimal.RoundingMode.HALF_UP).toDouble
     }
 
 
-    /**  Calculate standard deviation of frequency for given k-mers
+    /** Get number of all bases, without any distinction
+     *  Return total number in the given file
      */
-    def calculateStdDev(kmers: Array[(String, Int)]): Float = {
-        val numberOfKmers: Float = KmerUtils.getNumberOfKmers(kmers).toFloat
-        val meanFrequency: Float = this.calculateMean(kmers)
-        val stdDevCounter: Float = kmers.map(kmer => math.pow(kmer._2 - meanFrequency, 2)).sum.toFloat
+    def getTotalNumberOfBases(file: File): Long = {
+        val reads: Array[String] = file.getReads()
 
-        return math.sqrt(stdDevCounter/numberOfKmers-1).toFloat
-    }
+        val readsPar = reads.par
+        val numberOfBases: Long = readsPar.map(_.length).sum
+        println("Number of bases in whole file: " + numberOfBases)
 
-
-    /**  Calculate frequency Z score for given kmer 
-     *   Z-score indicates how many standard deviations is given kmer from the mean
-     */
-    def calculateZscore(kmer: String, kmers: Array[(String, Int)]): Float = {
-        val kmerWithCounter = kmers.find(_._1 == kmer)
-        if (kmerWithCounter.isEmpty) {
-            logger.logWarn(f"Given kmer: $kmer not found!")
-            return Constants.NotFoundFloat
-        }   
-
-        val kmerCounter: Float = kmerWithCounter.get._2.toFloat
-        val numberOfKmers: Float = KmerUtils.getNumberOfKmers(kmers).toFloat
-
-        val kmerFrequency: Float = kmerCounter/numberOfKmers
-        val meanFrequency: Float = this.calculateMean(kmers)
-        val stdDevFrequency: Float = this.calculateStdDev(kmers)
-
-        return (kmerFrequency - meanFrequency)/stdDevFrequency
-    }
-
-
-    /**  Estimate depth coverage  
-     *   Estimation is based on mean k-mer coverage and both k-mer and read length
-     *   Internal use only.
-     */
-    private def _estimateCoverageDepth(): Float = {
-        return 0
-    }
-
-
-    /**  Estimate genome length based on k-mer spectra
-     */
-    def estimateGenomeLength(file: File): Float = {
-        val totalNumberOfBases: Float = file.getReads.map(_.length).sum
-        val coverageDepth: Float = this._estimateCoverageDepth()    
-
-        return totalNumberOfBases/coverageDepth
+        return numberOfBases
     }
 
 
@@ -105,7 +74,7 @@ object MetricsUtils {
         val baseCnt: Float = seq.count(_ == base)
         return baseCnt/atcg
     }
-    
+
 
     /** Count bases
      *  Calculate number of each base in a sequence
@@ -170,12 +139,45 @@ object MetricsUtils {
     }
 
 
-    /**  Calculate TF-IDF metrics
-     *   TF-IDF - Term Frequency, Inverse Document Frequency   
+    /**  Calculate mean frequency for given k-mers
      */
-    def getTfIdf(str: String): Float = {
-        var result: Float = 0
-        return result
+    def calculateMean(kmers: Array[(String, Int)]): Float = {
+        val numberOfKmers: Float = KmerUtils.getNumberOfKmers(kmers).toFloat
+        val kmerFrequencies = kmers.map(kmer => kmer._2/numberOfKmers)
+
+        return kmerFrequencies.sum/numberOfKmers
+    }
+
+
+    /**  Calculate standard deviation of frequency for given k-mers
+     */
+    def calculateStdDev(kmers: Array[(String, Int)]): Float = {
+        val numberOfKmers: Float = KmerUtils.getNumberOfKmers(kmers).toFloat
+        val meanFrequency: Float = this.calculateMean(kmers)
+        val stdDevCounter: Float = kmers.map(kmer => math.pow(kmer._2 - meanFrequency, 2)).sum.toFloat
+
+        return math.sqrt(stdDevCounter/numberOfKmers-1).toFloat
+    }
+
+
+    /**  Calculate frequency Z score for given kmer 
+     *   Z-score indicates how many standard deviations is given kmer from the mean
+     */
+    def calculateZscore(kmer: String, kmers: Array[(String, Int)]): Float = {
+        val kmerWithCounter = kmers.find(_._1 == kmer)
+        if (kmerWithCounter.isEmpty) {
+            logger.logWarn(f"Given kmer: $kmer not found!")
+            return Constants.NotFoundFloat
+        }   
+
+        val kmerCounter: Float = kmerWithCounter.get._2.toFloat
+        val numberOfKmers: Float = KmerUtils.getNumberOfKmers(kmers).toFloat
+
+        val kmerFrequency: Float = kmerCounter/numberOfKmers
+        val meanFrequency: Float = this.calculateMean(kmers)
+        val stdDevFrequency: Float = this.calculateStdDev(kmers)
+
+        return (kmerFrequency - meanFrequency)/stdDevFrequency
     }
 
 

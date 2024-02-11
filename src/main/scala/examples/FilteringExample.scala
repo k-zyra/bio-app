@@ -2,29 +2,28 @@ package examples
 
 /* Internal imports */
 import app.SparkController
-
-import utils.Console
+import misc.Console
 import utils.FileUtils
-import utils.ScoreCalculator
+import utils.ScoreUtils
 
 
 
 object FilteringExample {
     def runSequential(readsAndScores: Array[(String, String)]): Unit = {
         println("Filtering by mean quality of read")
-		ScoreCalculator.filterByMeanQualitySequential(readsAndScores, 30, 33, verbose = true)
+		ScoreUtils.filterByMeanQualitySequential(readsAndScores, 30, 33, verbose = true)
 
         println("Filtering by number of base calls with satisfying quality")
-        ScoreCalculator.filterByNumberOfCorrectBaseCallSequential(readsAndScores, 30, 50, 33, verbose = true)
+        ScoreUtils.filterByNumberOfCorrectBaseCallSequential(readsAndScores, 30, 50, 33, verbose = true)
     }   
 
 
     def runParallel(readsAndScores: Array[(String, String)]): Unit = {
         println("Filtering by mean quality of read")
-		ScoreCalculator.filterByMeanQualityParallel(readsAndScores, 30, 33, verbose = true)
+		ScoreUtils.filterByMeanQualityParallel(readsAndScores, 30, 33, verbose = true)
 
         println("Filtering by number of base calls with satisfying quality")
-        ScoreCalculator.filterByNumberOfCorrectBaseCallParallel(readsAndScores, 30, 50, 33, verbose = true)
+        ScoreUtils.filterByNumberOfCorrectBaseCallParallel(readsAndScores, 30, 50, 33, verbose = true)
     }
 
 

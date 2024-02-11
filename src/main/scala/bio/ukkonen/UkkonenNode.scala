@@ -1,9 +1,9 @@
 package bio.ukkonen
 
+import misc.Constants
+
 import java.util.Arrays._
 import scala.collection.mutable
-
-import utils.Constants
 
 
 class UkkonenNode(var id: Integer = Constants.NodeIndex) {

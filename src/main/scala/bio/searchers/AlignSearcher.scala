@@ -10,8 +10,7 @@ import scala.xml.XML
 
 /* Internal imports */
 import app.SparkController
-import utils.{Constants, Logger}
-
+import misc.{Constants, Logger}
 
 
 object AlignSearcher {

@@ -2,7 +2,8 @@ package examples
 
 /* Internal imports */
 import app.SparkController
-import utils.{Console, Constants, FileUtils, KmerUtils, StringUtils}
+import misc.{Console, Constants}
+import utils.{FileUtils, KmerUtils, StringUtils}
 
 
 

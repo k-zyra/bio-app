@@ -6,7 +6,7 @@ import org.apache.spark.SparkContext._
 import org.apache.spark.sql.SparkSession
 
 /* Internal imports */
-import utils.Logger
+import misc.Logger
 
 
 

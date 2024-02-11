@@ -1,8 +1,6 @@
-package utils
+package misc
 
-/* External imports */
 import scala.io.StdIn
-
 
 object Console {
     private var PROMPT: String = Constants.DefaultPrompt
@@ -17,7 +15,7 @@ object Console {
 
     def waiting(): Unit = {
         StdIn.readLine(this.PROMPT)
-        
+
     }
 
     def readingString(): String = {

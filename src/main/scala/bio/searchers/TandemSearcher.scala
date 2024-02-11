@@ -1,13 +1,14 @@
 package bio.searchers
 
+import misc.Logger
+
 import java.util.Arrays._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.{Row, SparkSession}
-import scala.util.Sorting._
 
-import utils.Logger
+import scala.util.Sorting._
 
 
 object TandemSearcher {

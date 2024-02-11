@@ -2,7 +2,8 @@ package examples
 
 /* Internal imports */
 import app.SparkController
-import utils.{Console, FileUtils, KmerUtils}
+import misc.Console
+import utils.{FileUtils, KmerUtils}
 
 
 object KmerOperationsExample {

@@ -1,9 +1,7 @@
 package bio.ukkonen
 
+import misc.{Constants, Logger}
 import scala.Option
-
-import utils.Constants
-import utils.Logger
 
 
 class UkkonenLink(src: Integer, dest: Integer) {

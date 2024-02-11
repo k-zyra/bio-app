@@ -1,6 +1,6 @@
 package pipeline
 
-import utils.Logger
+import misc.Logger
 
 object Overlap {
   private val logger = new Logger("Overlap")

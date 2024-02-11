@@ -1,15 +1,12 @@
-package utils
+package misc
 
-/* Internal imports */
 import bio.datatypes.{File, Sequence}
 import bio.ukkonen.UkkonenNode
-
-
 
 object Constants {
     val Bases: Array[Char] = Array('A', 'C', 'G', 'T')
     val Ambiguous: Char = 'N'
-    
+
     // General
     val Success: Boolean = true
     val Failure: Boolean = true
@@ -22,7 +19,7 @@ object Constants {
     val ParameterUnspecified: Integer = -1
 
     val ArrayPadding: Integer = 1
-    val StringOffset: Integer  = 1
+    val StringOffset: Integer = 1
 
     val MinThreshold: Integer = 1
     val WeakKmerThreshold: Integer = 10
@@ -35,7 +32,7 @@ object Constants {
 
     // Alignment constants
     val DefaultGapPenalty: Integer = -1
-    val DefaultGapExtensionPenalty: Integer = 0 
+    val DefaultGapExtensionPenalty: Integer = 0
     val DefaultMismatchPenalty: Integer = -1
     val DefaultMatchReward: Integer = 1
 
@@ -55,7 +52,7 @@ object Constants {
     val EmptyIntegerArray = Array[Integer]()
     val EmptyFloatArray = Array[Float]()
 
-    // String constants 
+    // String constants
     val EmptyString: String = ""
     val EmptySentinel: String = ""
     val DefaultSentinel: String = "$"
@@ -79,17 +76,20 @@ object Constants {
     val EdgeStart: Integer = 0
     val EdgeEnd: Integer = -1
 
-    val InitialStep: Integer = 0    
+    val InitialStep: Integer = 0
     val IndexNotFound: Integer = -1
 
     val ZeroLength: Integer = 0
     val ZeroRemaining: Integer = 0
-    
+
     val Root: UkkonenNode = new UkkonenNode(0)
     val DummyNode: UkkonenNode = new UkkonenNode(NodeIndex)
     val DummyEdge: Integer = -1
 
-    // Utils 
+    // Correction
+    var shortSequence: Int = 1000
+
+    // Utils
     val DefaultPrompt: String = "bio-app> "
 
     val DataDir = "C:\\Users\\karzyr\\Desktop\\bio-app\\data"

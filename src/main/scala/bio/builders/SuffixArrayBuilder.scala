@@ -12,9 +12,7 @@ import scala.util.Sorting._
 
 /* Internal imports */
 import app.SparkController
-
-import utils.Constants
-import utils.Logger
+import misc.{Constants, Logger}
 import utils.StringUtils
 import scala.collection.parallel.ParSeq
 

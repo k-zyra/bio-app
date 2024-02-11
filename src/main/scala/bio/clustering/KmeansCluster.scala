@@ -12,10 +12,9 @@ import scala.collection.mutable.ArrayBuffer
 
 /* Internal imports */
 import app.SparkController
+import misc.{Constants, Logger}
 
 import utils.ClusterUtils
-import utils.Constants
-import utils.Logger
 import utils.MetricsUtils
 
 

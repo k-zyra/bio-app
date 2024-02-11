@@ -1,11 +1,13 @@
 package utils
 
 /* External imports */
+import misc.{Constants, Logger}
+
 import scala.collection.mutable.ArrayBuffer
 
 
 
-object ScoreCalculator {
+object ScoreUtils {
     val logger = new Logger("ScoreCalculator")
     
     val Phred33Offset = 33

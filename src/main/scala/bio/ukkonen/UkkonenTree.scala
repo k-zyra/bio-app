@@ -1,12 +1,10 @@
 package bio.ukkonen
 
+import misc.{Constants, Logger}
 import java.util.Arrays
 import java.util.Arrays._
 import java.util.Collections
 import scala.collection.mutable
-
-import utils.Constants
-import utils.Logger
 
 
 class UkkonenTree {

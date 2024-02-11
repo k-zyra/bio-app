@@ -1,6 +1,6 @@
 package bio.ukkonen
 
-import utils.Constants
+import misc.Constants
 
 
 class UkkonenEdge(var start: Integer = Constants.EdgeStart, var end: Integer = Constants.EdgeEnd, 
