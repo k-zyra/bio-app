@@ -1,13 +1,16 @@
 package utils
 
 /* External imports */
-import misc.{Constants, Logger}
-
+import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 
+//import better.files.{File => BetterFile, _}
+//import better.files.{File, _}
+
 /* Internal imports */
-import bio.datatypes.File
-import bio.datatypes.Sequence
+import bio.datatypes.{File, Sequence}
+
+import misc.{Constants, Logger}
 
 
 object FileUtils {
@@ -20,17 +23,49 @@ object FileUtils {
     }
 
 
+    /**  Check whether given file is in FASTA format 
+     */
+    def isFasta(file: File): Boolean = {
+        return file.getFileType().endsWith(Constants.FastaExtension)
+    }
+
+
+    /**  Check whether given file is in FASTQ format 
+     */
+    def isFastq(file: File): Boolean = {
+        return file.getFileType().endsWith(Constants.FastqExtension)
+    }
+
+
+    /**  Check type for given filename
+     */
+    def checkFileType(filename: String): String = {
+        val standardized: String = StringUtils.standardize(filename, upper=false)
+        return "FASTA"
+    }
+
+
+    /**  Check type of given file
+     */
+    def checkFileType(file: File): String = {
+        return "FASTA"
+    }
+
+
     /**  Read given file
      *   Runs proper function, based on the file type
      *   If file type not supported, returns empty List 
      */
     def readFile(filename: String): File = {
         var file: File = Constants.EmptyFile
+//        println("file extension: " + BetterFile.file.File(filename).extension())
 
         if (filename.endsWith(Constants.FastqExtension)) {
             file = readFastqFile(filename)
         } else if (filename.endsWith(Constants.FastaExtension)) {
             file = readFastaFile(filename)
+        } else if (filename.endsWith(Constants.TfaExtension)) {
+            file = readTfaFile(filename)
         } else {
             logger.logCriticalError(s"Not supported type of file: $filename!")
         }
@@ -74,6 +109,42 @@ object FileUtils {
 
         val output = parse(Source.fromFile(filename).getLines())
         return new File(filename, "FASTQ", output.toArray)
+    }
+
+
+    /** Read given TFA file
+     */
+    private def readTfaFile(filename: String): File = {
+        val source: Source = Source.fromFile(filename)
+        val readBuilder: StringBuilder = new StringBuilder(Constants.EmptyString)
+
+        val headers: ArrayBuffer[String] = new ArrayBuffer[String]()
+        val reads: ArrayBuffer[String] = new ArrayBuffer[String]()
+        val output: ArrayBuffer[Sequence] = new ArrayBuffer[Sequence]()
+
+        for (line <- source.getLines()) {
+            if (line.startsWith(Constants.TfaHeaderTag)) {
+                if (readBuilder.nonEmpty) {
+                    reads += readBuilder.toString()
+                    readBuilder.clear()
+                }
+
+                headers += line
+            }
+            else {
+                readBuilder.append(line)
+            }
+        }
+        reads += readBuilder.toString()
+        readBuilder.clear()
+
+        val readsWithHeaders: ArrayBuffer[(String, String)] = headers zip reads
+        for (set <- readsWithHeaders.toArray) {
+            output += new Sequence(set._1, set._2, Constants.EmptyString)
+        }
+
+        source.close()
+        return new File(filename, "TFA", output.toArray)
     }
 
 

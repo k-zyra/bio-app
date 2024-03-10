@@ -59,6 +59,20 @@ object KmerUtils {
         return this.countKmers(kmers, verbose)
     }
 
+//    def generateKmersSequential(read: String,
+//                                k: Integer,
+//                                verbose: Boolean = logger.isVerbose()): Seq[String] = {
+//        val start: Long = System.nanoTime()
+//
+//        val L = read.length()
+//        val iterRange = Seq.range(0, L - k + 1, 1)
+//        var kmers = for (n <- iterRange) yield read.slice(n, n + k)
+//        val duration: Float = (System.nanoTime() - start) / Constants.NanoInMillis
+//
+//        if (verbose) logger.logInfo(f"Time spent in <generateKmers> ${duration} ms")
+//        return kmers
+//    }
+
 
     /** Generate kmers
      *  Split read into kmers for given k value 
@@ -66,13 +80,13 @@ object KmerUtils {
     def generateKmers(read: String,
                     k: Integer,
                     verbose: Boolean = logger.isVerbose()): Seq[String] = {
-        val context = SparkController.getContext()
+//        val context = SparkController.getContext()
         val start: Long = System.nanoTime()
 
         val L = read.length()
         val iterRange = Seq.range(0, L-k+1, 1)
-        var kmers = collection.mutable.ArraySeq[String]()
-        var kmersSeq = for (n <- iterRange) yield read.slice(n, n+k)
+//        var kmers = collection.mutable.ArraySeq[String]()
+        val kmersSeq = for (n <- iterRange) yield read.slice(n, n+k)
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) logger.logInfo(f"Time spent in <generateKmers> ${duration} ms")

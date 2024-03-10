@@ -65,7 +65,7 @@ object MetricsUtils {
      */
     def getBasesFrequency(base: Char, seq: String): Float = {
         var stdBase = base.toUpper
-        if (!Constants.Bases.contains(stdBase)) {
+        if (!Constants.Nucleobases.contains(stdBase)) {
             logger.logCriticalError(s"Incorrect base given: $base")
             return Constants.NotFoundFloat
         }

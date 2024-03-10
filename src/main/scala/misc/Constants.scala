@@ -4,8 +4,19 @@ import bio.datatypes.{File, Sequence}
 import bio.ukkonen.UkkonenNode
 
 object Constants {
-    val Bases: Array[Char] = Array('A', 'C', 'G', 'T')
     val Ambiguous: Char = 'N'
+
+    val Nucleobases: Array[Char] = Array('A', 'C', 'G', 'T')
+    val NucleobasesExtended: Array[Char] = Array('-', 'A', 'C', 'G', 'T')
+
+    val AminoAcids: Array[Char] = Array('A', 'C', 'D', 'E',
+                                    'F', 'G', 'H', 'I', 'K', 'L',
+                                    'M', 'N', 'O', 'P', 'Q', 'R',
+                                    'S', 'T', 'U', 'V', 'W', 'Y')
+    val AminoAcidsExtended: Array[Char] = Array('-', 'A', 'C', 'D', 'E',
+                                        'F', 'G', 'H', 'I', 'K', 'L',
+                                        'M', 'N', 'O', 'P', 'Q', 'R',
+                                        'S', 'T', 'U', 'V', 'W', 'Y')
 
     // General
     val Success: Boolean = true
@@ -28,7 +39,7 @@ object Constants {
     val PhredMaxThreshold: Integer = 65
     val PhreadDefaultThreshold: Integer = 30
 
-    val NanoInMillis: Integer = 1000
+    val NanoInMillis: Integer = 1000000
 
     // Alignment constants
     val DefaultGapPenalty: Integer = -1
@@ -54,7 +65,6 @@ object Constants {
 
     // String constants
     val EmptyString: String = ""
-    val EmptySentinel: String = ""
     val DefaultSentinel: String = "$"
 
     val EmptyStringArray = Array[String]()
@@ -63,13 +73,15 @@ object Constants {
     val HeaderTag: String = "@"
     val ScoreTag: String = ">"
     val SequenceIdTag: String = "+"
+    val TfaHeaderTag: String = ">"
 
     // File constants
     val EmptyFile: File = new File(".", "UNKNOWN", Array[Sequence]())
 
     val FastaExtension: String = ".fasta"
     val FastqExtension: String = ".fastq"
-    val SupportedTypes: Array[String] = Array(this.FastaExtension, this.FastqExtension)
+    val TfaExtension: String = ".tfa"
+    val SupportedTypes: Array[String] = Array(this.FastaExtension, this.FastqExtension, this.TfaExtension)
 
     // Tree constants
     val NodeIndex: Integer = -1
@@ -85,9 +97,6 @@ object Constants {
     val Root: UkkonenNode = new UkkonenNode(0)
     val DummyNode: UkkonenNode = new UkkonenNode(NodeIndex)
     val DummyEdge: Integer = -1
-
-    // Correction
-    var shortSequence: Int = 1000
 
     // Utils
     val DefaultPrompt: String = "bio-app> "

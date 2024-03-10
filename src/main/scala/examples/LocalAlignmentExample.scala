@@ -76,8 +76,10 @@ object LocalAlignmentExample {
 
         // ======================================
 
-		val fastqFile = "C:\\Users\\karzyr\\Desktop\\pacbio.fastq"
+		val fastqFile = "C:\\Users\\karzyr\\Desktop\\pacbio_short.fastq"
 		val fastqContent = FileUtils.readFile(fastqFile)
+        // val rddFile = context.textFile(fastqFile)
+        // println(rddFile.count())
         val reads = fastqContent.getReads()
         val kmers = KmerUtils.prepareAllKmers(reads.slice(0, 10), k=13, verbose = true)
         println(f"Number of generated kmers: ${kmers.length}")
@@ -89,6 +91,6 @@ object LocalAlignmentExample {
         // ======================================
 
         Console.exiting()
-        SparkController.destroy(verbose = true)
+        SparkController.destroy()
     }
 }

@@ -1,19 +1,19 @@
 package app
- 
-/* External imports */ 
-import edu.umd.marbl.mhap.utils.Utils
+
+/* External imports */
 
 /* Internal imports */ 
-import misc.Console
-import pipeline.CorrectionPhase
+import misc.{Console, Constants}
 import utils._
+
+import bio.align.multiple.GeneticAlgorithm
+import bio.align.multiple.Fitness
 
 
 
 object BioApp {
 	def main(args: Array[String]): Unit = {
 		val session = SparkController.getSession()
-		val context = SparkController.getContext()
 
 		Console.exiting()
 		SparkController.destroy()
