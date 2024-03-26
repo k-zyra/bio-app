@@ -18,16 +18,26 @@ object Fitness {
     */
     def getDistance(firstSequence: String,
                     secondSequence: String,
-                    distType: DistanceType = DistanceType.HAMMING): Double = {
+                    distType: DistanceType = DistanceType.LEVENSHTEIN): Double = {
         var distance: Double = 0
         distType match {
+            case DistanceType.LEVENSHTEIN => distance = Levenshtein.score(firstSequence, secondSequence)
             case DistanceType.HAMMING => distance = Hamming.score(firstSequence, secondSequence)
             case DistanceType.JACCARD => distance = Jaccard.score(firstSequence, secondSequence)
             case DistanceType.JARO => distance = Jaro.score(firstSequence, secondSequence)
-            case DistanceType.LEVENSHTEIN => distance = Levenshtein.score(firstSequence, secondSequence)
         }
 
         return distance
+    }
+
+
+    /* Calculate average distance from one sequence to all other sequences in array
+    */
+    def getAverageDistance(referenceSequence: String,
+                           seqeunces: Array[String],
+                           distType: DistanceType = DistanceType.LEVENSHTEIN): Double = {
+        val distanceSum = seqeunces.map(this.getDistance(referenceSequence, _, distType)).sum
+        return distanceSum/seqeunces.length
     }
 
 
@@ -81,7 +91,7 @@ object Fitness {
         val rankedCosts = costs.sortBy(-_._1)
         val duration: Float = (System.nanoTime() - start) / Constants.NanoInMillis
 
-        //        if (verbose) logger.logInfo(f"Time spent in <rankAlignments> ${duration} ms")
+//        if (verbose) logger.logInfo(f"Time spent in <rankAlignments> ${duration} ms")
         return rankedCosts.toArray
     }
 
@@ -89,17 +99,14 @@ object Fitness {
     /* Choose the best part of current population as a base of the next population
     */
     def getFittestSpecies(alignments: CurrentPopulation,
-                                  numberOfSpecies: Int,
-                                  verbose: Boolean = logger.isVerbose()): CurrentPopulation = {
+                          numberOfSpecies: Int): CurrentPopulation = {
         val populationBase: ArrayBuffer[Alignment] = new ArrayBuffer[Alignment]()
         val rankedSpecies: Array[(Int, Int)] = this.rankAlignments(alignments)
-        //        if (verbose) logger.logInfo(s"Current best score: ${rankedSpecies.head._1}: ")
 
         for (specimen <- rankedSpecies.take(numberOfSpecies)) {
             populationBase += alignments(specimen._2)
         }
 
-        //        if (verbose) logger.logInfo(s"Get ${this.replacementSize} best species as a base for the next population.")
         return populationBase
     }
 
@@ -112,7 +119,7 @@ object Fitness {
         val firstChildScore: Int = Fitness.getAlignmentCost(firstChild)
         val secondChildScore: Int = Fitness.getAlignmentCost(secondChild)
 
-        //        if (verbose) println(s"[INFO] First=${firstChildScore}, Second=${secondChildScore}")
+//        if (verbose) logger.logDebug(s"First=${firstChildScore}, Second=${secondChildScore}")
         if (firstChildScore > secondChildScore) return firstChild
         else return secondChild
     }

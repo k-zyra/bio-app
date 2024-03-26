@@ -1,11 +1,14 @@
 package bio.align.multiple
 
-import types.Biotype.Alignment
-
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
+import types.Biotype.{Alignment}
+
+
+
 object Utils {
+
     /* Make all sequences in alignment the same length
     */
     def adjustAlignment(alignment: Alignment): Alignment = {

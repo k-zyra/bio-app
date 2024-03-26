@@ -102,6 +102,7 @@ object Constants {
     val DefaultPrompt: String = "bio-app> "
 
     val DataDir = "C:\\Users\\karzyr\\Desktop\\bio-app\\data"
-    val ExampleSubstitutionMatrix: String = "substitutionMatrix.xml"
+    val LocaLDefaultMatrix: String = "substitutionMatrix_local.xml"
+    val GlobalDefaultMatrix: String = "substitutionMatrix_global.xml"
     val EmptySubstitutionMatrix: String = "substitutionMatrix_template.xml"
 }
