@@ -1,15 +1,13 @@
 package utils
 
 /* External imports */
+import app.SparkController
+
 import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 
-//import better.files.{File => BetterFile, _}
-//import better.files.{File, _}
-
 /* Internal imports */
 import bio.datatypes.{File, Sequence}
-
 import misc.{Constants, Logger}
 
 
@@ -52,13 +50,36 @@ object FileUtils {
     }
 
 
+    /** Get just read from a given file
+     */
+    def getReadsFromFile(filename: String): Array[String] = {
+        val context = SparkController.getContext()
+        val fileContent = context.textFile(filename)
+
+        var numberOfLines: Int = 0
+        var beginFrom: Int = 1
+        if (filename.endsWith(Constants.FastqExtension)) {
+            numberOfLines = 4
+        } else if (filename.endsWith(Constants.FastaExtension)) {
+            numberOfLines
+        } else {
+            logger.logCriticalError(s"Not supported type of file: $filename!")
+        }
+
+        return fileContent
+                .zipWithIndex()
+                .filter(_._2 % 4 == beginFrom)
+                .map(_._1)
+                .collect()
+    }
+
+
     /**  Read given file
      *   Runs proper function, based on the file type
      *   If file type not supported, returns empty List 
      */
     def readFile(filename: String): File = {
         var file: File = Constants.EmptyFile
-//        println("file extension: " + BetterFile.file.File(filename).extension())
 
         if (filename.endsWith(Constants.FastqExtension)) {
             file = readFastqFile(filename)
@@ -155,7 +176,7 @@ object FileUtils {
         var headers = 0
         var scores = 0
 
-        var lines = Source.fromFile(filename).getLines().size
+        val lines = Source.fromFile(filename).getLines().size
         for (line <- Source.fromFile(filename).getLines()) {
             if (line.startsWith(Constants.HeaderTag) | line.startsWith(">")) headers = headers + 1
             else if (line.startsWith("+")) scores = scores + 1          
