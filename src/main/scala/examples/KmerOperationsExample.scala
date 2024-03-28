@@ -10,14 +10,14 @@ object KmerOperationsExample {
     def runSequential(reads: Array[String],
                     subsetSize: Int = 50): Unit = {
 		val allkmersSeq = KmerUtils.prepareAllKmersSequential(reads.slice(0, subsetSize), k=13, verbose = true)
-		// println(f"Number of kmers (sequential): ${allkmersSeq.length}")
+		 println(f"Number of kmers (sequential): ${allkmersSeq.length}")
     }   
 
 
     def runParallel(reads: Array[String],
                     subsetSize: Int = 50): Unit = {
 		val allkmersPar = KmerUtils.prepareAllKmers(reads.slice(0, subsetSize), k=13, verbose = true)
-		// println(f"Number of kmers (parallel): ${allkmersPar.length}")
+		 println(f"Number of kmers (parallel): ${allkmersPar.length}")
     }
 
 

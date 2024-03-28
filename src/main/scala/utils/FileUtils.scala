@@ -2,6 +2,7 @@ package utils
 
 /* External imports */
 import app.SparkController
+import org.apache.spark.rdd.RDD
 
 import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
@@ -50,27 +51,65 @@ object FileUtils {
     }
 
 
-    /** Get just read from a given file
+    /** Read FASTA/FASTQ file into RDD of strings
+     */
+    def readAsRdd(filename: String): RDD[String] = {
+        val context = SparkController.getContext()
+        return context.textFile(filename)
+    }
+
+
+    /** Filter lines from a given file
+     */
+    def filterLines(filename: String,
+                    startFrom: Int,
+                    numberOfLines: Int): Array[String] = {
+        val file = this.readAsRdd(filename)
+        return file
+          .zipWithIndex()
+          .filter(_._2 % numberOfLines == startFrom)
+          .map(_._1)
+          .collect()
+    }
+
+
+    /** Get scores from a given file
+     */
+    def getScoresFromFile(filename: String): Array[String] = {
+        val beginFrom: Int = 3
+        var numberOfLines: Int = 0
+
+        if (filename.endsWith(Constants.FastqExtension)) numberOfLines = 4
+        else logger.logCriticalError(s"Not supported type of file: $filename!")
+
+        return this.filterLines(filename, beginFrom, numberOfLines)
+    }
+
+
+    /** Get reads from a given file
      */
     def getReadsFromFile(filename: String): Array[String] = {
-        val context = SparkController.getContext()
-        val fileContent = context.textFile(filename)
-
+        val beginFrom: Int = 1
         var numberOfLines: Int = 0
-        var beginFrom: Int = 1
+
         if (filename.endsWith(Constants.FastqExtension)) {
             numberOfLines = 4
         } else if (filename.endsWith(Constants.FastaExtension)) {
-            numberOfLines
+            numberOfLines = 2
         } else {
             logger.logCriticalError(s"Not supported type of file: $filename!")
         }
 
-        return fileContent
-                .zipWithIndex()
-                .filter(_._2 % 4 == beginFrom)
-                .map(_._1)
-                .collect()
+        return this.filterLines(filename, beginFrom, numberOfLines)
+    }
+
+
+    /** Get reads with associated scores from a given file
+     */
+    def getReadsAndScoresFromFile(filename: String): Array[(String, String)] = {
+        val scores: Array[String] = this.getScoresFromFile(filename)
+        val reads: Array[String] = this.getReadsFromFile(filename)
+        return reads.zip(scores)
     }
 
 

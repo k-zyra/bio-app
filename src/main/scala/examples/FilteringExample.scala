@@ -3,8 +3,7 @@ package examples
 /* Internal imports */
 import app.SparkController
 import misc.Console
-import utils.FileUtils
-import utils.ScoreUtils
+import utils.{FileUtils, ScoreUtils}
 
 
 
@@ -28,17 +27,13 @@ object FilteringExample {
 
 
 	def main(args: Array[String]): Unit = {
-        val session = SparkController.getSession()
-        val context = SparkController.getContext()
-
         val fastqFile = "C:\\Users\\karzyr\\Desktop\\pacbio.fastq"
-        val fastqContent = FileUtils.readFile(fastqFile)
-        val readsAndScores = fastqContent.getReadsAndScores()
+        val readsAndScores = FileUtils.getReadsAndScoresFromFile(fastqFile)
 
         this.runSequential(readsAndScores)
         this.runParallel(readsAndScores)
 
         Console.exiting()
-        SparkController.destroy(verbose = true)
+        SparkController.destroy()
     }
 }

@@ -8,6 +8,8 @@ import utils.{FileUtils, KmerUtils, StringUtils}
 
 
 object BwtExample {
+	val verbose: Boolean = false
+
     def runSequential(sequences: Array[String]): Unit = {
 		val start: Long = System.nanoTime()
 		for (sequence <- sequences) {
@@ -40,28 +42,17 @@ object BwtExample {
 
 
 	def main(args: Array[String]): Unit = {
-        val session = SparkController.getSession()
-        val context = SparkController.getContext()
-
-        // ======================================
-
-        this.runSingle()
-
-        // ======================================
-
 		val fastqFile = "C:\\Users\\karzyr\\Desktop\\pacbio.fastq"
-		val fastqContent = FileUtils.readFile(fastqFile)
-        val reads = fastqContent.getReads()
-		val kmersWithCounters = KmerUtils.prepareAllKmers(reads.slice(0, 10), k=13, verbose = true)
-        println(f"Number of generated kmers: ${kmersWithCounters.length}")
+		val reads = FileUtils.getReadsFromFile(fastqFile)
 
+		val kmersWithCounters = KmerUtils.prepareAllKmers(reads.slice(0, 10), k = 13, verbose = true)
 		val kmers: Array[String] = KmerUtils.getKmers(kmersWithCounters)
+
+		if (verbose) this.runSingle()
 		this.runSequential(kmers)
 		this.runParallel(kmers)
-	
-        // ======================================
 
 		Console.exiting()
-        SparkController.destroy(verbose = true)
+        SparkController.destroy(verbose)
 	}
 }
