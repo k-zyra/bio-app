@@ -1,6 +1,7 @@
 package examples
 
 /* External imports */
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.parallel.mutable.ParArray
 
@@ -13,31 +14,38 @@ import utils.{FileUtils, KmerUtils}
 
 
 object GlobalAlignmentExample {
+    private var verbose: Boolean = false
+
     def getAllAlignments(firstSequence: String,
-                        sequences: Array[String]): Unit = {
-        val substitutionMatrix: Array[Array[Int] ]= AlignSearcher.prepareSubstitutionMatrix()
+                        sequences: Array[String]): Array[(String, String)] = {
+        val substitutionMatrix: Array[Array[Int] ]= AlignSearcher.prepareSubstitutionMatrix(Constants.GlobalDefaultMatrix)
+        val alignments: mutable.ArrayBuilder.ofRef[(String, String)] = new mutable.ArrayBuilder.ofRef[(String, String)]()
 
         for (secondSequence <- sequences) {
             if (firstSequence != secondSequence) {
-                AlignSearcher.needlemanWunschAlignment(Array(firstSequence, secondSequence),
+                alignments ++= AlignSearcher.needlemanWunschAlignment(Array(firstSequence, secondSequence),
                                                             substitutionMatrix, verbose = false)
             } 
         }
+
+        return alignments.result()
     }
 
 
-    def runSequential(sequences: Array[String]): Unit = {
+    def runSequential(sequences: Array[String]): Array[(String, String)] = {
+        val alignments: mutable.ArrayBuilder.ofRef[(String, String)] = new mutable.ArrayBuilder.ofRef[(String, String)]()
         val start: Long = System.nanoTime()
         for (sequence <- sequences) {
-            this.getAllAlignments(sequence, sequences)
+            alignments ++= this.getAllAlignments(sequence, sequences)
         }
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
         
         println(f"Time spent in sequential GlobalAlignmentExample: ${duration} ms")
+        return alignments.result()
     }
 
 
-    def runParallel(sequences: Array[String]): Unit = {
+    def runParallel(sequences: Array[String]): Array[(String, String)] = {
         val sequencesPar: ParArray[String] = sequences.par
 
         val start: Long = System.nanoTime()
@@ -45,6 +53,7 @@ object GlobalAlignmentExample {
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         println(f"Time spent in parallel GlobalAlignmentExample: ${duration} ms")
+        return alignments.flatten.toArray
     }
 
 
@@ -64,28 +73,18 @@ object GlobalAlignmentExample {
 
 
     def main(args: Array[String]): Unit = {
-        val session = SparkController.getSession()
-        val context = SparkController.getContext()
+        val fastqFile: String = "C:\\Users\\karzyr\\Desktop\\pacbio.fastq"
+		val reads: Array[String] = FileUtils.getReadsFromFile(fastqFile)
+        val kmersWithCounters = KmerUtils.prepareAllKmers(reads.slice(0,10), k=13, verbose = true)
+        val kmers: Array[String] = KmerUtils.getKmers(kmersWithCounters).take(10)
 
-        // ======================================
-
-        this.runSingle()
-
-        // ======================================
-
-		val fastqFile = "C:\\Users\\karzyr\\Desktop\\pacbio.fastq"
-		val fastqContent = FileUtils.readFile(fastqFile)
-        val reads = fastqContent.getReads()
-        val kmers = KmerUtils.prepareAllKmers(reads.slice(0, 10), k=13, verbose = true)
-        println(f"Number of generated kmers: ${kmers.length}")
-
-        val kmerSubset = KmerUtils.getKmers(kmers.slice(0,100))
-        this.runSequential(kmerSubset)
-        this.runParallel(kmerSubset)
+        if (verbose) this.runSingle()
+        this.runSequential(kmers)
+        this.runParallel(kmers)
 
         // ======================================
 
         Console.exiting()
-        SparkController.destroy(verbose = true)
+        SparkController.destroy(verbose)
     }
 }

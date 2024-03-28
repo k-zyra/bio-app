@@ -7,6 +7,8 @@ import utils.{FileUtils, KmerUtils}
 
 
 object KmerOperationsExample {
+    private var verbose: Boolean = false
+
     def runSequential(reads: Array[String],
                     subsetSize: Int = 50): Unit = {
 		val allkmersSeq = KmerUtils.prepareAllKmersSequential(reads.slice(0, subsetSize), k=13, verbose = true)
@@ -31,26 +33,14 @@ object KmerOperationsExample {
 
 
 	def main(args: Array[String]): Unit = {
-        val session = SparkController.getSession()
-        val context = SparkController.getContext()
+        val fastqFile = "C:\\Users\\karzyr\\Desktop\\pacbio.fastq"
+        val reads = FileUtils.getReadsFromFile(fastqFile)
 
-        // ======================================
-
-        this.runSingle()
-
-        // ======================================
-
-		val fastqFile = "C:\\Users\\karzyr\\Desktop\\pacbio.fastq"
-		val fastqContent = FileUtils.readFile(fastqFile)
-        val reads = fastqContent.getReads()
-        println("Number of reads: " + fastqContent.getNumberOfReads())
-
+        if (verbose) this.runSingle()
         this.runSequential(reads)
         this.runParallel(reads)
 
-        // ======================================
-
         Console.exiting()
-        SparkController.destroy(verbose = true)
+        SparkController.destroy(verbose)
     }
 }
