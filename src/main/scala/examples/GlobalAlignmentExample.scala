@@ -2,7 +2,6 @@ package examples
 
 /* External imports */
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 import scala.collection.parallel.mutable.ParArray
 
 /* Internal imports */
@@ -76,7 +75,7 @@ object GlobalAlignmentExample {
         val fastqFile: String = "C:\\Users\\karzyr\\Desktop\\pacbio.fastq"
 		val reads: Array[String] = FileUtils.getReadsFromFile(fastqFile)
         val kmersWithCounters = KmerUtils.prepareAllKmers(reads.slice(0,10), k=13, verbose = true)
-        val kmers: Array[String] = KmerUtils.getKmers(kmersWithCounters).take(10)
+        val kmers = KmerUtils.getKmers(kmersWithCounters.slice(0,100))
 
         if (verbose) this.runSingle()
         this.runSequential(kmers)

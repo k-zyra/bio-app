@@ -104,7 +104,7 @@ object AlignSearcher {
     /*  Encode seqeuence by converting string to an array of integers
     */
     def encodeSequence(sequence: String): Array[Integer] = {
-        var encoded = new mutable.ArrayBuilder.ofRef[Integer]
+        val encoded = new mutable.ArrayBuilder.ofRef[Integer]
 
         for (base <- sequence) {
             base match {
@@ -152,7 +152,7 @@ object AlignSearcher {
             }
 
             while(keepReading && nextMove != null) {
-                nextMove(0).toChar match {
+                nextMove(0) match {
                     case '1' => {
                         firstAlignment.insert(0, firstSequence(row))
                         secondAlignment.insert(0, secondSequence(column))
@@ -177,7 +177,7 @@ object AlignSearcher {
                     }
                 }
 
-                if (row < 0 || column < 0) {
+                if (row <= 0 || column <= 0) {
                     keepReading = false
                 } else {
                     nextMove = moves(nextMoveId)

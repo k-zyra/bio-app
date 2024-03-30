@@ -77,13 +77,11 @@ object LocalAlignmentExample {
     def main(args: Array[String]): Unit = {
         val fastqFile = "C:\\Users\\karzyr\\Desktop\\pacbio_short.fastq"
         val reads: Array[String] = FileUtils.getReadsFromFile(fastqFile)
-        val kmers = KmerUtils.prepareAllKmers(reads.slice(0, 10), k=13, verbose = true)
-        println(f"Number of generated kmers: ${kmers.length}")
+        val kmersWithCounters = KmerUtils.prepareAllKmers(reads.slice(0, 10), k=13, verbose = true)
+        val kmers = KmerUtils.getKmers(kmersWithCounters.slice(0,100))
 
-        val kmerSubset = KmerUtils.getKmers(kmers.slice(0,100))
-
-        this.runSequential(kmerSubset)
-        this.runParallel(kmerSubset)
+        this.runSequential(kmers)
+        this.runParallel(kmers)
 
         // ======================================
 
