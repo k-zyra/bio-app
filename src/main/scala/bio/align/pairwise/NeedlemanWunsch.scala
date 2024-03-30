@@ -2,15 +2,9 @@
 package bio.align
 
 /* External imports */
-import java.nio.file.{Files, Path, Paths}
-import java.util.Arrays
-import org.apache.spark.sql.{DataFrame, Row}
-import scala.annotation.switch
-import scala.collection.mutable.{ArrayBuffer, ArrayBuilder, Map, StringBuilder}
-import scala.xml.XML
+import scala.collection.mutable.{ArrayBuffer, Map, StringBuilder}
 
 /* Internal imports */
-import app.SparkController
 import bio.searchers.AlignSearcher
 import misc.{Constants, Logger}
 
@@ -34,8 +28,8 @@ object NeedlemanWunsch {
         val upShift: Int = secondSequence.length()
         val diagonalShift: Int = upShift + 1
 
-        var firstAlignment: StringBuilder = new StringBuilder("")
-        var secondAlignment: StringBuilder = new StringBuilder("")
+        val firstAlignment: StringBuilder = new StringBuilder("")
+        val secondAlignment: StringBuilder = new StringBuilder("")
         var alignments: ArrayBuffer[(String, String)] = new ArrayBuffer[(String, String)]()
 
         var nextMove: String = moves.last
@@ -43,10 +37,10 @@ object NeedlemanWunsch {
 
         var run: Int = 0
         var step: Int = 0
-        var maxNumberOfSteps: Int = row.max(column) - 1
+        val maxNumberOfSteps: Int = row.max(column) - 1
 
         var keepReading: Boolean = true
-        var toVisit: ArrayBuffer[(Int, Int, Char, Int)] = new ArrayBuffer()
+        val toVisit: ArrayBuffer[(Int, Int, Char, Int)] = new ArrayBuffer()
 
         while (keepReading) {
             nextMove(0).toChar match {
@@ -145,18 +139,18 @@ object NeedlemanWunsch {
         val start: Long = System.nanoTime()
         for (m <- 1 to M) {
             for  (n <- 1 to N) {
-                var alignmentsMap: Map[Int, Int] = Map[Int, Int]()
-                var prev: Int = helper(m-1)(n-1)
+                val alignmentsMap: Map[Int, Int] = Map[Int, Int]()
+                val prev: Int = helper(m - 1)(n - 1)
 
-                var alignValue: Int = prev + substitutionMatrix(firstSequence(m-1))(secondSequence(n-1))
+                val alignValue: Int = prev + substitutionMatrix(firstSequence(m - 1))(secondSequence(n - 1))
                 alignmentsMap += (Constants.Align -> alignValue)
 
-                var upper: Int =  helper(m-1)(n)
-                var verticalGap: Int = upper + gapPenalty
+                val upper: Int =  helper(m-1)(n)
+                val verticalGap: Int = upper + gapPenalty
                 alignmentsMap += (Constants.VerticalGap -> verticalGap)
 
-                var left: Int = helper(m)(n-1)
-                var horizontalGap: Int = left + gapPenalty
+                val left: Int = helper(m)(n-1)
+                val horizontalGap: Int = left + gapPenalty
                 alignmentsMap += (Constants.HorizontalGap -> horizontalGap)
 
                 if (alignmentsMap.nonEmpty) {
@@ -193,8 +187,8 @@ object NeedlemanWunsch {
                             gapExtensionPenalty: Integer = Constants.DefaultGapExtensionPenalty,
                             mismatchPenalty: Integer = Constants.DefaultMismatchPenalty, 
                             verbose: Boolean = logger.isVerbose()): Array[String] = {
-        var matches = Constants.EmptyStringArray
-        var numberOfSequences = sequences.length 
+        val matches = Constants.EmptyStringArray
+        val numberOfSequences = sequences.length
         if (numberOfSequences != 2) {
             logger.logWarn(f"Incorrect number of sequences. Actual:${numberOfSequences}, expected: 2")
             return matches
@@ -218,18 +212,18 @@ object NeedlemanWunsch {
         val start: Long = System.nanoTime()
         for (m <- 1 to M) {
             for  (n <- 1 to N) {
-                var alignmentsMap: Map[Int, Int] = Map[Int, Int]()
-                var prev: Int = helper(m-1)(n-1)
+                val alignmentsMap: Map[Int, Int] = Map[Int, Int]()
+                val prev: Int = helper(m-1)(n-1)
 
-                var upper: Int = helper(m-1)(n)
-                var horizontalGap: Int = upper + (gapPenalty - gapLength * gapExtensionPenalty)
+                val upper: Int = helper(m-1)(n)
+                val horizontalGap: Int = upper + (gapPenalty - gapLength * gapExtensionPenalty)
                 alignmentsMap += (Constants.HorizontalGap -> horizontalGap)
 
-                var left: Int = helper(m)(n-1)
-                var verticalGap: Int = left + (gapPenalty - gapLength * gapExtensionPenalty)
+                val left: Int = helper(m)(n-1)
+                val verticalGap: Int = left + (gapPenalty - gapLength * gapExtensionPenalty)
                 alignmentsMap += (Constants.VerticalGap -> verticalGap)
 
-                var alignValue: Int = prev + substitutionMatrix(firstSequence(m-1))(secondSequence(n-1))
+                val alignValue: Int = prev + substitutionMatrix(firstSequence(m-1))(secondSequence(n-1))
                 alignmentsMap += (Constants.Align -> alignValue)
 
                 if (alignValue < horizontalGap || alignValue < verticalGap) {
