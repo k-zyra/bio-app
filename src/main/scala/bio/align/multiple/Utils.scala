@@ -2,8 +2,7 @@ package bio.align.multiple
 
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
-
-import types.Biotype.{Alignment}
+import types.Biotype.{Alignment, CurrentPopulation}
 
 
 
@@ -32,5 +31,15 @@ object Utils {
         val mutant: ArrayBuffer[String] = specimen.clone().to[ArrayBuffer]
         mutant(sequenceId) = mutant(sequenceId).takeRight(shifts) + mutant(sequenceId).take(mutant(sequenceId).length - shifts)
         return mutant.toArray
+    }
+
+
+    /* Check average length of sequences in a given set
+    *  This method is used to decide whether more gaps should be added during mutation
+    */
+    def getAverageLength(sequences: CurrentPopulation): Int = {
+        val totalLength: Int = sequences.flatten.map(_.length).sum
+        val numberOfSequences: Int = sequences.flatMap(_.toList).length
+        return totalLength/numberOfSequences
     }
 }
