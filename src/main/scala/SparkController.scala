@@ -1,22 +1,22 @@
 package app
 
 /* External imports */
-import org.apache.spark.{SparkContext, SparkConf}
-import org.apache.spark.SparkContext._
-import org.apache.spark.sql.SparkSession
+import java.net._
 
-/* Internal imports */
-import misc.Logger
+import org.apache.spark.SparkContext
+import org.apache.spark.sql.SparkSession
 
 
 
 object SparkController {
+    private val prefix: String = "spark"
+    private val host: String = InetAddress.getLocalHost.getHostAddress
+    private val port: String = "7077"
+
     private val session: SparkSession = SparkSession.builder
             .appName("BIO-APP")
 //             .master("local[*]")                                  // Locally, max. number of cores
-            // .master("spark://192.168.1.32:7077")                 // Ubuntu
-            // .master("spark://192.168.1.101:7077")           // Windows
-            .master("spark://192.168.1.31:7077")
+            .master(s"$prefix://$host:$port")
             .config("spark.log.level", "WARN")
             .getOrCreate()
     private val context = this.session.sparkContext
