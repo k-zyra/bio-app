@@ -1,8 +1,6 @@
 package bio.align.multiple
 
 /* External imports */
-import org.sparkproject.dmg.pmml.Similarity
-import org.sparkproject.dmg.pmml.text.TextModelSimiliarity.SimilarityType
 import types.DistanceType
 import types.DistanceType.DistanceType
 
@@ -18,79 +16,30 @@ import types.Biotype.{Alignment, CurrentPopulation, Population}
 object GeneticAlgorithm {
     private val logger = new Logger("MSA_GeneticAlgorithm")
 
-    private var isConfigured: Boolean = false
-    private var preprocess: Boolean = true
-
-    private var epoch: Int = 0
-    private var epochsInPlateau: Int = 0
-    private var currentBest: Int = Int.MinValue
-
-    private var maxEpoch: Int = 50
-    private var keepGoing: Boolean = false
-
-    private var maxOffset: Int = 0
-    private var maxExpectedOffspring: Int = 0
-
-    private var generationSize: Int = 0
-    private var replacementSize: Int = 0
-    private var reproductionSize: Int = 0
-    private var mutationSize: Int = 0
-
-
 
     /* Reset algorithm variables
     */
     def reset(verbose: Boolean = logger.isVerbose()): Unit = {
-        this.epoch = 0
-        this.keepGoing = true
+        Config.reset()
+        Mutation.setupMutationSettings()
 
         if (verbose) logger.logInfo("Reset")
     }
 
 
-    /* Configure algorithm settings
-    */
-    def configure(_maxNumberOfEpochs: Int = 100,
-                   _generationSize: Int = 100,
-                  _maxOffset: Int = 5,
-                  _replacementFactor: Double = 0.5,
-                  _reproductionFactor: Double = 0.5,
-                  _maxExpectedOffspring: Int = 2,
-                  _preprocess: Boolean = true,
-                  verbose: Boolean = logger.isVerbose()): Unit = {
-        this.generationSize = _generationSize
-        this.maxOffset = _maxOffset
-        this.replacementSize = (_replacementFactor * this.generationSize).toInt
-        this.reproductionSize = (_reproductionFactor * (this.generationSize - this.replacementSize)).toInt
-        this.mutationSize = this.replacementSize - this.reproductionSize
-        this.maxExpectedOffspring = _maxExpectedOffspring
-        this.maxEpoch = _maxNumberOfEpochs
-
-        this.preprocess = _preprocess
-        this.isConfigured = true
-        if (verbose) logger.logInfo("Configuration done.")
-    }
-
-
     /* Verify whether the conditions are met
     */
-    private def checkIfConfigured(): Unit = {
-        if (this.isConfigured) {
-            logger.logInfo("Continuing with given configuration.")
-        } else {
-            this.configure()
-            logger.logWarn("Configured using default values.")
+    private def checkEndCondition(population: CurrentPopulation): Unit = {
+        if (Config.epochsInPlateau == 5) {
+            println("Should reevaluate probabilities")
+            Mutation.reevaluteProbabilties(population)
         }
-    }
 
-
-    /* Verify whether the conditions are met
-    */
-    private def checkEndCondition(): Unit = {
-        if (this.epoch == 200
-            || this.epochsInPlateau > 5) this.keepGoing = false
-
-//        if (this.epoch == this.maxEpoch) this.keepGoing = false
+        if (Config.epoch == Config.maxEpoch || Config.epochsInPlateau == 50) {
+            if (logger.isVerbose()) logger.logWarn(
+                s"Breaking loop at epoch: ${Config.epoch}, epochs in plateau: ${Config.epochsInPlateau}")
+            Config.keepGoing = false
+        }
     }
 
 
@@ -100,7 +49,7 @@ object GeneticAlgorithm {
     def prepareInitialPoint(sequences: Array[String],
                             similarityMeasure: DistanceType = DistanceType.LEVENSHTEIN): Array[String] = {
         val distances = sequences.zip(sequences.map(Fitness.getAverageDistance(_, sequences, similarityMeasure))).sortBy(-_._2)
-         return distances.map(_._1).toArray
+        return distances.map(_._1).toArray
     }
 
 
@@ -114,15 +63,14 @@ object GeneticAlgorithm {
     *  Return array of alignments 
     */
     def generateInitialGeneration(sequences: Array[String],
-                                generationSize: Integer = this.generationSize,
-                                maxOffset: Integer = this.maxOffset,
+                                generationSize: Integer = Config.generationSize,
+                                maxOffset: Integer = Config.maxOffset,
                                 verbose: Boolean = logger.isVerbose()): Population = {
         val generation: ArrayBuffer[Alignment] = ArrayBuffer[Alignment]()
 
         val start: Long = System.nanoTime()
         for (_ <- 0 to generationSize) {
             val tempSpecimen: ArrayBuffer[StringBuilder] = ArrayBuffer[StringBuilder]()
-            val test: ArrayBuffer[String] = new ArrayBuffer[String]()
 
             for (sequence <- sequences) {
                 val offset: Integer = Random.nextInt(maxOffset + 1)
@@ -142,9 +90,12 @@ object GeneticAlgorithm {
             specimen.clear()
             tempSpecimen.clear()
         }
-        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
+        Config.initialAverageLength = Utils.getAverageLength(generation)
+
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
         if (verbose) logger.logInfo(f"Time spent in <generateInitialGeneration> ${duration} ms")
+
         return generation.result.toArray
     }
 
@@ -153,65 +104,33 @@ object GeneticAlgorithm {
     */
     private def mutation(population: CurrentPopulation,
                          verbose: Boolean = logger.isVerbose()): CurrentPopulation = {
-        assert(population.size < this.generationSize,
-            s"Population size should be less than ${this.generationSize}, actual: ${population.size}")
-//        val numberOfParents: Int = population.size
-        val extendedPopulation: CurrentPopulation = population
+        assert(population.size < Config.generationSize,
+            s"Population size should be less than ${Config.generationSize}, actual: ${population.size}")
 
         val start = System.nanoTime()
-        for (_ <- 0 to this.reproductionSize) {
-//            val parentId = Random.nextInt(numberOfParents)
-//            extendedPopulation += this.getRandomMutation(population(parentId))
-            extendedPopulation += Mutation.stochastic(population)
-        }
+        val extendedPopulation = Mutation.run(population)
         val duration: Float = (System.nanoTime() - start) / Constants.NanoInMillis
 
-        if (verbose) logger.logInfo(s"Create new ${this.reproductionSize} mutants in time: ${duration} ms.")
+        if (verbose) logger.logInfo(s"Create new ${Config.reproductionSize} mutants in time: ${duration} ms.")
         return extendedPopulation
     }
 
 
-//    /* Generating new species using crossovers (one-point or uniform)
-//    */
-//    private def breeding_bak(population: CurrentPopulation,
-//                         verbose: Boolean = logger.isVerbose()): CurrentPopulation = {
-//        assert(population.size < this.generationSize)
-//        val numberOfParents: Int = population.length
-//        val extendedPopulation: CurrentPopulation = population
-//
-//        val start = System.nanoTime()
-//        for (i <- 0 to this.reproductionSize) {
-//            val parentId: Seq[Int] = Seq.fill(2)(Random.nextInt(numberOfParents))
-//            extendedPopulation += Crossover.onePoint(population(parentId(0)), population(parentId(1)), verbose = false)
-//        }
-//        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
-//
-//        if (verbose) logger.logInfo(s"Create new ${this.reproductionSize} children in time: ${duration} ms.")
-//        return extendedPopulation
-//    }
-
+    /* Generating new species using crossover
+    */
     private def breeding(population: CurrentPopulation,
                          verbose: Boolean = logger.isVerbose()): CurrentPopulation = {
-        assert(population.size < this.generationSize,
-                s"Population size should be less than ${this.generationSize}, actual: ${population.size}")
-        val children: CurrentPopulation = new CurrentPopulation
+        assert(population.size < Config.generationSize,
+                s"Population size should be less than ${Config.generationSize}, actual: ${population.size}")
 
         val start = System.nanoTime()
-        val parents = Crossover.selection(population, this.reproductionSize * 2)
-
-        for (id <- parents.indices by 2) {
-            children += Crossover.onePoint(parents(id), parents(id+1))
-        }
-
-//        for (i <- 0 to this.reproductionSize) {
-//            val parentId: Seq[Int] = Seq.fill(2)(Random.nextInt(numberOfParents))
-//            extendedPopulation += Crossover.onePoint(population(parentId(0)), population(parentId(1)), verbose = false)
-//        }
+        val children: CurrentPopulation = Crossover.run(population)
         val duration: Float = (System.nanoTime() - start) / Constants.NanoInMillis
 
-//        if (verbose) logger.logInfo(s"Create new ${this.reproductionSize} children in time: ${duration} ms.")
+        if (verbose) logger.logInfo(s"Create new ${Config.reproductionSize} children in time: ${duration} ms.")
         return children
     }
+
 
     /* Start the algorithm
     */
@@ -221,30 +140,40 @@ object GeneticAlgorithm {
         var data: Array[String] = sequences
 
         this.reset()
-        this.checkIfConfigured()
-//        if (this.preprocess) data = this.prepareInitialPoint(sequences)
-        data = this.prepareInitialPoint(sequences)
-        data.foreach(println)
+        Config.isSet()
 
+        if (Config.preprocess) data = this.prepareInitialPoint(sequences)
         var population: CurrentPopulation = this.generateInitialGeneration(sequences, verbose = true).to[ArrayBuffer]
 
         val rankedInitial = Fitness.rankAlignments(population)
         val initialBestScore = rankedInitial.head._1
         val initialBest = population(rankedInitial.head._2)
-        this.currentBest = initialBestScore
+        Config.currentBest = initialBestScore
 
         if (verbose) {
             logger.logInfo(s"Initial best alignment score: ${initialBestScore}")
             initialBest.foreach(println)
         }
 
-        while (this.keepGoing) {
-            population = Fitness.getFittestSpecies(population, this.replacementSize)
+        while (Config.keepGoing) {
+            population = Fitness.getFittestSpecies(population, Config.replacementSize)
             population ++= this.breeding(population, verbose = false)
             population = this.mutation(population, verbose = false)
 
-            this.epoch += 1
-            this.checkEndCondition()
+            Config.epoch += 1
+            this.checkEndCondition(population)
+
+            val ranked = Fitness.rankAlignments(population)
+            val epochBestScore = ranked.head._1
+
+            if (epochBestScore > Config.currentBest) {
+                Config.currentBest = epochBestScore
+                Config.epochsInPlateau = 0
+                if (verbose) logger.logInfo(s"New best score: ${Config.currentBest}")
+            } else {
+                Config.epochsInPlateau += 1
+                if (verbose) logger.logInfo(s"Epochs in plateau: ${Config.epochsInPlateau}, current best: ${Config.currentBest}")
+            }
         }
 
         return Fitness.getFittestSpecies(population, numberOfSolutions).toArray
