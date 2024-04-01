@@ -16,17 +16,21 @@ object GlobalAlignmentExample {
     private var verbose: Boolean = false
 
     def getAllAlignments(firstSequence: String,
-                        sequences: Array[String]): Array[(String, String)] = {
+                         sequences: Array[String],
+                         verbose: Boolean = false): Array[(String, String)] = {
         val substitutionMatrix: Array[Array[Int] ]= AlignSearcher.prepareSubstitutionMatrix(Constants.GlobalDefaultMatrix)
         val alignments: mutable.ArrayBuilder.ofRef[(String, String)] = new mutable.ArrayBuilder.ofRef[(String, String)]()
 
+        val start: Long = System.nanoTime()
         for (secondSequence <- sequences) {
             if (firstSequence != secondSequence) {
                 alignments ++= AlignSearcher.needlemanWunschAlignment(Array(firstSequence, secondSequence),
                                                             substitutionMatrix, verbose = false)
             } 
         }
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
+        if (verbose) println(f"Time spent in GlobalAlignmentExample: ${duration} ms")
         return alignments.result()
     }
 

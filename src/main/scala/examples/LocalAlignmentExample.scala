@@ -2,7 +2,7 @@ package examples
 
 /* External imports */
 import scala.collection.mutable
-import scala.collection.mutable.{ArrayBuffer, ArrayBuilder}
+import scala.collection.mutable.ArrayBuffer
 import scala.collection.parallel.mutable.ParArray
 
 /* Internal imports */
@@ -22,6 +22,7 @@ object LocalAlignmentExample {
         val substitutionMatrix: Array[Array[Int]]= AlignSearcher.prepareSubstitutionMatrix(Constants.LocaLDefaultMatrix)
         val alignments: mutable.ArrayBuilder.ofRef[(String, String)] = new mutable.ArrayBuilder.ofRef[(String, String)]()
 
+        val start: Long = System.nanoTime()
         for (secondSequence <- sequences) {
             if (firstSequence != secondSequence) {
                 val matches = AlignSearcher.smithWatermanAlignment(Array(firstSequence, secondSequence),
@@ -29,8 +30,9 @@ object LocalAlignmentExample {
                 alignments ++= matches
             }
         }
+        val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
-        if (verbose) println(f"Number of alignments generated: ${alignments.result().length}")
+        if (verbose) println(f"Time spent in GlobalAlignmentExample: ${duration} ms")
         return alignments.result()
     }
 
