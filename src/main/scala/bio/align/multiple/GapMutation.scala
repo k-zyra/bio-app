@@ -15,7 +15,6 @@ object GapMutation {
     /* Modify single specimen by gap insertion
     */
     def insertGap(specimen: Alignment): Alignment = {
-//        println("insert gap")
         val gapLength: Int = Random.nextInt(specimen(0).length) + 1
         val gapPosition: Int = Random.nextInt(specimen(0).length)
 
@@ -29,13 +28,11 @@ object GapMutation {
 
 
     def insertSingleGap(specimen: Alignment): Alignment = {
-//        println("insert single gap")
-        val gapLength: Int = Random.nextInt(specimen(0).length) + 1
         val gapPosition: Int = Random.nextInt(specimen(0).length)
         val sequenceId: Int = Random.nextInt(specimen.length)
 
         val mutant: Array[String] = specimen.clone()
-        val changed: String = specimen(sequenceId).take(gapPosition) + ("-" * gapLength) + specimen(sequenceId).substring(gapPosition)
+        val changed: String = specimen(sequenceId).take(gapPosition) + "-" + specimen(sequenceId).substring(gapPosition)
         mutant(sequenceId) = changed
 
         return Utils.adjustAlignment(mutant).toArray
@@ -44,9 +41,7 @@ object GapMutation {
 
     /* Remove block of gaps from one sequence
     */
-//    def removeGapBlock(specimen: Alignment): Alignment = {
     def removeGapBlock(specimen: Alignment): Alignment = {
-//        println("remove gap block")
         val sequenceId: Int = Random.nextInt(specimen.length)
         val mutatedSeqeunce: String = specimen(sequenceId)
         if (!mutatedSeqeunce.contains('-')) return specimen
@@ -62,10 +57,10 @@ object GapMutation {
         return mutant.toArray
     }
 
+
     /* Remove gaps from the sequences at the certain position
     */
     def removeGap(specimen: Alignment): Alignment = {
-//        println("remove gap")
         var gapsIds = specimen(0).zipWithIndex.filter { case (c, _) => c == '-' }.map(_._2)
 
         for (id <- 1 until specimen.size) {
@@ -87,7 +82,6 @@ object GapMutation {
     *  Check if other sequences in this alignment could be trimmed to keep the same order
     */
     def removeSingleGap(specimen: Alignment): Alignment = {
-//        println("remove single gap")
         val sequenceId: Int = Random.nextInt(specimen.length)
 
         val gapsIds = specimen(sequenceId).zipWithIndex.filter { case (c, _) => c == '-' }.map(_._2)
@@ -104,7 +98,6 @@ object GapMutation {
     /* Remove large blocks of gaps from generated sequences
     */
     def trimRedundantGaps(specimen: Alignment): Alignment = {
-//        println("trim redundant gaps")
         var residuesIds = specimen(0).zipWithIndex.filter { case (c, _) => c != '-' }.map(_._2)
 
         for (id <- 1 until specimen.size) {
@@ -128,7 +121,6 @@ object GapMutation {
     /* Move gap in one of the sequences from certain position
     */
     def moveSingleGap(specimen: Alignment): Alignment = {
-//        println("move single gap")
         val sequenceId: Int = Random.nextInt(specimen.length)
         val numberOfGaps: Int = specimen(sequenceId).count(_ == '-')
         if (numberOfGaps == 0) return specimen
