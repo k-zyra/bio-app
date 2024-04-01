@@ -1,8 +1,5 @@
 package utils
 
-/* Internal imports */
-import app.SparkController
-
 
 object ClusterUtils {
     /*  Divide given array of substrings into clusters
@@ -10,12 +7,12 @@ object ClusterUtils {
     def makeBaseClusters(substrings: Array[String],
                         position: Integer = 0): Array[Array[String]] = {
         var clusters = Map[Char, Array[String]]()
-        var basesCluster = substrings.groupBy(_.charAt(position).toUpper)
-        
-        var aCluster = basesCluster.get('A').get
-        var cCluster = basesCluster.get('C').get
-        var gCluster = basesCluster.get('G').get
-        var tCluster = basesCluster.get('T').get
+        val basesCluster = substrings.groupBy(_.charAt(position).toUpper)
+
+        val aCluster = basesCluster.get('A').get
+        val cCluster = basesCluster.get('C').get
+        val gCluster = basesCluster.get('G').get
+        val tCluster = basesCluster.get('T').get
 
         return Array(aCluster, cCluster, gCluster, tCluster)
     }
