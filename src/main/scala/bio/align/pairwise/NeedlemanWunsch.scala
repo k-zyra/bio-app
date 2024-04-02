@@ -1,5 +1,4 @@
-
-package bio.align
+package bio.align.pairwise
 
 /* External imports */
 import scala.collection.mutable.{ArrayBuffer, Map, StringBuilder}
@@ -7,6 +6,7 @@ import scala.collection.mutable.{ArrayBuffer, Map, StringBuilder}
 /* Internal imports */
 import bio.searchers.AlignSearcher
 import misc.{Constants, Logger}
+
 
 
 object NeedlemanWunsch {
@@ -116,7 +116,7 @@ object NeedlemanWunsch {
                             mismatchPenalty: Integer = Constants.DefaultMismatchPenalty, 
                             verbose: Boolean = logger.isVerbose()): Array[(String, String)] = {
         var alignments = Constants.EmptyAlignmentsArray
-        var numberOfSequences = sequences.length 
+        val numberOfSequences = sequences.length
         if (numberOfSequences != 2) {
             logger.logWarn(f"Incorrect number of sequences. Actual: ${numberOfSequences}, expected: 2")
             return alignments
@@ -128,7 +128,7 @@ object NeedlemanWunsch {
         val M: Int = firstSequence.length
         val N: Int = secondSequence.length
 
-        var moves: ArrayBuffer[String] = new ArrayBuffer[String]()
+        val moves: ArrayBuffer[String] = new ArrayBuffer[String]()
         val temp  = ArrayBuffer.fill((M + Constants.ArrayPadding) * (N + Constants.ArrayPadding))(0)
         val helper: Array[Array[Integer]] = Array.ofDim[Integer](M + Constants.ArrayPadding, N + Constants.ArrayPadding)
 

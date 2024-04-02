@@ -49,7 +49,7 @@ object SuffixArrayBuilder {
                         eof: String = Constants.DefaultSentinel,
                         sorted: Boolean = false,
                         verbose: Boolean = logger.isVerbose()): Seq[(Int, String)] = {
-        var word: String = str + eof
+        val word: String = str + eof
         var suffixes = Array[(Int, String)]()
 
         val start: Long = System.nanoTime()
@@ -73,11 +73,11 @@ object SuffixArrayBuilder {
                         sorted: Boolean = false,
                         verbose: Boolean = logger.isVerbose()): Dataset[Row] = {
 
-        var session = SparkController.getSession()
-        var context = SparkController.getContext()
+        val session = SparkController.getSession()
+        val context = SparkController.getContext()
 
         val start: Long = System.nanoTime()
-        var dataset = this.generateSuffixes(str, eof, sorted, verbose)
+        val dataset = this.generateSuffixes(str, eof, sorted, verbose)
 
         val rddStr: RDD[(Int, String)] = context.parallelize(dataset)
         val suffixDf = session.createDataFrame(rddStr)
@@ -101,7 +101,7 @@ object SuffixArrayBuilder {
         val session = SparkController.getSession()
 
         val start: Long = System.nanoTime()
-        var dataset = this.generateSuffixes(str, sorted=true)
+        val dataset = this.generateSuffixes(str, sorted=true)
         val compressedSa: Seq[Int] = dataset.map {case (firstElement, _) => firstElement}
 
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis

@@ -1,18 +1,12 @@
-
-package bio.align
+package bio.align.pairwise
 
 /* External imports */
-import java.nio.file.{Files, Path, Paths}
-import java.util.Arrays
-import org.apache.spark.sql.{DataFrame, Row}
-import scala.annotation.switch
-import scala.collection.mutable.{ArrayBuffer, ArrayBuilder, Map, StringBuilder}
-import scala.xml.XML
+import scala.collection.mutable.{ArrayBuffer, Map, StringBuilder}
 
 /* Internal imports */
-import app.SparkController
 import bio.searchers.AlignSearcher
 import misc.{Constants, Logger}
+
 
 
 object SmithWaterman {
@@ -30,10 +24,10 @@ object SmithWaterman {
         val secondSequence: String = sequences(1)
 
         var numOfRows: Int = firstSequence.length() + 1
-        var numOfColumns: Int = secondSequence.length() + 1
+        val numOfColumns: Int = secondSequence.length() + 1
 
-        var firstAlignment: StringBuilder = new StringBuilder(Constants.EmptyString)
-        var secondAlignment: StringBuilder = new StringBuilder(Constants.EmptyString)
+        val firstAlignment: StringBuilder = new StringBuilder(Constants.EmptyString)
+        val secondAlignment: StringBuilder = new StringBuilder(Constants.EmptyString)
 
         val leftShift: Int = 1
         val upShift: Int = numOfColumns
@@ -48,7 +42,7 @@ object SmithWaterman {
 
             var keepReading: Boolean = true
             while(keepReading && nextMove != null) {
-                nextMove(0).toChar match {
+                nextMove(0) match {
                     case '1' => {
                         firstAlignment.insert(0, firstSequence(row))
                         secondAlignment.insert(0, secondSequence(column))
