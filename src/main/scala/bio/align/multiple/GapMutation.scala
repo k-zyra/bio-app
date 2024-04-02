@@ -142,4 +142,12 @@ object GapMutation {
                    windowSize: Int = 1): Unit = {
 
     }
+
+
+    /* Extend existing gaps
+    */
+    def extendGaps(alignment: Alignment,
+                   windowSize: Int = 1): Unit = {
+
+    }
 }

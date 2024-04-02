@@ -58,13 +58,6 @@ object Mutation {
     }
 
 
-//    def resetProbabilities(): Unit = {
-//        val initialProbability: Double = 1.0/probability.size.toDouble
-//        this.setInitialProbabilities()
-//        probability.transform((_, _) => initialProbability)
-//    }
-
-
     def resetFrequencies(): Unit = {
         frequency.transform((_, _) => 0)
     }
