@@ -42,4 +42,16 @@ object Utils {
         val numberOfSequences: Int = sequences.flatMap(_.toList).length
         return totalLength/numberOfSequences
     }
+
+
+    /* Get random samples from array of integers
+    */
+    def randomSample(array: Array[Int],
+                     numberOfSamples: Int): Array[Int] = {
+        val samples: ArrayBuffer[Int] = new ArrayBuffer[Int]()
+        if (array.length < numberOfSamples) return samples.toArray
+
+        val choices = Random.shuffle(array.indices.toList).take(numberOfSamples)
+        return choices.map(array(_)).toArray
+    }
 }

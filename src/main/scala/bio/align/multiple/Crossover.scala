@@ -4,7 +4,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 import scala.util.control.Breaks.{break, breakable}
 import misc.{Constants, Logger}
-import types.Biotype.{Alignment, CurrentPopulation}
+import types.Biotype.{Alignment, CurrentAlignment, CurrentPopulation}
 
 import scala.collection.mutable
 
@@ -46,6 +46,37 @@ object Crossover {
         CrossoverMethod.UNIFORM -> 0,
         CrossoverMethod.SEQUENTIAL -> 0,
     ).withDefaultValue(1/3)
+
+
+    def resetProbabilities(): Unit = {
+        // TBD
+    }
+
+
+    def resetFrequencies(): Unit = {
+        selectionFrequency.transform((_, _) => 0)
+        methodFrequency.transform((_, _) => 0)
+    }
+
+
+    def setupMutationSettings(): Unit = {
+        this.resetFrequencies()
+        this.resetProbabilities()
+    }
+
+
+    /* Adjust possibilities of certain selection methods, based on the evolution progress
+    */
+    def reevaluteSelectionProbabilties(population: CurrentPopulation): Unit = {
+        // TBD
+    }
+
+
+    /* Adjust possibilities of choosing certain crossover method, based on the evolution progress
+    */
+    def reevaluteMethodProbabilties(population: CurrentPopulation): Unit = {
+        // TBD
+    }
 
 
     /*  Choose parents in a deterministic manner
@@ -190,13 +221,47 @@ object Crossover {
     }
 
 
+    /* Find common points in sequences
+    */
+    private def findCutPoints(specimen: Array[String]): Array[Int] = {
+        val referenceString: String = specimen(0)
+
+        return referenceString.indices.filter { index =>
+            specimen.forall(_.charAt(index) == referenceString.charAt(index))
+        }.toArray
+    }
+
+
     /* Modify species using uniform crossover
+    *  Due to its characteristic, it should be used at the end of evolution
     */
     def uniform(firstParent: Alignment,
-                         secondParent: Alignment,
-                         verbose: Boolean = logger.isVerbose()): Unit = {
+                secondParent: Alignment,
+                verbose: Boolean = logger.isVerbose()): Alignment = {
         assert(firstParent.length == secondParent.length)
-        //        return this.chooseChild()
+        val numberOfSequences: Int = firstParent.length
+        val firstChild: CurrentAlignment = new CurrentAlignment
+        val secondChild: CurrentAlignment = new CurrentAlignment
+
+        val start: Long = System.nanoTime()
+        val commonPoints: Array[Int] = this.findCutPoints(firstParent ++ secondParent)
+        if (commonPoints.length < 2) println("Cannot find common points")
+        val cutPoints = Utils.randomSample(commonPoints, 2).sorted
+
+        val firstId: Int = cutPoints(0)
+        val secondId: Int = cutPoints(1)
+
+        for (i <- 0 until numberOfSequences) {
+            firstChild += firstParent(i).take(firstId) + secondParent(i).substring(firstId, secondId) + firstParent(i).substring(secondId)
+            secondChild += secondParent(i).take(firstId) + firstParent(i).substring(firstId, secondId) + secondParent(i).substring(secondId)
+        }
+
+        val firstChildArray: Alignment = firstChild.toArray
+        val secondChildArray: Alignment = secondChild.toArray
+
+        val duration: Double = (System.nanoTime() - start)/Constants.NanoInMillis
+        if (verbose) logger.logInfo(s"Uniform crossover duration: ${duration} ms")
+        return Fitness.chooseChild(firstChildArray, secondChildArray)
     }
 
 
@@ -258,7 +323,7 @@ object Crossover {
                 for (id <- parents.indices by 2) children += Crossover.onePoint(parents(id), parents(id + 1), verbose = false)
             }
             case CrossoverMethod.UNIFORM => {
-                for (id <- parents.indices by 2) children += Crossover.onePoint(parents(id), parents(id + 1), verbose = false)
+                for (id <- parents.indices by 2) children += Crossover.uniform(parents(id), parents(id + 1), verbose = false)
             }
             case CrossoverMethod.SEQUENTIAL => {
                 for (id <- parents.indices by 2) children += Crossover.sequential(parents(id), parents(id + 1), verbose = false)
