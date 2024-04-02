@@ -38,8 +38,8 @@ object AlignSearcher {
     /*  Display pair of alignments in readible format
     */
     def displayAlignments(sequences: (String, String)): Unit = {
-        println(f"FIRST: ${sequences._1}")
-        println(f"SECOND: ${sequences._2}")
+        println(f"(${sequences._1})")
+        println(f"(${sequences._2})")
     }
 
 
