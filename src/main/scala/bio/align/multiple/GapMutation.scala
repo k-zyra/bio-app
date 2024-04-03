@@ -1,9 +1,11 @@
 package bio.align.multiple
 
-import misc.Logger
-
+/* External imports */
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
+
+/* Internal imports */
+import misc.{Constants, Logger}
 import types.Biotype.{Alignment, CurrentAlignment}
 
 
@@ -144,10 +146,39 @@ object GapMutation {
     }
 
 
-    /* Extend existing gaps
+    /* Extend existing gap
     */
-    def extendGaps(alignment: Alignment,
-                   windowSize: Int = 1): Unit = {
+    def extendGap(specimen: Alignment,
+                  verbose: Boolean = logger.isVerbose()): Alignment = {
+        val numberOfSequences: Int = specimen.length
+        val sequenceLength: Int = specimen.head.length
+        val sequenceId: Int = Random.nextInt(numberOfSequences)
 
+        val start: Long = System.nanoTime()
+        val lastLetterIndices: Int = specimen(sequenceId).lastIndexWhere(_ != '-')
+        println(s"Last letter index: ${lastLetterIndices}")
+        val subsequence: String = specimen(sequenceId).take(lastLetterIndices)
+
+        val numberOfGaps: Int = subsequence.count(_ == '-')
+        if (numberOfGaps == 0) return specimen
+
+        val gapsIds = this.getGapIndices(subsequence)
+        val gapId: Int = Random.shuffle(gapsIds).take(1)(0)
+
+        val extension: Int = Random.nextInt(Config.initialAverageLength/2) + 1
+        val mutatedSequence: String = specimen(sequenceId).take(gapId) + ("-" * extension) + specimen(sequenceId).substring(gapId)
+        val mutant: Alignment = specimen.clone()
+        mutant(sequenceId) = mutatedSequence
+        val duration: Float = (System.nanoTime() - start) / Constants.NanoInMillis
+
+        if (verbose) logger.logInfo(s"Time spent in extendGaps: ${duration} ms")
+        return Utils.adjustAlignment(mutant).toArray
+    }
+
+
+    /* Get indices of gaps in a sequence
+    */
+    private def getGapIndices(sequence: String): IndexedSeq[Int] = {
+        return sequence.zipWithIndex.filter { case (c, _) => c == '-' }.map(_._2)
     }
 }

@@ -13,6 +13,7 @@ import types.Biotype.{Alignment, CurrentPopulation}
 /**
  *  ISG - insert single gap
  *  IG  - insert gap
+ *  EG  - extend gap
  *  RG  - remove gap
  *  RGB - remove gap block
  *  TRG - trim redundant gaps
@@ -20,7 +21,7 @@ import types.Biotype.{Alignment, CurrentPopulation}
  */
 object MutationOperator extends Enumeration {
     type MutationOperator = Value
-    val UNDEF, ISG, IG, RG, RGB, TRG, MSG = Value
+    val UNDEF, ISG, IG, EG, RG, RGB, TRG, MSG = Value
 }
 
 
@@ -30,16 +31,18 @@ object Mutation {
     private val probability: mutable.Map[MutationOperator.Value, Double] = mutable.Map(
         MutationOperator.ISG -> 0.0,
         MutationOperator.IG -> 0.0,
+        MutationOperator.EG -> 0.0,
         MutationOperator.RG -> 0.0,
         MutationOperator.RGB -> 0.0,
         MutationOperator.MSG -> 0.0,
         MutationOperator.TRG -> 0.0
-    ).withDefaultValue(1/6)
+    ).withDefaultValue(1/7)
 
 
     private val frequency: mutable.Map[MutationOperator.Value, Int] = mutable.Map(
         MutationOperator.ISG -> 0,
         MutationOperator.IG -> 0,
+        MutationOperator.EG -> 0,
         MutationOperator.RG -> 0,
         MutationOperator.RGB -> 0,
         MutationOperator.TRG -> 0,
@@ -47,10 +50,10 @@ object Mutation {
     ).withDefaultValue(0)
 
 
-
     def resetProbabilities(): Unit = {
         probability(MutationOperator.ISG) = 0.3
-        probability(MutationOperator.IG) = 0.3
+        probability(MutationOperator.IG) = 0.15
+        probability(MutationOperator.EG) = 0.15
         probability(MutationOperator.RG) = 0.1
         probability(MutationOperator.RGB) = 0.1
         probability(MutationOperator.MSG) = 0.1
@@ -105,6 +108,7 @@ object Mutation {
         totalDensity += probability(MutationOperator.IG)
 
         // Chances of removing gaps are increasing with number of epochs and solution length
+        probability(MutationOperator.EG) *= (1 + insertGapsWeight)
         probability(MutationOperator.RGB) *= (1 + insertGapsWeight)
         probability(MutationOperator.RG) *= (1 + insertGapsWeight)
 
@@ -141,6 +145,9 @@ object Mutation {
             } else if (choice < probability(MutationOperator.IG)) {
                 this.frequency(MutationOperator.IG) += 1
                 mutant = GapMutation.insertGap(parent)
+            } else if (choice < probability(MutationOperator.EG)) {
+                this.frequency(MutationOperator.EG)
+                mutant = GapMutation.extendGap(parent)
             } else if (choice < probability(MutationOperator.RG)) {
                 this.frequency(MutationOperator.RG) += 1
                 mutant = GapMutation.removeGap(parent)
@@ -185,12 +192,15 @@ object Mutation {
                 this.frequency(MutationOperator.IG) += 1
                 mutant = GapMutation.insertGap(parent)
             } else if (choice == 2) {
+                this.frequency(MutationOperator.EG) += 1
+                mutant = GapMutation.extendGap(parent)
+            } else if (choice == 3) {
                 this.frequency(MutationOperator.RG) += 1
                 mutant = GapMutation.removeGap(parent)
-            } else if (choice == 3) {
+            } else if (choice == 4) {
                 this.frequency(MutationOperator.TRG) += 1
                 mutant = GapMutation.trimRedundantGaps(parent)
-            } else if (choice == 4) {
+            } else if (choice == 5) {
                 this.frequency(MutationOperator.RGB) += 1
                 mutant = GapMutation.removeGapBlock(parent)
             } else {
