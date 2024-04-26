@@ -15,8 +15,6 @@ object SparkController {
 
     private val session: SparkSession = SparkSession.builder
             .appName("BIO-APP")
-//             .master("local[*]")                                  // Locally, max. number of cores
-            .master(s"$prefix://$host:$port")
             .config("spark.log.level", "WARN")
             .getOrCreate()
     private val context = this.session.sparkContext
