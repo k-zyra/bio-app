@@ -30,12 +30,12 @@ object GeneticAlgorithm {
     /* Verify whether the conditions are met
     */
     private def checkEndCondition(population: CurrentPopulation): Unit = {
-        if (Config.epochsInPlateau == 5) {
+        if (Config.epochsInPlateau == Config.reconfigAtEpoch) {
             println("Should reevaluate probabilities")
             Mutation.reevaluteProbabilties(population)
         }
 
-        if (Config.epoch == Config.maxEpoch || Config.epochsInPlateau == 50) {
+        if (Config.epoch == Config.maxEpoch || Config.epochsInPlateau == Config.maxEpochsInPlateau) {
             if (logger.isVerbose()) logger.logWarn(
                 s"Breaking loop at epoch: ${Config.epoch}, epochs in plateau: ${Config.epochsInPlateau}")
             Config.keepGoing = false

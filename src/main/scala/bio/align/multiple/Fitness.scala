@@ -2,6 +2,7 @@ package bio.align.multiple
 
 import com.github.vickumar1981.stringdistance.StringDistance.{Hamming, Jaccard, Jaro, Levenshtein}
 import misc.{Constants, Logger}
+import scoring.SubstitutionMatrix
 import types.Biotype.{Alignment, CurrentPopulation}
 import types.DistanceType.DistanceType
 import types.{DistanceType, ScoringType}
@@ -13,6 +14,16 @@ object Fitness {
     private val logger = new Logger("MSA_Fitness")
 
 
+//    var gapOpening: Int = 0
+//    var gapExtension: Int = 0
+//    var scoringType: SubstitutionMatrix.ScoringMatrix = scoring.SubstitutionMatrix.DnaDefaultMatrix
+
+
+    /* Configure fitness calculations
+    */
+    def configure(): Unit = {
+        // TBD
+    }
 
     /* Calculate distance between two sequences
     */
@@ -45,11 +56,12 @@ object Fitness {
     */
     def getPairCost(firstSequence: String,
                     secondSequence: String,
-                    scoringType: ScoringType = ScoringType.PAM250): Int = {
+                    scoringType: ScoringType = Config.defaultScoring): Int = {
         var matrix: Map[String, Int] = Map[String, Int]()
         scoringType match {
             case ScoringType.PAM250 => matrix = scoring.Pam.Pam250
             case ScoringType.BLOSUM62 => matrix = scoring.Blosum.Blosum62
+            case ScoringType.SUBSTITUTION => matrix = scoring.SubstitutionMatrix.DnaDefaultMatrix
         }
 
         var cost: Int = 0

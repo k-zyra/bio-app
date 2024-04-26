@@ -2,6 +2,7 @@ package bio.align.multiple
 
 /* Internal imports */
 import misc.Logger
+import types.ScoringType
 
 
 
@@ -15,10 +16,12 @@ object Config {
     var preprocess: Boolean = true
 
     var epoch: Int = 0
-    var epochsInPlateau: Int = 0
-    var currentBest: Int = Int.MinValue
-
     var maxEpoch: Int = 50
+    var epochsInPlateau: Int = 0
+    var reconfigAtEpoch: Int = 0
+    var maxEpochsInPlateau: Int = 0
+
+    var currentBest: Int = Int.MinValue
     var keepGoing: Boolean = false
 
     var maxOffset: Int = 0
@@ -30,6 +33,8 @@ object Config {
     var mutationSize: Int = 0
 
     var initialAverageLength: Int = 0
+    var defaultScoring: ScoringType.ScoringType = ScoringType.SUBSTITUTION
+
 
 
     def getEvolutionProgress(): Double = {
@@ -50,19 +55,23 @@ object Config {
     /* Set algorithm's settings
     */
     def set(_maxNumberOfEpochs: Int = 100,
+           _maxEpochsInPlateau: Int = 50,
+           _epochInPlateauToReconfig: Int = 20,
           _generationSize: Int = 100,
           _maxOffset: Int = 5,
           _replacementFactor: Double = 0.5,
           _reproductionFactor: Double = 0.5,
           _maxExpectedOffspring: Int = 2,
           _preprocess: Boolean = true): Unit = {
+        this.maxEpoch = _maxNumberOfEpochs
+        this.maxEpochsInPlateau = _maxEpochsInPlateau
         this.generationSize = _generationSize
         this.maxOffset = _maxOffset
         this.replacementSize = (_replacementFactor * this.generationSize).toInt
         this.reproductionSize = (_reproductionFactor * (this.generationSize - this.replacementSize)).toInt
         this.mutationSize = this.replacementSize - this.reproductionSize
         this.maxExpectedOffspring = _maxExpectedOffspring
-        this.maxEpoch = _maxNumberOfEpochs
+        this.reconfigAtEpoch = _epochInPlateauToReconfig
 
         this.preprocess = _preprocess
         this.configured = true

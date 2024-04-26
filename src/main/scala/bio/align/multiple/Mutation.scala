@@ -15,13 +15,14 @@ import types.Biotype.{Alignment, CurrentPopulation}
  *  IG  - insert gap
  *  EG  - extend gap
  *  RG  - remove gap
+ *  RSG - remove single gap
  *  RGB - remove gap block
  *  TRG - trim redundant gaps
  *  MSG - move single gap
  */
 object MutationOperator extends Enumeration {
     type MutationOperator = Value
-    val UNDEF, ISG, IG, EG, RG, RGB, TRG, MSG = Value
+    val UNDEF, ISG, IG, EG, RG, RSG, RGB, TRG, MSG = Value
 }
 
 
@@ -33,6 +34,7 @@ object Mutation {
         MutationOperator.IG -> 0.0,
         MutationOperator.EG -> 0.0,
         MutationOperator.RG -> 0.0,
+        MutationOperator.RSG -> 0.0,
         MutationOperator.RGB -> 0.0,
         MutationOperator.MSG -> 0.0,
         MutationOperator.TRG -> 0.0
@@ -44,6 +46,7 @@ object Mutation {
         MutationOperator.IG -> 0,
         MutationOperator.EG -> 0,
         MutationOperator.RG -> 0,
+        MutationOperator.RSG -> 0,
         MutationOperator.RGB -> 0,
         MutationOperator.TRG -> 0,
         MutationOperator.MSG -> 0
@@ -52,12 +55,13 @@ object Mutation {
 
     def resetProbabilities(): Unit = {
         probability(MutationOperator.ISG) = 0.3
-        probability(MutationOperator.IG) = 0.15
-        probability(MutationOperator.EG) = 0.15
-        probability(MutationOperator.RG) = 0.1
-        probability(MutationOperator.RGB) = 0.1
-        probability(MutationOperator.MSG) = 0.1
-        probability(MutationOperator.TRG) = 0.1
+        probability(MutationOperator.IG) = 0.5
+        probability(MutationOperator.EG) = 0.7
+        probability(MutationOperator.RG) = 0.75
+//        probability(MutationOperator.RSG) = 0.8
+        probability(MutationOperator.RGB) = 0.85
+        probability(MutationOperator.MSG) = 0.9
+        probability(MutationOperator.TRG) = 1.0
     }
 
 
@@ -151,12 +155,15 @@ object Mutation {
             } else if (choice < probability(MutationOperator.RG)) {
                 this.frequency(MutationOperator.RG) += 1
                 mutant = GapMutation.removeGap(parent)
-            } else if (choice < probability(MutationOperator.TRG)) {
-                this.frequency(MutationOperator.TRG) += 1
-                mutant = GapMutation.trimRedundantGaps(parent)
+            } else if (choice < probability(MutationOperator.RSG)) {
+                this.frequency(MutationOperator.RSG) += 1
+                mutant = GapMutation.removeSingleGap(parent)
             } else if (choice < probability(MutationOperator.RGB)) {
                 this.frequency(MutationOperator.RGB) += 1
                 mutant = GapMutation.removeGapBlock(parent)
+            } else if (choice < probability(MutationOperator.TRG)) {
+                this.frequency(MutationOperator.TRG) += 1
+                mutant = GapMutation.trimRedundantGaps(parent)
             } else {
                 this.frequency(MutationOperator.MSG) += 1
                 mutant = GapMutation.moveSingleGap(parent)
@@ -198,11 +205,14 @@ object Mutation {
                 this.frequency(MutationOperator.RG) += 1
                 mutant = GapMutation.removeGap(parent)
             } else if (choice == 4) {
-                this.frequency(MutationOperator.TRG) += 1
-                mutant = GapMutation.trimRedundantGaps(parent)
+                this.frequency(MutationOperator.RSG) += 1
+                mutant = GapMutation.removeSingleGap(parent)
             } else if (choice == 5) {
                 this.frequency(MutationOperator.RGB) += 1
                 mutant = GapMutation.removeGapBlock(parent)
+            } else if (choice == 6) {
+                this.frequency(MutationOperator.TRG) += 1
+                mutant = GapMutation.trimRedundantGaps(parent)
             } else {
                 this.frequency(MutationOperator.MSG) += 1
                 mutant = GapMutation.moveSingleGap(parent)

@@ -29,6 +29,8 @@ object GapMutation {
     }
 
 
+    /* Modify single specimen by gap of length 1 insertion
+    */
     def insertSingleGap(specimen: Alignment): Alignment = {
         val gapPosition: Int = Random.nextInt(specimen(0).length)
         val sequenceId: Int = Random.nextInt(specimen.length)
@@ -151,12 +153,10 @@ object GapMutation {
     def extendGap(specimen: Alignment,
                   verbose: Boolean = logger.isVerbose()): Alignment = {
         val numberOfSequences: Int = specimen.length
-        val sequenceLength: Int = specimen.head.length
         val sequenceId: Int = Random.nextInt(numberOfSequences)
 
         val start: Long = System.nanoTime()
         val lastLetterIndices: Int = specimen(sequenceId).lastIndexWhere(_ != '-')
-        println(s"Last letter index: ${lastLetterIndices}")
         val subsequence: String = specimen(sequenceId).take(lastLetterIndices)
 
         val numberOfGaps: Int = subsequence.count(_ == '-')
@@ -171,14 +171,14 @@ object GapMutation {
         mutant(sequenceId) = mutatedSequence
         val duration: Float = (System.nanoTime() - start) / Constants.NanoInMillis
 
-        if (verbose) logger.logInfo(s"Time spent in extendGaps: ${duration} ms")
+//        if (verbose) logger.logInfo(s"Time spent in extendGaps: ${duration} ms")
         return Utils.adjustAlignment(mutant).toArray
     }
 
 
     /* Get indices of gaps in a sequence
     */
-    private def getGapIndices(sequence: String): IndexedSeq[Int] = {
+    def getGapIndices(sequence: String): IndexedSeq[Int] = {
         return sequence.zipWithIndex.filter { case (c, _) => c == '-' }.map(_._2)
     }
 }

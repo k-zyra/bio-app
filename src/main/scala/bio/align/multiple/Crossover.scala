@@ -1,12 +1,15 @@
 package bio.align.multiple
 
+/* External imports */
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 import scala.util.control.Breaks.{break, breakable}
+
+/* Internal imports */
 import misc.{Constants, Logger}
 import types.Biotype.{Alignment, CurrentAlignment, CurrentPopulation}
 
-import scala.collection.mutable
 
 
 object CrossoverMethod extends Enumeration {
@@ -49,7 +52,13 @@ object Crossover {
 
 
     def resetProbabilities(): Unit = {
-        // TBD
+        selectionProbability(SelectionMethod.DETERMINISTIC) = 0.4
+        selectionProbability(SelectionMethod.RANDOM_WHEEL) = 0.4
+        selectionProbability(SelectionMethod.STOCHASTIC) = 0.2
+
+        methodProbability(CrossoverMethod.ONE_POINT) = 0.75
+        methodProbability(CrossoverMethod.UNIFORM) = 0.05
+        methodProbability(CrossoverMethod.SEQUENTIAL) = 0.2
     }
 
 
@@ -68,7 +77,7 @@ object Crossover {
     /* Adjust possibilities of certain selection methods, based on the evolution progress
     */
     def reevaluteSelectionProbabilties(population: CurrentPopulation): Unit = {
-        // TBD
+
     }
 
 
