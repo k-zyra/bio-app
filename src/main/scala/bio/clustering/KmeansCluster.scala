@@ -1,21 +1,17 @@
 package bio.clustering
 
 /* External imports */
-import java.util.Arrays._
-
 import org.apache.spark.ml.clustering.{KMeans, KMeansModel}
 import org.apache.spark.ml.feature.VectorAssembler
-import org.apache.spark.sql.{DataFrame, Encoders, SparkSession, Row}
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
 
 import scala.collection.mutable.ArrayBuffer
 
 /* Internal imports */
 import app.SparkController
+import bio.utils.ClusterUtils
 import misc.{Constants, Logger}
-
-import utils.ClusterUtils
-import utils.MetricsUtils
 
 
 object KmeansCluster {
@@ -145,7 +141,7 @@ object KmeansCluster {
             return
         }
         
-        val featureValue = utils.ClusterUtils.getContentFeature(aCluster)
+        val featureValue = ClusterUtils.getContentFeature(aCluster)
         println(featureValue.getClass)
 
         val session = SparkController.getSession()

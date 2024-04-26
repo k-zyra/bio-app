@@ -1,16 +1,9 @@
 package bio.clustering
 
-/* External imports */
-import org.apache.spark.ml.clustering.KMeans
-import org.apache.spark.ml.feature.VectorAssembler
-import org.apache.spark.sql.{SparkSession, DataFrame}
 
 /* Internal imports */
-import app.SparkController
+import bio.utils.ClusterUtils
 import misc.{Constants, Logger}
-
-import utils.ClusterUtils
-import utils.MetricsUtils
 
 
 object BasicCluster {
