@@ -1,5 +1,4 @@
-package utils
-
+package bio.utils
 
 object ClusterUtils {
     /*  Divide given array of substrings into clusters

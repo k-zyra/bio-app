@@ -1,4 +1,4 @@
-package utils
+package bio.utils
 
 /* External imports */
 import com.github.vickumar1981.stringdistance.StringDistance._

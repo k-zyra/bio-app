@@ -8,9 +8,8 @@ import scala.collection.parallel.mutable.ParArray
 /* Internal imports */
 import app.SparkController
 import bio.searchers.AlignSearcher
+import bio.utils.{FileUtils, KmerUtils}
 import misc.{Console, Constants}
-import utils.{FileUtils, KmerUtils}
-
 
 
 object LocalAlignmentExample {

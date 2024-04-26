@@ -1,4 +1,4 @@
-package utils
+package bio.utils
 
 /* External imports */
 import misc.{Constants, Logger}
@@ -56,7 +56,7 @@ object KmerUtils {
                             k: Integer,
                             verbose: Boolean = logger.isVerbose()): Array[(String, Int)] = {
         val kmers = this.generateKmers(seq, k, verbose)
-        return this.countKmers(kmers, verbose)
+        return this.countKmers(kmers, verbose = verbose)
     }
 
 //    def generateKmersSequential(read: String,
@@ -80,12 +80,10 @@ object KmerUtils {
     def generateKmers(read: String,
                     k: Integer,
                     verbose: Boolean = logger.isVerbose()): Seq[String] = {
-//        val context = SparkController.getContext()
         val start: Long = System.nanoTime()
 
         val L = read.length()
         val iterRange = Seq.range(0, L-k+1, 1)
-//        var kmers = collection.mutable.ArraySeq[String]()
         val kmersSeq = for (n <- iterRange) yield read.slice(n, n+k)
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
@@ -97,9 +95,9 @@ object KmerUtils {
     /** Count kmers
      *  Calculate occurrences of each kmer in given array
      */
-    def countKmers(kmers: Seq[String], verbose: Boolean = logger.isVerbose()): Array[(String, Int)] = {
-        val context = SparkController.getContext()
-
+    def countKmers(kmers: Seq[String],
+                   context: SparkContext = SparkController.getContext(),
+                   verbose: Boolean = logger.isVerbose()): Array[(String, Int)] = {
         val start: Long = System.nanoTime()
         val rddKmers = context.parallelize(kmers).map(kmer => (kmer, 1))
         val countedKmers = rddKmers.reduceByKey(_ + _) 
@@ -140,7 +138,8 @@ object KmerUtils {
      *  Return array of tuples (occurences, kmers)
      */
     def prepareAllKmers(reads: Array[String],
-                        k: Integer = Constants.ParameterUnspecified, 
+                        k: Integer = Constants.ParameterUnspecified,
+                        context: SparkContext = SparkController.getContext(),
                         verbose: Boolean = logger.isVerbose()): Array[(String, Int)] = {
         val start: Long = System.nanoTime()
         var kmerLength: Integer = k
@@ -151,7 +150,7 @@ object KmerUtils {
 
         var readsPar = reads.par 
         var allKmersPar = readsPar.flatMap(read => this.generateKmers(read, kmerLength, verbose=false))
-        var allKmers = this.countKmers(allKmersPar.to[Seq], verbose=false)
+        var allKmers = this.countKmers(allKmersPar.to[Seq], context, verbose=false)
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) logger.logInfo(f"Time spent in <prepareAllKmers>: ${duration} ms")
@@ -193,7 +192,7 @@ object KmerUtils {
                             verbose: Boolean = logger.isVerbose()): Array[(String, Float)] =  {
         val kmers = this.generateKmers(seq, k, verbose = false)
         val numberOfKmers: Float = kmers.length.toFloat
-        var countedKmers = this.countKmers(kmers, verbose)
+        var countedKmers = this.countKmers(kmers, verbose = verbose)
 
         return countedKmers.map { case (kmer, counter) => (kmer, counter.toFloat/numberOfKmers) }
     }

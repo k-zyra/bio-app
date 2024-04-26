@@ -2,9 +2,8 @@ package examples
 
 /* Internal imports */
 import app.SparkController
+import bio.utils.{FileUtils, ScoreUtils}
 import misc.Console
-import utils.{FileUtils, ScoreUtils}
-
 
 
 object FilteringExample {

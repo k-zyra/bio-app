@@ -2,9 +2,8 @@ package examples
 
 /* Internal imports */
 import app.SparkController
+import bio.utils.{FileUtils, KmerUtils, StringUtils}
 import misc.{Console, Constants}
-import utils.{FileUtils, KmerUtils, StringUtils}
-
 
 
 object BwtExample {
@@ -16,7 +15,6 @@ object BwtExample {
 			StringUtils.burrowsWheelerTransform(sequence, verbose = false)
 		}
 		val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
-
 		println(f"Time spent in sequential BwtExample: ${duration} ms")
     }
 
@@ -27,7 +25,6 @@ object BwtExample {
 		val start: Long = System.nanoTime()
 		val bwtsPar = sequenesPar.map(sequence => StringUtils.burrowsWheelerTransform(sequence, verbose = false))
 		val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
-
 		println(f"Time spent in parallel BwtExample: ${duration} ms")
     }
 
