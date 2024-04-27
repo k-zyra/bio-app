@@ -1,19 +1,14 @@
 package bio.builders
 
 /* External imports */
-import java.util.Arrays._
-
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.types._
 import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.{Row, SparkSession}
 
-import scala.util.Sorting._
-
 /* Internal imports */
 import app.SparkController
+import bio.utils.StringUtils
 import misc.{Constants, Logger}
-import utils.StringUtils
 import scala.collection.parallel.ParSeq
 
 

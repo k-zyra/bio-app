@@ -1,6 +1,5 @@
 package bio.clustering
 
-
 /* Internal imports */
 import bio.utils.ClusterUtils
 import misc.{Constants, Logger}
