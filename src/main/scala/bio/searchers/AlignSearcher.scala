@@ -2,22 +2,18 @@ package bio.searchers
 
 /* External imports */
 import java.nio.file.{Files, Path, Paths}
-import java.util.Arrays
-import org.apache.spark.sql.{DataFrame, Row}
 
-import scala.annotation.switch
 import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, ArrayBuilder, Map, StringBuilder}
-import scala.util.control.Breaks.{break, breakable}
 import scala.xml.XML
 
 /* Internal imports */
-import app.SparkController
 import misc.{Constants, Logger}
 
 
 object AlignSearcher {
     private var logger = new Logger("AlignSearcher")
+
 
     /* Prepare score matrix 
      * Read XML file and prepare score matrix
@@ -305,7 +301,6 @@ object AlignSearcher {
 
         var run: Int = 0
         var step: Int = 0
-        val maxNumberOfSteps: Int = row.max(column) - 1
 
         var keepReading: Boolean = true
         val toVisit: ArrayBuffer[(Int, Int, Char, Int)] = new ArrayBuffer()
@@ -335,17 +330,15 @@ object AlignSearcher {
                     secondAlignment.insert(0, '-')
                 } 
             }
-            if (step < maxNumberOfSteps) { // Sequences from the current path are not ready yet
+
+            if (nextMoveId >= 0) { // Sequences from the current path are not ready yet
                 step += 1
                 nextMove = moves(nextMoveId)
 
-                if (nextMove.length > 1) {
+                if (nextMove.nonEmpty) {
                     for (possibleMove <- nextMove.substring(1)) toVisit += ((step, run, possibleMove, nextMoveId))
                 }
             } else { // Sequences from the current path are ready
-                val firstAl = firstAlignment.result()
-                val secondAl = secondAlignment.result()
-
                 alignments.+= (((firstAlignment.result(), secondAlignment.result())))
                 firstAlignment.clear()
                 secondAlignment.clear()
@@ -353,7 +346,6 @@ object AlignSearcher {
                 if (toVisit.size == 0)  {
                     keepReading = false
                 } else {
-                    // newBranch = (step, run, possibleMove, nextMoveId)
                     val newBranch = toVisit.remove(0)
 
                     firstAlignment.append(alignments(newBranch._2)._1.takeRight(newBranch._1))
