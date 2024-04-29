@@ -2,7 +2,7 @@ package examples
 
 /* External imports */
 import scala.collection.mutable
-import scala.collection.parallel.mutable.ParArray
+import scala.collection.parallel.mutable.{ParArray, ParArrayCombiner}
 
 /* Internal imports */
 import app.SparkController
@@ -17,7 +17,7 @@ object GlobalAlignmentExample {
     def getAllAlignments(firstSequence: String,
                          sequences: Array[String],
                          verbose: Boolean = false): Array[(String, String)] = {
-        val substitutionMatrix: Array[Array[Int] ]= AlignSearcher.prepareSubstitutionMatrix(Constants.GlobalDefaultMatrix)
+        val substitutionMatrix: Array[Array[Int]]= AlignSearcher.prepareSubstitutionMatrix(Constants.GlobalDefaultMatrix)
         val alignments: mutable.ArrayBuilder.ofRef[(String, String)] = new mutable.ArrayBuilder.ofRef[(String, String)]()
 
         val start: Long = System.nanoTime()
@@ -69,8 +69,11 @@ object GlobalAlignmentExample {
                                 AlignSearcher.needlemanWunschAlignment(Array(firstSequence, secondSequence), substitutionMatrix,
                                 5, -5, -5)
 
-        println(f"Alignments for sequences: ${firstSequence} and ${secondSequence}: ${substitutionMatrix.length}")
-        for (pair <- alignments) AlignSearcher.displayAlignments(pair)
+        println(f"Alignments for sequences: ${firstSequence} and ${secondSequence}: ${alignments.length}")
+        for (pairId <- alignments.indices) {
+            println(s"Alignment: ${pairId}")
+            AlignSearcher.displayAlignments(alignments(pairId))
+        }
     }
 
 
@@ -80,7 +83,7 @@ object GlobalAlignmentExample {
         val kmersWithCounters = KmerUtils.prepareAllKmers(reads.slice(0,10), k=13, verbose = true)
         val kmers = KmerUtils.getKmers(kmersWithCounters.slice(0,100))
 
-        if (verbose) this.runSingle()
+        this.runSingle()
         this.runSequential(kmers)
         this.runParallel(kmers)
 

@@ -115,6 +115,13 @@ object AlignSearcher {
     }
 
 
+    /*  Count sites without gaps
+    */
+    def getNumberOfResidues(sequence: String): Int = {
+        return sequence.count(c => c != '-')
+    }
+
+
     /*  Get all alignments found using Smith-Waterman algorithm
     */
     def getSmithWatermanAlignments(sequences: Array[String],
@@ -331,7 +338,7 @@ object AlignSearcher {
                 } 
             }
 
-            if (nextMoveId >= 0) { // Sequences from the current path are not ready yet
+            if (nextMoveId >= 0 && row > 0 && column > 0) { // Sequences from the current path are not ready yet
                 step += 1
                 nextMove = moves(nextMoveId)
 
@@ -339,6 +346,16 @@ object AlignSearcher {
                     for (possibleMove <- nextMove.substring(1)) toVisit += ((step, run, possibleMove, nextMoveId))
                 }
             } else { // Sequences from the current path are ready
+                if (row > 0) {
+                    firstAlignment.insert(0, firstSequence.take(row))
+                    secondAlignment.insert(0, "-" * row)
+                }
+
+                if (column > 0) {
+                    secondAlignment.insert(0, secondSequence.take(column))
+                    firstAlignment.insert(0, "-" * column)
+                }
+
                 alignments.+= (((firstAlignment.result(), secondAlignment.result())))
                 firstAlignment.clear()
                 secondAlignment.clear()
@@ -356,10 +373,12 @@ object AlignSearcher {
                     run += 1
                     step = newBranch._1
 
-                    row = firstSequence.length - newBranch._1
-                    column = secondSequence.length - newBranch._1
-                }
+                    val firstSteps = this.getNumberOfResidues(firstAlignment.toString())
+                    val secondSteps = this.getNumberOfResidues(secondAlignment.toString())
 
+                    row = firstSequence.length - firstSteps
+                    column = secondSequence.length - secondSteps
+                }
             }
         }
 
@@ -397,6 +416,7 @@ object AlignSearcher {
 
         var id = N + 2
         val start: Long = System.nanoTime()
+
         for (m <- 1 to M) {
             for  (n <- 1 to N) {
                 val alignmentsMap: Map[Int, Int] = Map[Int, Int]()
