@@ -1,12 +1,16 @@
 package bio.align.multiple
 
+/* External imports */
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
+
+/* Internal imports */
 import types.Biotype.{Alignment, CurrentPopulation}
 
 
 
 object Utils {
+
 
     /* Make all sequences in alignment the same length
     */
@@ -18,7 +22,7 @@ object Utils {
             adjusted += sequence.padTo(maxLength, '-')
         }
 
-        return adjusted.toArray
+        adjusted.toArray
     }
 
 
@@ -30,7 +34,7 @@ object Utils {
 
         val mutant: ArrayBuffer[String] = specimen.clone().to[ArrayBuffer]
         mutant(sequenceId) = mutant(sequenceId).takeRight(shifts) + mutant(sequenceId).take(mutant(sequenceId).length - shifts)
-        return mutant.toArray
+        mutant.toArray
     }
 
 
@@ -40,7 +44,7 @@ object Utils {
     def getAverageLength(sequences: CurrentPopulation): Int = {
         val totalLength: Int = sequences.flatten.map(_.length).sum
         val numberOfSequences: Int = sequences.flatMap(_.toList).length
-        return totalLength/numberOfSequences
+        totalLength/numberOfSequences
     }
 
 
@@ -52,6 +56,6 @@ object Utils {
         if (array.length < numberOfSamples) return samples.toArray
 
         val choices = Random.shuffle(array.indices.toList).take(numberOfSamples)
-        return choices.map(array(_)).toArray
+        choices.map(array(_)).toArray
     }
 }
