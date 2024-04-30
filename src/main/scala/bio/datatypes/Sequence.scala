@@ -1,7 +1,5 @@
 package bio.datatypes
 
-import org.apache.spark.rdd._
-import org.apache.spark.SparkContext
 
 
 class Sequence(_header: String, _read: String, _score: String) {
@@ -13,6 +11,6 @@ class Sequence(_header: String, _read: String, _score: String) {
 	/** Display Sequence class header
      */
 	override def toString(): String = {
-		return s"@$header\n$read"
+		s"@$header\n$read"
 	}
 }
