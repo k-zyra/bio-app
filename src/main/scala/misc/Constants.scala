@@ -3,6 +3,8 @@ package misc
 import bio.datatypes.{File, Sequence}
 import bio.ukkonen.UkkonenNode
 
+
+
 object Constants {
     val Ambiguous: Char = 'N'
 
@@ -25,7 +27,6 @@ object Constants {
 
     val NotFoundInteger: Integer = -1
     val NotFoundFloat: Float = -1
-    val NotExist: Integer = 0
 
     val ParameterUnspecified: Integer = -1
 
@@ -34,15 +35,14 @@ object Constants {
 
     val MinThreshold: Integer = 1
     val WeakKmerThreshold: Integer = 10
-    val SolidKmerThreshold: Integer = 90
 
     val PhredMaxThreshold: Integer = 65
     val PhreadDefaultThreshold: Integer = 30
 
-    val NanoInMillis: Integer = 1000000
+    val NanoInMillis: Float = 1000000.0f
 
     // Alignment constants
-    val DefaultGapPenalty: Integer = -1
+    val DefaultGapPenalty: Integer = -5
     val DefaultGapExtensionPenalty: Integer = 0
     val DefaultMismatchPenalty: Integer = -1
     val DefaultMatchReward: Integer = 1
@@ -54,14 +54,7 @@ object Constants {
     // Cluster constants
     val NumberOfClusters: Integer = 4
     val NumberOfRows: Integer = 20
-
     val PrefixBased: Integer = 0
-    val ContentBased: Integer = 1
-    val FrequencyBased: Integer = 2
-
-    // Numerical constants
-    val EmptyIntegerArray = Array[Integer]()
-    val EmptyFloatArray = Array[Float]()
 
     // String constants
     val EmptyString: String = ""
