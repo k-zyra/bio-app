@@ -1,6 +1,9 @@
 package misc
 
+/* External imports */
 import scala.io.StdIn
+
+
 
 object Console {
     private var PROMPT: String = Constants.DefaultPrompt
@@ -19,12 +22,12 @@ object Console {
     }
 
     def readingString(): String = {
-        return StdIn.readLine(this.PROMPT)
+        StdIn.readLine(this.PROMPT)
     }
 
     def readingInt(): Int = {
         print(PROMPT)
-        return StdIn.readInt()
+        StdIn.readInt()
     }
 
     def exiting(): Unit = {

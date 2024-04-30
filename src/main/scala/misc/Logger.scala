@@ -1,13 +1,14 @@
 package misc
 
+/* External imports */
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-class Logger(name: String) {
 
+
+class Logger(name: String) {
     import LoggingLevel._
 
-    val objectName: String = name
     var logHeader: String = s"$name"
     var debugHeader: String = s"[DEBUG] - $name"
     var infoHeader: String = s"[INFO] - $name"
@@ -20,7 +21,7 @@ class Logger(name: String) {
 
 
     override def toString(): String = {
-        return s"$name set for logging level: $logLevel"
+        s"$name set for logging level: $logLevel"
     }
 
     def logOn(): Unit = {
@@ -32,42 +33,41 @@ class Logger(name: String) {
     }
 
     def isVerbose(): Boolean = {
-        return (logLevel != LoggingLevel.NONE)
+        logLevel != LoggingLevel.NONE
     }
 
     def getTimestamp(): String = {
-        var timestamp: String = LocalDateTime.now().format(this.timeFormat)
-        return s"$timestamp"
+        LocalDateTime.now().format(this.timeFormat)
     }
 
     def logDebug(msg: String): Unit = {
         if (isVerbose()) {
-            var now: String = this.getTimestamp()
+            val now: String = this.getTimestamp()
             println(s"$now - $debugHeader: $msg")
         }
     }
 
     def logInfo(msg: String): Unit = {
         if (isVerbose()) {
-            var now: String = this.getTimestamp()
+            val now: String = this.getTimestamp()
             println(s"$now - $infoHeader: $msg")
         }
     }
 
     def logWarn(msg: String): Unit = {
         if (isVerbose()) {
-            var now: String = this.getTimestamp()
+            val now: String = this.getTimestamp()
             println(s"$now - $warnHeader: $msg")
         }
     }
 
     def logError(msg: String): Unit = {
-        var now: String = this.getTimestamp()
+        val now: String = this.getTimestamp()
         println(s"$now - $errorHeader: $msg")
     }
 
     def logCriticalError(msg: String): Unit = {
-        var now: String = this.getTimestamp()
+        val now: String = this.getTimestamp()
         println(s"$now - $criticalHeader: $msg")
     }
 
@@ -92,6 +92,6 @@ class Logger(name: String) {
     }
 
     def getLogLevel(): LoggingLevel = {
-        return this.logLevel
+        this.logLevel
     }
 }

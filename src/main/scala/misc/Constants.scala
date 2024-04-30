@@ -1,5 +1,6 @@
 package misc
 
+/* Internal imports */
 import bio.datatypes.{File, Sequence}
 import bio.ukkonen.UkkonenNode
 
