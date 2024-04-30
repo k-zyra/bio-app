@@ -95,7 +95,7 @@ object Crossover {
     */
     def deterministicSelection(populationBase: CurrentPopulation,
                                numberOfParents: Int): CurrentPopulation = {
-        return Fitness.getFittestSpecies(populationBase, numberOfParents)
+        Fitness.getFittestSpecies(populationBase, numberOfParents)
     }
 
 
@@ -136,7 +136,7 @@ object Crossover {
             }
         }
 
-        return parents
+        parents
     }
 
 
@@ -149,7 +149,7 @@ object Crossover {
         val parentIds =  Seq.fill(numberOfParents)(Random.nextInt(populationBase.length))
         for (id <- parentIds) parents += populationBase(id)
 
-        return parents
+        parents
     }
 
 
@@ -171,7 +171,7 @@ object Crossover {
             this.selectionFrequency(SelectionMethod.DETERMINISTIC) += 1
         }
 
-        return parents
+        parents
     }
 
 
@@ -226,7 +226,7 @@ object Crossover {
         val secondChildArray: Alignment = Utils.adjustAlignment(secondChild.toArray)
 
         if (verbose) logger.logInfo(f"One-point crossover duration: ${duration} ns")
-        return Fitness.chooseChild(firstChildArray, secondChildArray)
+        Fitness.chooseChild(firstChildArray, secondChildArray)
     }
 
 
@@ -235,7 +235,7 @@ object Crossover {
     private def findCutPoints(specimen: Array[String]): Array[Int] = {
         val referenceString: String = specimen(0)
 
-        return referenceString.indices.filter { index =>
+        referenceString.indices.filter { index =>
             specimen.forall(_.charAt(index) == referenceString.charAt(index))
         }.toArray
     }
@@ -270,7 +270,7 @@ object Crossover {
 
         val duration: Double = (System.nanoTime() - start)/Constants.NanoInMillis
         if (verbose) logger.logInfo(s"Uniform crossover duration: ${duration} ms")
-        return Fitness.chooseChild(firstChildArray, secondChildArray)
+        Fitness.chooseChild(firstChildArray, secondChildArray)
     }
 
 
@@ -295,7 +295,7 @@ object Crossover {
         val firstChildArray: Alignment = Utils.adjustAlignment(firstChild.toArray)
         val secondChildArray: Alignment = Utils.adjustAlignment(secondChild.toArray)
 
-        return Fitness.chooseChild(firstChildArray, secondChildArray)
+        Fitness.chooseChild(firstChildArray, secondChildArray)
     }
 
 
@@ -316,7 +316,7 @@ object Crossover {
             this.methodFrequency(CrossoverMethod.SEQUENTIAL) += 1
         }
 
-        return crossoverMethod
+        crossoverMethod
     }
 
 
@@ -339,6 +339,6 @@ object Crossover {
             }
         }
 
-        return children
+        children
     }
 }
