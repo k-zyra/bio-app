@@ -1,29 +1,20 @@
 package bio.align.multiple
 
+/* External imports */
 import com.github.vickumar1981.stringdistance.StringDistance.{Hamming, Jaccard, Jaro, Levenshtein}
-import misc.{Constants, Logger}
-import scoring.SubstitutionMatrix
+
+import scala.collection.mutable.ArrayBuffer
+
+/* Internal imports */
+import misc.Constants
 import types.Biotype.{Alignment, CurrentPopulation}
 import types.DistanceType.DistanceType
 import types.{DistanceType, ScoringType}
 import types.ScoringType.ScoringType
 
-import scala.collection.mutable.ArrayBuffer
 
 object Fitness {
-    private val logger = new Logger("MSA_Fitness")
 
-
-//    var gapOpening: Int = 0
-//    var gapExtension: Int = 0
-//    var scoringType: SubstitutionMatrix.ScoringMatrix = scoring.SubstitutionMatrix.DnaDefaultMatrix
-
-
-    /* Configure fitness calculations
-    */
-    def configure(): Unit = {
-        // TBD
-    }
 
     /* Calculate distance between two sequences
     */
@@ -38,7 +29,7 @@ object Fitness {
             case DistanceType.JARO => distance = Jaro.score(firstSequence, secondSequence)
         }
 
-        return distance
+        distance
     }
 
 
@@ -48,7 +39,7 @@ object Fitness {
                            seqeunces: Array[String],
                            distType: DistanceType = DistanceType.LEVENSHTEIN): Double = {
         val distanceSum = seqeunces.map(this.getDistance(referenceSequence, _, distType)).sum
-        return distanceSum/seqeunces.length
+        distanceSum/seqeunces.length
     }
 
 
@@ -79,7 +70,7 @@ object Fitness {
             }
         }
 
-        return cost
+        cost
     }
 
 
@@ -90,21 +81,15 @@ object Fitness {
         var totalCost: Int = 0
 
         for (i <- 1 to alignment.length - Constants.ArrayPadding) totalCost += this.getPairCost(ref, alignment(i))
-        return totalCost
+        totalCost
     }
 
 
     /* Rank alignments to choose the best species to be included in the next generation
     */
-    def rankAlignments(alignments: CurrentPopulation,
-                       verbose: Boolean = logger.isVerbose()): Array[(Int, Int)] = {
-        val start: Long = System.nanoTime()
+    def rankAlignments(alignments: CurrentPopulation): Array[(Int, Int)] = {
         val costs = alignments.map(alignment => Fitness.getAlignmentCost(alignment)).zipWithIndex
-        val rankedCosts = costs.sortBy(-_._1)
-        val duration: Float = (System.nanoTime() - start) / Constants.NanoInMillis
-
-//        if (verbose) logger.logInfo(f"Time spent in <rankAlignments> ${duration} ms")
-        return rankedCosts.toArray
+        costs.sortBy(-_._1).toArray
     }
 
 
@@ -119,20 +104,18 @@ object Fitness {
             populationBase += alignments(specimen._2)
         }
 
-        return populationBase
+        populationBase
     }
 
 
     /* Select more promising child for further breeding
     */
     def chooseChild(firstChild: Alignment,
-                            secondChild: Alignment,
-                            verbose: Boolean = logger.isVerbose()): Alignment = {
+                            secondChild: Alignment): Alignment = {
         val firstChildScore: Int = Fitness.getAlignmentCost(firstChild)
         val secondChildScore: Int = Fitness.getAlignmentCost(secondChild)
 
-//        if (verbose) logger.logDebug(s"First=${firstChildScore}, Second=${secondChildScore}")
-        if (firstChildScore > secondChildScore) return firstChild
-        else return secondChild
+        if (firstChildScore > secondChildScore) firstChild
+        else secondChild
     }
 }
