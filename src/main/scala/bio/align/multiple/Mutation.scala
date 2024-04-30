@@ -54,11 +54,11 @@ object Mutation {
 
 
     def resetProbabilities(): Unit = {
-        probability(MutationOperator.ISG) = 0.3
-        probability(MutationOperator.IG) = 0.5
+        probability(MutationOperator.ISG) = 0.5
+        probability(MutationOperator.IG) = 0.6
         probability(MutationOperator.EG) = 0.7
         probability(MutationOperator.RG) = 0.75
-//        probability(MutationOperator.RSG) = 0.8
+        probability(MutationOperator.RSG) = 0.8
         probability(MutationOperator.RGB) = 0.85
         probability(MutationOperator.MSG) = 0.9
         probability(MutationOperator.TRG) = 1.0
@@ -76,22 +76,25 @@ object Mutation {
     }
 
 
+    def displayStatus(): Unit = {
+        println(s"Epoch: ${Config.epoch}")
+        println(s"Evolution progress: ${Config.getEvolutionProgress()} ")
+        println(s"Length at the beginning: ${Config.initialAverageLength}")
+
+        println("Probabilities")
+        probability.foreach(println)
+    }
+
+
     /* Adjust possibilities of certain mutations, based on the evolution progress
     */
     def reevaluteProbabilties(population: CurrentPopulation): Unit = {
+        this.displayStatus()
+
         var totalDensity: Double = 0.0
         val averageSolutionLength: Int = Utils.getAverageLength(Random.shuffle(population.result()).take(10))
         val relativeLength: Double = averageSolutionLength.toDouble/Config.initialAverageLength.toDouble
-
-        println("Probabilities before modification")
-        probability.foreach(println)
-        println()
-
-        println(s"Epoch: ${Config.epoch}")
-        println(s"Evolution progress: ${Config.getEvolutionProgress()} ")
-
         println(s"Average solution length: ${averageSolutionLength}")
-        println(s"Length at the beginning: ${Config.initialAverageLength}")
         println(s"Relative length: ${relativeLength}")
 
         if (Config.isEndingStage()) {
@@ -148,7 +151,7 @@ object Mutation {
                 mutant = GapMutation.insertSingleGap(parent)
             } else if (choice < probability(MutationOperator.IG)) {
                 this.frequency(MutationOperator.IG) += 1
-                mutant = GapMutation.insertGap(parent)
+                mutant = BlockMutation.insertGap(parent)
             } else if (choice < probability(MutationOperator.EG)) {
                 this.frequency(MutationOperator.EG)
                 mutant = GapMutation.extendGap(parent)
@@ -160,10 +163,10 @@ object Mutation {
                 mutant = GapMutation.removeSingleGap(parent)
             } else if (choice < probability(MutationOperator.RGB)) {
                 this.frequency(MutationOperator.RGB) += 1
-                mutant = GapMutation.removeGapBlock(parent)
+                mutant = BlockMutation.removeGapBlock(parent)
             } else if (choice < probability(MutationOperator.TRG)) {
                 this.frequency(MutationOperator.TRG) += 1
-                mutant = GapMutation.trimRedundantGaps(parent)
+                mutant = BlockMutation.trimRedundantGaps(parent)
             } else {
                 this.frequency(MutationOperator.MSG) += 1
                 mutant = GapMutation.moveSingleGap(parent)
@@ -177,14 +180,15 @@ object Mutation {
             }
         }
 
-        return mutant
+        mutant
     }
 
 
-    /* Choose random mutation from all implemented, based on assigned probability
+    /* Choose random mutation from all implemented, based on equal probability
     */
     def uniform(population: CurrentPopulation): Alignment = {
         var parentId: Int = Random.nextInt(population.size)
+//        println(s"Uniform mutation, parent: ${parentId}")
         var parent: Alignment = population(parentId)
         var mutant: Alignment = parent.clone()
 
@@ -197,7 +201,7 @@ object Mutation {
                 mutant = GapMutation.insertSingleGap(parent)
             } else if (choice == 1) {
                 this.frequency(MutationOperator.IG) += 1
-                mutant = GapMutation.insertGap(parent)
+                mutant = BlockMutation.insertGap(parent)
             } else if (choice == 2) {
                 this.frequency(MutationOperator.EG) += 1
                 mutant = GapMutation.extendGap(parent)
@@ -209,10 +213,10 @@ object Mutation {
                 mutant = GapMutation.removeSingleGap(parent)
             } else if (choice == 5) {
                 this.frequency(MutationOperator.RGB) += 1
-                mutant = GapMutation.removeGapBlock(parent)
+                mutant = BlockMutation.removeGapBlock(parent)
             } else if (choice == 6) {
                 this.frequency(MutationOperator.TRG) += 1
-                mutant = GapMutation.trimRedundantGaps(parent)
+                mutant = BlockMutation.trimRedundantGaps(parent)
             } else {
                 this.frequency(MutationOperator.MSG) += 1
                 mutant = GapMutation.moveSingleGap(parent)
@@ -226,7 +230,7 @@ object Mutation {
             }
         }
 
-        return mutant
+        mutant
     }
 
 
@@ -247,6 +251,6 @@ object Mutation {
             }
         }
 
-        return extendedPopulation
+        extendedPopulation
     }
 }
