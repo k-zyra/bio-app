@@ -49,7 +49,7 @@ object BlockMutation {
         }
 
         val child: ArrayBuffer[String] = new ArrayBuffer[String]()
-        return child.result().toArray
+        child.result().toArray
     }
 
 
