@@ -2,9 +2,9 @@ package bio.searchers
 
 /* External imports */
 import java.nio.file.{Files, Path, Paths}
-
 import scala.collection.mutable
-import scala.collection.mutable.{ArrayBuffer, ArrayBuilder, Map, StringBuilder}
+import scala.collection.mutable.{ArrayBuffer, Map, StringBuilder}
+import scala.language.implicitConversions
 import scala.xml.XML
 
 /* Internal imports */
@@ -12,7 +12,16 @@ import misc.{Constants, Logger}
 
 
 object AlignSearcher {
-    private var logger = new Logger("AlignSearcher")
+    private val logger = new Logger("AlignSearcher")
+
+
+    implicit def convertToArray(arrayBuffer: ArrayBuffer[String]): Array[String] = {
+        arrayBuffer.result().toArray
+    }
+
+    implicit def convertToString(stringBuilder: StringBuilder): String = {
+        stringBuilder.result()
+    }
 
 
     /* Prepare score matrix 
@@ -191,7 +200,7 @@ object AlignSearcher {
                     }
                 }
             }
-            alignments.+= (((firstAlignment.result(), secondAlignment.result())))
+            alignments.+= ((firstAlignment, secondAlignment))
             firstAlignment.clear()
             secondAlignment.clear()
         }
@@ -271,11 +280,11 @@ object AlignSearcher {
         val maxScore: Int = temp.result().max
         val arrayOfPairsBuffer = ArrayBuffer[(Int, Int)]()
         for (i <- helper.indices) {
-            val alter = helper(i).zipWithIndex.filter { case (value, _) => value == maxScore }.map(_._2).toArray
+            val alter = helper(i).zipWithIndex.filter { case (value, _) => value == maxScore }.map(_._2)
             arrayOfPairsBuffer ++= alter.map(value => (i, value))
         }
 
-        alignments = this.getSmithWatermanAlignments(sequences, arrayOfPairsBuffer.toArray, moves.toArray)
+        alignments = this.getSmithWatermanAlignments(sequences, arrayOfPairsBuffer.toArray, moves)
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) {
@@ -313,7 +322,7 @@ object AlignSearcher {
         val toVisit: ArrayBuffer[(Int, Int, Char, Int)] = new ArrayBuffer()
 
         while (keepReading) {
-            nextMove(0).toChar match {
+            nextMove(0) match {
                 case '1' => {
                     nextMoveId = nextMoveId - diagonalShift
                     row -= 1
@@ -356,7 +365,7 @@ object AlignSearcher {
                     firstAlignment.insert(0, "-" * column)
                 }
 
-                alignments.+= (((firstAlignment.result(), secondAlignment.result())))
+                alignments.+= ((firstAlignment, secondAlignment))
                 firstAlignment.clear()
                 secondAlignment.clear()
 
@@ -373,8 +382,8 @@ object AlignSearcher {
                     run += 1
                     step = newBranch._1
 
-                    val firstSteps = this.getNumberOfResidues(firstAlignment.toString())
-                    val secondSteps = this.getNumberOfResidues(secondAlignment.toString())
+                    val firstSteps = this.getNumberOfResidues(firstAlignment)
+                    val secondSteps = this.getNumberOfResidues(secondAlignment)
 
                     row = firstSequence.length - firstSteps
                     column = secondSequence.length - secondSteps
@@ -390,9 +399,7 @@ object AlignSearcher {
     */
     def needlemanWunschAlignment(sequences: Array[String],
                             substitutionMatrix: Array[Array[Int]],
-                            reward: Integer = Constants.DefaultMatchReward,
                             gapPenalty: Integer = Constants.DefaultGapPenalty,
-                            mismatchPenalty: Integer = Constants.DefaultMismatchPenalty, 
                             verbose: Boolean = logger.isVerbose()): Array[(String, String)] = {
         var alignments = Constants.EmptyAlignmentsArray
         val numberOfSequences = sequences.length
@@ -448,7 +455,7 @@ object AlignSearcher {
             id += 1
         }
 
-        alignments = this.getNeedlemanWunschAlignments(sequences, moves.toArray)
+        alignments = this.getNeedlemanWunschAlignments(sequences, moves)
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) {
@@ -462,10 +469,8 @@ object AlignSearcher {
     */
     def needlemanWunschAlignmentAffine(sequences: Array[String],
                             substitutionMatrix: Array[Array[Int]],
-                            reward: Integer = Constants.DefaultMatchReward,
                             gapPenalty: Integer = Constants.DefaultGapPenalty,
                             gapExtensionPenalty: Integer = Constants.DefaultGapExtensionPenalty,
-                            mismatchPenalty: Integer = Constants.DefaultMismatchPenalty, 
                             verbose: Boolean = logger.isVerbose()): Array[String] = {
         val matches = Constants.EmptyStringArray
         val numberOfSequences = sequences.length
@@ -529,11 +534,10 @@ object AlignSearcher {
 
         val finalMatrix = temp.result()
         val maxScore: Int = finalMatrix.max
-        val indexes: Array[Int] = finalMatrix.zipWithIndex.filter { case (value, _) => value == maxScore }.map(_._2).toArray
 
         val arrayOfPairsBuffer = ArrayBuffer[(Int, Int)]()
         for (i <- helper.indices) {
-            val alter = helper(i).zipWithIndex.filter { case (value, _) => value == maxScore }.map(_._2).toArray
+            val alter = helper(i).zipWithIndex.filter { case (value, _) => value == maxScore }.map(_._2)
             arrayOfPairsBuffer ++= alter.map(value => (i, value))
         }
         val result = arrayOfPairsBuffer.result().toArray

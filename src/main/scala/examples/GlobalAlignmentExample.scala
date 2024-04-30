@@ -65,9 +65,8 @@ object GlobalAlignmentExample {
         val substitutionMatrix: Array[Array[Int]] =
                                 AlignSearcher.prepareSubstitutionMatrix("substitutionMatrix_global.xml")
                                 AlignSearcher.displaySubstitutionMatrix(substitutionMatrix)
-        val alignments: Array[(String, String)] =
-                                AlignSearcher.needlemanWunschAlignment(Array(firstSequence, secondSequence), substitutionMatrix,
-                                5, -5, -5)
+        val alignments: Array[(String, String)] = AlignSearcher.needlemanWunschAlignment(
+                                    Array(firstSequence, secondSequence), substitutionMatrix, -5)
 
         println(f"Alignments for sequences: ${firstSequence} and ${secondSequence}: ${alignments.length}")
         for (pairId <- alignments.indices) {
@@ -86,8 +85,6 @@ object GlobalAlignmentExample {
         this.runSingle()
         this.runSequential(kmers)
         this.runParallel(kmers)
-
-        // ======================================
 
         Console.exiting()
         SparkController.destroy(verbose)
