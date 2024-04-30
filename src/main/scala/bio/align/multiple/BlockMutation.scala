@@ -6,7 +6,8 @@ import scala.util.Random
 
 /* Internal imports */
 import misc.Logger
-import types.Biotype.Alignment
+import types.Biotype.{Alignment, CurrentAlignment}
+
 
 
 object BlockMutation {
@@ -16,8 +17,7 @@ object BlockMutation {
     /* Perform block shuffle for an alignment
     *  Gaps will be moved till they will be merged with different gaps
     */
-    def blockShuffle(specimen: Alignment,
-                     shifts: Int = 1): Unit = {
+    def blockShift(specimen: Alignment, shifts: Int = 1): Unit = {
 
     }
 
@@ -53,19 +53,61 @@ object BlockMutation {
     }
 
 
-    /* Modify single specimen by moving horizontally reference sequence
+    /* Modify single specimen by gap insertion
     */
-    def moveReferenceSequence(specimen: Alignment): Alignment = {
-        val mutationPower: Int = Random.nextInt(5) + 1
-        val shift: Int = Random.nextInt(Config.initialAverageLength/mutationPower) + 1
-        val referenceShifted: String = ("-" * shift) + specimen.head
+    def insertGap(specimen: Alignment): Alignment = {
+        //        val gapLength: Int = Random.nextInt(specimen(0).length) + 1
+        //        val gapLength: Int = Random.nextInt(Config.initialAverageLength/2) + 1
+        val gapLength: Int = Random.nextInt(specimen(0).length / 2) + 1
+        val gapPosition: Int = Random.nextInt(specimen(0).length)
 
-        println(s"Mutation power: ${mutationPower}")
-        println(s"Shift: ${shift}")
+        val mutant: ArrayBuffer[String] = new ArrayBuffer[String]()
+        for (sequence <- specimen) {
+            mutant += new String(sequence.take(gapPosition) + ("-" * gapLength) + sequence.substring(gapPosition))
+        }
 
-        var mutant: Alignment = specimen.clone()
-        mutant(0) = referenceShifted
+        mutant.result().toArray
+    }
 
-        return Utils.adjustAlignment(mutant).toArray
+
+    /* Remove block of gaps from one sequence
+    */
+    def removeGapBlock(specimen: Alignment): Alignment = {
+        val sequenceId: Int = Random.nextInt(specimen.length)
+        val mutatedSeqeunce: String = specimen(sequenceId)
+        if (!mutatedSeqeunce.contains('-')) return specimen
+
+        val gapsIds = mutatedSeqeunce.dropRight(1).zipWithIndex.filter { case (c, _) => c == '-' }.map(_._2)
+        if (gapsIds.isEmpty) return specimen
+        val gapId: Int = Random.shuffle(gapsIds).take(1)(0)
+
+        val originalLength: Int = mutatedSeqeunce.length
+        val mutant: ArrayBuffer[String] = specimen.clone().to[ArrayBuffer]
+        mutant(sequenceId) = (mutatedSeqeunce.take(gapId) + mutatedSeqeunce.substring(gapId).dropWhile(_ == '-')).padTo(originalLength, '-')
+
+        mutant.toArray
+    }
+
+
+    /* Remove large blocks of gaps from generated sequences
+    */
+    def trimRedundantGaps(specimen: Alignment): Alignment = {
+        var residuesIds = specimen(0).zipWithIndex.filter { case (c, _) => c != '-' }.map(_._2)
+
+        for (id <- 1 until specimen.size) {
+            residuesIds = residuesIds union specimen(id).zipWithIndex.filter { case (c, _) => c != '-' }.map(_._2)
+            if (residuesIds.isEmpty) return specimen
+        }
+
+        val mutant: CurrentAlignment = new CurrentAlignment
+        for (id <- specimen.indices) {
+            val trimmed = new StringBuilder("")
+
+            for (i <- residuesIds.sorted.distinct) trimmed += specimen(id)(i)
+            mutant += trimmed.toString()
+            trimmed.clear()
+        }
+
+        mutant.toArray
     }
 }
