@@ -32,14 +32,14 @@ object SparkController {
     /** Get Spark Session object
      */
     def getSession(): SparkSession = {
-        return this.session
+        this.session
     }
 
 
     /** Get Spark Context object
      */
     def getContext(): SparkContext = {
-        return this.context
+        this.context
     }
 
 
