@@ -5,6 +5,7 @@ import bio.utils.ClusterUtils
 import misc.{Constants, Logger}
 
 
+
 object BasicCluster {
     var logger = new Logger("BasicCluster")
 
@@ -18,7 +19,7 @@ object BasicCluster {
     /*  Prepare data for clustering
      */
     private def _unpackData(elements: Array[String]): Boolean = {
-        var clusters = ClusterUtils.makeBaseClusters(elements)
+        val clusters = ClusterUtils.makeBaseClusters(elements)
         if (clusters.isEmpty) return Constants.Failure
 
         this.aCluster = clusters(0)
@@ -26,7 +27,7 @@ object BasicCluster {
         this.gCluster = clusters(2)
         this.tCluster = clusters(3)
 
-        return Constants.Success
+        Constants.Success
     }
 
     

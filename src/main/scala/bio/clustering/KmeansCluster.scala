@@ -49,12 +49,12 @@ object KmeansCluster {
             return Array[String]()
         }
 
-        var arrayBuf = ArrayBuffer[String]()
+        val arrayBuf = ArrayBuffer[String]()
         cluster.get.collect().foreach { row => 
             arrayBuf += row.getAs[String]("id")
         }
 
-        return arrayBuf.toArray
+        arrayBuf.toArray
     }
 
 
@@ -68,10 +68,8 @@ object KmeansCluster {
         }
 
         val results = this.clusters.get.filter(col("id") === element)
-        if (results.count() == 0) return Constants.NotFoundInteger
-        else {
-            return results.first().getAs[Int]("prediction")
-        }
+        if (results.count() == 0) Constants.NotFoundInteger
+        else results.first().getAs[Int]("prediction")
     }
 
 
@@ -117,7 +115,7 @@ object KmeansCluster {
     /*  Display created clusters in readible format
      */
     private def _unpackData(elements: Array[String]): Boolean = {
-        var clusters = ClusterUtils.makeBaseClusters(elements)
+        val clusters = ClusterUtils.makeBaseClusters(elements)
         if (clusters.isEmpty) return Constants.Failure
 
         this.aCluster = clusters(0)
@@ -125,7 +123,7 @@ object KmeansCluster {
         this.gCluster = clusters(2)
         this.tCluster = clusters(3)
 
-        return Constants.Success
+        Constants.Success
     }
 
 
