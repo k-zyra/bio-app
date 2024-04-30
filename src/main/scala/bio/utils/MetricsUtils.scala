@@ -3,18 +3,14 @@ package bio.utils
 /* External imports */
 import com.github.vickumar1981.stringdistance.StringDistance._
 
-import java.util.{Dictionary, HashMap}
-
 import org.apache.spark.rdd._
-import org.apache.spark.SparkContext
 
 import scala.collection.Map
 import scala.collection.parallel.ParMap
-import scala.math
 
 /* Internal imports */
 import app.SparkController
-import bio.datatypes.{File, Sequence}
+import bio.datatypes.File
 import misc.{Constants, Logger}
 
 
@@ -33,7 +29,7 @@ object MetricsUtils {
         val numberOfBases: Double = this.getTotalNumberOfBases(file).toDouble
 
         if (verbose) logger.logInfo(f"Genome size: ${genomeSize}, number of bases: ${numberOfBases}")
-        return BigDecimal(numberOfBases/genomeSize).setScale(precision, BigDecimal.RoundingMode.HALF_UP).toDouble
+        BigDecimal(numberOfBases/genomeSize).setScale(precision, BigDecimal.RoundingMode.HALF_UP).toDouble
     }
 
 
@@ -47,24 +43,24 @@ object MetricsUtils {
         val numberOfBases: Long = readsPar.map(_.length).sum
         println("Number of bases in whole file: " + numberOfBases)
 
-        return numberOfBases
+        numberOfBases
     }
 
 
 	/**  Calculate GC-content for a sequence  
      */
-    def getGcContent(seq: String, verbose: Boolean = logger.isVerbose()): Float = {
+    def getGcContent(seq: String): Float = {
         val atcg: Float = seq.length.toFloat
         val gc: Float = seq.count(_ == 'C') + seq.count(_ == 'G') 
 
-        return (gc/atcg).toFloat
+        (gc/atcg)
     }
 
 
     /**  Calculate frequency of bases for a sequence  
      */
     def getBasesFrequency(base: Char, seq: String): Float = {
-        var stdBase = base.toUpper
+        val stdBase = base.toUpper
         if (!Constants.Nucleobases.contains(stdBase)) {
             logger.logCriticalError(s"Incorrect base given: $base")
             return Constants.NotFoundFloat
@@ -72,7 +68,7 @@ object MetricsUtils {
 
         val atcg: Float = seq.length()
         val baseCnt: Float = seq.count(_ == base)
-        return baseCnt/atcg
+        baseCnt/atcg
     }
 
 
@@ -90,7 +86,7 @@ object MetricsUtils {
         val duration: Float = (System.nanoTime()-start)/Constants.NanoInMillis
 
         if (verbose) logger.logInfo(f"Time spent in <countBases>: $duration ms")
-        return countedBases
+        countedBases
     }
 
 
@@ -100,7 +96,7 @@ object MetricsUtils {
      */
     def countBasesToMap(seq: String,
                 verbose: Boolean = logger.isVerbose()): Map[Char, Int] = {
-        return this.countBases(seq, verbose).collectAsMap()
+        this.countBases(seq, verbose).collectAsMap()
     }
     
 
@@ -118,7 +114,7 @@ object MetricsUtils {
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) logger.logInfo(f"Time spent in <countBasesUsingPar>: $duration ms")
-        return countedBases
+        countedBases
     }
 
 
@@ -128,14 +124,14 @@ object MetricsUtils {
     def countBasesFrequencies(seq: String,
                             verbose: Boolean = logger.isVerbose()): RDD[(Char, Float)] = {
         val seqLen: Float = seq.length()
-        var basesCounts = this.countBases(seq, verbose)
+        val basesCounts = this.countBases(seq, verbose)
 
         val start: Long = System.nanoTime()  
         val basesFreq = basesCounts.map(base => (base._1, base._2/seqLen)) 
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) logger.logInfo(f"Time spent in <countBasesFrequencies>: $duration ms")
-        return basesFreq
+        basesFreq
     }
 
 
@@ -145,7 +141,7 @@ object MetricsUtils {
         val numberOfKmers: Float = KmerUtils.getNumberOfKmers(kmers).toFloat
         val kmerFrequencies = kmers.map(kmer => kmer._2/numberOfKmers)
 
-        return kmerFrequencies.sum/numberOfKmers
+        kmerFrequencies.sum/numberOfKmers
     }
 
 
@@ -156,7 +152,7 @@ object MetricsUtils {
         val meanFrequency: Float = this.calculateMean(kmers)
         val stdDevCounter: Float = kmers.map(kmer => math.pow(kmer._2 - meanFrequency, 2)).sum.toFloat
 
-        return math.sqrt(stdDevCounter/numberOfKmers-1).toFloat
+        math.sqrt(stdDevCounter/numberOfKmers-1).toFloat
     }
 
 
@@ -177,7 +173,7 @@ object MetricsUtils {
         val meanFrequency: Float = this.calculateMean(kmers)
         val stdDevFrequency: Float = this.calculateStdDev(kmers)
 
-        return (kmerFrequency - meanFrequency)/stdDevFrequency
+        (kmerFrequency - meanFrequency)/stdDevFrequency
     }
 
 
@@ -188,14 +184,14 @@ object MetricsUtils {
                                 verbose: Boolean = logger.isVerbose()): RDD[Double] = {
         val context = SparkController.getContext()
         val kmer = strings(id)
-        var rddStrings = context.parallelize(strings)
+        val rddStrings = context.parallelize(strings)
 
         val start: Long = System.nanoTime()  
-        var metrics = rddStrings.map(element => Jaccard.score(element, kmer))
+        val metrics = rddStrings.map(element => Jaccard.score(element, kmer))
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) logger.logInfo(f"Time spent in <getJaccardSimilarity>: $duration ms")
-        return metrics
+        metrics
     }
 
 
@@ -206,13 +202,13 @@ object MetricsUtils {
                             verbose: Boolean = logger.isVerbose()): RDD[Int] = {
         val context = SparkController.getContext()
         val kmer = strings(id)
-        var rddStrings = context.parallelize(strings)
+        val rddStrings = context.parallelize(strings)
 
         val start: Long = System.nanoTime()  
-        var metrics = rddStrings.map(element => Hamming.distance(element, kmer))
+        val metrics = rddStrings.map(element => Hamming.distance(element, kmer))
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) logger.logInfo(f"Time spent in <getHammingDistance>: $duration ms")
-        return metrics
+        metrics
     }
 }

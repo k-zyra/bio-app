@@ -1,9 +1,10 @@
 package bio.utils
 
 /* External imports */
-import misc.{Constants, Logger}
-
 import scala.collection.mutable.ArrayBuffer
+
+/* Internal imports */
+import misc.{Constants, Logger}
 
 
 
@@ -18,8 +19,8 @@ object ScoreUtils {
      *  Detect Phred offset
      */
     def getOffset(sample: String): Double = {
-        if (sample.charAt(0) > 63) return Phred33Offset
-        else return Phred64Offset
+        if (sample.charAt(0) > 63) Phred33Offset
+        else Phred64Offset
     }
 
 
@@ -27,7 +28,7 @@ object ScoreUtils {
      *  Used in Illumina, Ion Torrent, PacBio and Sanger
      */
     def getPhred33Quality(P: Double): Int = {
-        return ((-10) * math.log10(P)).toInt
+        ((-10) * math.log10(P)).toInt
     }
 
 
@@ -35,7 +36,7 @@ object ScoreUtils {
      *   Used in old Illumina
      */
     def getPhred64Quality(P: Double): Int = {
-        return ((-10) * math.log10(P)).toInt
+        ((-10) * math.log10(P)).toInt
     }
 
      
@@ -43,7 +44,7 @@ object ScoreUtils {
      *  Used in Illumina, Ion Torrent, PacBio and Sanger
      */
     def getPhred33Ascii(P: Double): Char = {
-        return ((-10) * math.log10(P) + Phred33Offset).toChar
+        ((-10) * math.log10(P) + Phred33Offset).toChar
     }
 
 
@@ -51,14 +52,14 @@ object ScoreUtils {
      *   Used in old Illumina
      */
     def getPhred64Ascii(P: Double): Char = {
-        return ((-10) * math.log10(P) + Phred64Offset).toChar
+        ((-10) * math.log10(P) + Phred64Offset).toChar
     }
 
 
     /**  Convert Phred score from ASCII to Int
      */
     def convertPhredToDouble(Q: Char, base: Integer): Int = {
-        return Q.toInt - base
+        Q.toInt - base
     }
 
     
@@ -71,7 +72,7 @@ object ScoreUtils {
         val Qint = Q.toInt - offset
         
         val exp = (-Qint/10)
-        return math.pow(base, exp)
+        math.pow(base, exp)
     }   
 
     
@@ -84,19 +85,20 @@ object ScoreUtils {
         val Qint = Q.toInt - offset
                 
         val exp = (-Qint/10)
-        return math.pow(base, exp)
+        math.pow(base, exp)
     }
 
 
     /**  Check whether given threshold for Phred quality score has correct value
      */
     def isThresholdCorrect(threshold: Integer): Boolean = {
+        var answer: Boolean = true
         if (threshold < 0 || threshold > Constants.PhredMaxThreshold) {
             this.logger.logError(
                 f"Incorrect value of threshold: ${threshold}, should be in range [0, ${Constants.PhredMaxThreshold}]")
-            return false
+            answer = false
         }
-        return true
+        answer
     }
 
 
@@ -106,7 +108,7 @@ object ScoreUtils {
         val numberOfElements: Int = quality.length()
         var sumOfQualities: Double = 0
         sumOfQualities = quality.map(element => element.toInt).reduceLeft(_+_)
-        return (sumOfQualities/numberOfElements)
+        (sumOfQualities/numberOfElements)
     }                  
 
 
@@ -122,7 +124,7 @@ object ScoreUtils {
             return Array[(String, String)]()
         }
 
-        var filtered = new ArrayBuffer[(String, String)]
+        val filtered = new ArrayBuffer[(String, String)]
         val start: Long = System.nanoTime()
         for (sequence <- sequences) {
             if (this.getMeanQuality(sequence._2, base) >= threshold) {
@@ -132,7 +134,7 @@ object ScoreUtils {
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) println(f"Filtered by mean quality in $duration ms")
-        return filtered.result().toArray                                  
+        filtered.result().toArray
     }
 
 
@@ -148,13 +150,13 @@ object ScoreUtils {
             return Array[(String, String)]()
         }
 
-        var sequencesPar = sequences.par
+        val sequencesPar = sequences.par
         val start: Long = System.nanoTime()
-        var filteredPar = sequencesPar.filter( { case (sequence) => this.getMeanQuality(sequence._2, base) > threshold } )
+        val filteredPar = sequencesPar.filter( { case (sequence) => this.getMeanQuality(sequence._2, base) > threshold } )
         val duration: Float = (System.nanoTime()-start)/Constants.NanoInMillis
         
         if (verbose) println(f"Filtered by mean quality in parallel in $duration ms")
-        return filteredPar.toArray
+        filteredPar.toArray
     }
 
 
@@ -167,8 +169,8 @@ object ScoreUtils {
                             base: Integer,
                             parallelMode: Boolean = false,
                             verbose: Boolean = false): Array[(String, String)] = {
-        if (parallelMode) return this.filterByMeanQualityParallel(sequences, threshold, base, verbose)
-        else return this.filterByMeanQualitySequential(sequences, threshold, base, verbose)
+        if (parallelMode) this.filterByMeanQualityParallel(sequences, threshold, base, verbose)
+        else this.filterByMeanQualitySequential(sequences, threshold, base, verbose)
     }
 
 
@@ -180,7 +182,7 @@ object ScoreUtils {
         for (basecall <- sequence) {
             if (basecall.toInt > threshold) counter += 1
         }
-        return counter
+        counter
     }
 
 
@@ -196,7 +198,7 @@ object ScoreUtils {
         if (!isThresholdCorrect(threshold)) {
             return Array[(String, String)]()
         }
-        var filtered: ArrayBuffer[(String, String)] = new ArrayBuffer[(String, String)]()
+        val filtered: ArrayBuffer[(String, String)] = new ArrayBuffer[(String, String)]()
 
         val start: Long = System.nanoTime()
         for (sequence <- sequences) {
@@ -207,7 +209,7 @@ object ScoreUtils {
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) println(f"Filtered by number of correct base calls in $duration ms")
-        return filtered.result().toArray
+        filtered.result().toArray
     }
 
 
@@ -226,11 +228,11 @@ object ScoreUtils {
 
         val sequencesPar = sequences.par
         val start: Long = System.nanoTime()
-        var filtered = sequencesPar.filter( { case (sequence) => sequence._2.count( character => character>threshold ) > expectedCounter })
+        val filtered = sequencesPar.filter( { case (sequence) => sequence._2.count( character => character>threshold ) > expectedCounter })
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) println(f"Filtered by number of correct base calls in $duration ms")
-        return filtered.toArray
+        filtered.toArray
     }
 
 
@@ -244,7 +246,7 @@ object ScoreUtils {
                             base: Integer,
                             parallelMode: Boolean = false,
                             verbose: Boolean = false): Array[(String, String)] = {
-        if (parallelMode) return this.filterByNumberOfCorrectBaseCallSequential(sequences, threshold, expectedCounter, base, verbose)
-        else return this.filterByNumberOfCorrectBaseCallSequential(sequences, threshold, expectedCounter, base, verbose)
+        if (parallelMode) this.filterByNumberOfCorrectBaseCallSequential(sequences, threshold, expectedCounter, base, verbose)
+        else this.filterByNumberOfCorrectBaseCallSequential(sequences, threshold, expectedCounter, base, verbose)
     }
 }

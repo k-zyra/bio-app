@@ -1,15 +1,16 @@
 package bio.utils
 
 /* External imports */
-import app.SparkController
 import org.apache.spark.rdd.RDD
 
 import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 
 /* Internal imports */
+import app.SparkController
 import bio.datatypes.{File, Sequence}
 import misc.{Constants, Logger}
+
 
 
 object FileUtils {
@@ -17,37 +18,21 @@ object FileUtils {
 
 
     def getRoot(): String = {
-        val currentDirectory: String = System.getProperty("user.dir");
-        return currentDirectory
+        System.getProperty("user.dir")
     }
 
 
     /**  Check whether given file is in FASTA format 
      */
     def isFasta(file: File): Boolean = {
-        return file.getFileType().endsWith(Constants.FastaExtension)
+        file.getFileType().endsWith(Constants.FastaExtension)
     }
 
 
     /**  Check whether given file is in FASTQ format 
      */
     def isFastq(file: File): Boolean = {
-        return file.getFileType().endsWith(Constants.FastqExtension)
-    }
-
-
-    /**  Check type for given filename
-     */
-    def checkFileType(filename: String): String = {
-        val standardized: String = StringUtils.standardize(filename, upper=false)
-        return "FASTA"
-    }
-
-
-    /**  Check type of given file
-     */
-    def checkFileType(file: File): String = {
-        return "FASTA"
+        file.getFileType().endsWith(Constants.FastqExtension)
     }
 
 
@@ -55,7 +40,7 @@ object FileUtils {
      */
     def readAsRdd(filename: String): RDD[String] = {
         val context = SparkController.getContext()
-        return context.textFile(filename)
+        context.textFile(filename)
     }
 
 
@@ -65,7 +50,7 @@ object FileUtils {
                     startFrom: Int,
                     numberOfLines: Int): Array[String] = {
         val file = this.readAsRdd(filename)
-        return file
+        file
           .zipWithIndex()
           .filter(_._2 % numberOfLines == startFrom)
           .map(_._1)
@@ -82,7 +67,7 @@ object FileUtils {
         if (filename.endsWith(Constants.FastqExtension)) numberOfLines = 4
         else logger.logCriticalError(s"Not supported type of file: $filename!")
 
-        return this.filterLines(filename, beginFrom, numberOfLines)
+        this.filterLines(filename, beginFrom, numberOfLines)
     }
 
 
@@ -100,7 +85,7 @@ object FileUtils {
             logger.logCriticalError(s"Not supported type of file: $filename!")
         }
 
-        return this.filterLines(filename, beginFrom, numberOfLines)
+        this.filterLines(filename, beginFrom, numberOfLines)
     }
 
 
@@ -109,7 +94,7 @@ object FileUtils {
     def getReadsAndScoresFromFile(filename: String): Array[(String, String)] = {
         val scores: Array[String] = this.getScoresFromFile(filename)
         val reads: Array[String] = this.getReadsFromFile(filename)
-        return reads.zip(scores)
+        reads.zip(scores)
     }
 
 
@@ -130,7 +115,7 @@ object FileUtils {
             logger.logCriticalError(s"Not supported type of file: $filename!")
         }
 
-        return file
+        file
     }
 
 
@@ -149,7 +134,7 @@ object FileUtils {
         }
 
         val output = parse(Source.fromFile(filename).getLines())
-        return new File(filename, "FASTA", output.toArray)
+        new File(filename, "FASTA", output.toArray)
     }
 
 
@@ -168,7 +153,7 @@ object FileUtils {
         }
 
         val output = parse(Source.fromFile(filename).getLines())
-        return new File(filename, "FASTQ", output.toArray)
+        new File(filename, "FASTQ", output.toArray)
     }
 
 
@@ -204,7 +189,7 @@ object FileUtils {
         }
 
         source.close()
-        return new File(filename, "TFA", output.toArray)
+        new File(filename, "TFA", output.toArray)
     }
 
 
@@ -229,7 +214,7 @@ object FileUtils {
                                     s"* Lines: $lines\n" +
                                     s"* Headers: $headers\n " + 
                                     s"* Scores: $scores") 
-        return statistics 
+        statistics
     }
 
 
@@ -296,7 +281,7 @@ object FileUtils {
      */
     def getAverageReadLength(reads: List[String]): Float = {
         val totalLength = reads.foldLeft(0)((acc, str) => acc + str.length)
-        return (totalLength.toFloat)/(reads.length.toFloat)
+        (totalLength.toFloat)/(reads.length.toFloat)
     }
 
 
@@ -304,7 +289,7 @@ object FileUtils {
      */
     def getAverageReadLength(reads: Array[String]): Float = {
         val totalLength = reads.foldLeft(0)((acc, str) => acc + str.length)
-        return (totalLength.toFloat)/(reads.length.toFloat)
+        (totalLength.toFloat)/(reads.length.toFloat)
     }
 
 
@@ -313,6 +298,6 @@ object FileUtils {
      *   Return array of filtered reads
      */
     def filterAmbiguousReads(reads: Array[String]): Array[String] = {
-        return reads.filterNot(read => read.contains(Constants.Ambiguous))
+        reads.filterNot(read => read.contains(Constants.Ambiguous))
     }
 }

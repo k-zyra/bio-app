@@ -1,16 +1,11 @@
 package bio.utils
 
 /* External imports */
-import misc.{Constants, Logger}
-
-import java.util.Arrays
-import org.apache.spark.rdd._
 import org.apache.spark.SparkContext
 
 /* Internal imports */
 import app.SparkController
-import bio.datatypes.Sequence
-import scala.collection.mutable.ArrayBuffer
+import misc.{Constants, Logger}
 
 
 
@@ -21,14 +16,14 @@ object KmerUtils {
     /** Get only kmers from array containing kmers with counters
      */
     def getKmers(kmersWithCounters: Array[(String, Int)]): Array[String] = {
-        return kmersWithCounters.map(_._1).toArray
+        kmersWithCounters.map(_._1)
     }
 
 
     /** Get only counters from array containing kmers with counters
      */
     def getCounters(kmersWithCounters: Array[(String, Int)]): Array[Int] = {
-        return kmersWithCounters.map(_._2).toArray
+        kmersWithCounters.map(_._2)
     }
 
 
@@ -36,8 +31,8 @@ object KmerUtils {
      *  Count how many kmers for given read and k value can be generated
      */
     def getNumberOfPossibleKmers(read: String, k: Integer): Integer = {
-        var L = read.length()
-        return (L - k + 1)
+        val L = read.length()
+        (L - k + 1)
     }
 
 
@@ -45,7 +40,7 @@ object KmerUtils {
      *  Sum up second values of tuples which indicate how many kmers were found for given sequence
      */
     def getNumberOfKmers(kmers: Array[(String, Int)]): Integer = {
-        return kmers.foldLeft(0)((sum, kmer) => sum + kmer._2)
+        kmers.foldLeft(0)((sum, kmer) => sum + kmer._2)
     }
 
 
@@ -56,22 +51,8 @@ object KmerUtils {
                             k: Integer,
                             verbose: Boolean = logger.isVerbose()): Array[(String, Int)] = {
         val kmers = this.generateKmers(seq, k, verbose)
-        return this.countKmers(kmers, verbose = verbose)
+        this.countKmers(kmers, verbose = verbose)
     }
-
-//    def generateKmersSequential(read: String,
-//                                k: Integer,
-//                                verbose: Boolean = logger.isVerbose()): Seq[String] = {
-//        val start: Long = System.nanoTime()
-//
-//        val L = read.length()
-//        val iterRange = Seq.range(0, L - k + 1, 1)
-//        var kmers = for (n <- iterRange) yield read.slice(n, n + k)
-//        val duration: Float = (System.nanoTime() - start) / Constants.NanoInMillis
-//
-//        if (verbose) logger.logInfo(f"Time spent in <generateKmers> ${duration} ms")
-//        return kmers
-//    }
 
 
     /** Generate kmers
@@ -88,7 +69,7 @@ object KmerUtils {
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) logger.logInfo(f"Time spent in <generateKmers> ${duration} ms")
-        return kmersSeq
+        kmersSeq
     }
 
 
@@ -104,7 +85,7 @@ object KmerUtils {
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) logger.logInfo(f"Time spent in <countKmers> ${duration} ms")
-        return countedKmers.collect()
+        countedKmers.collect()
     }
 
 
@@ -130,7 +111,7 @@ object KmerUtils {
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) logger.logInfo(f"Time spent in <prepareAllKmersSequential>: ${duration} ms")
-        return allKmers
+        allKmers
     }
 
 
@@ -148,13 +129,13 @@ object KmerUtils {
             if (verbose) logger.logInfo(f"Setting k to value: ${kmerLength}")
         }
 
-        var readsPar = reads.par 
-        var allKmersPar = readsPar.flatMap(read => this.generateKmers(read, kmerLength, verbose=false))
-        var allKmers = this.countKmers(allKmersPar.to[Seq], context, verbose=false)
+        val readsPar = reads.par
+        val allKmersPar = readsPar.flatMap(read => this.generateKmers(read, kmerLength, verbose=false))
+        val allKmers = this.countKmers(allKmersPar.to[Seq], context, verbose=false)
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) logger.logInfo(f"Time spent in <prepareAllKmers>: ${duration} ms")
-        return allKmers
+        allKmers
     }
 
 
@@ -164,10 +145,10 @@ object KmerUtils {
     def getWeakKmers(seq: String, k: Integer,
                     threshold: Integer = Constants.WeakKmerThreshold): Array[(String, Int)] = {
         val numberOfKmers: Integer = this.getNumberOfPossibleKmers(seq, k) 
-        var counted = this._prepareKmers(seq, k)
+        val counted = this._prepareKmers(seq, k)
         
         counted.sortBy(_._2)
-        return counted.take(numberOfKmers * threshold/100)
+        counted.take(numberOfKmers * threshold/100)
     }
 
 
@@ -177,10 +158,10 @@ object KmerUtils {
     def getSolidKmers(seq: String, k: Integer,
                     threshold: Integer = Constants.WeakKmerThreshold): Array[(String, Int)] = {
         val numberOfKmers: Integer = this.getNumberOfPossibleKmers(seq, k) 
-        var counted = this._prepareKmers(seq, k)
+        val counted = this._prepareKmers(seq, k)
         
         counted.sortBy(-_._2)
-        return counted.take(numberOfKmers * threshold/100)
+        counted.take(numberOfKmers * threshold/100)
     }
 
 
@@ -192,17 +173,16 @@ object KmerUtils {
                             verbose: Boolean = logger.isVerbose()): Array[(String, Float)] =  {
         val kmers = this.generateKmers(seq, k, verbose = false)
         val numberOfKmers: Float = kmers.length.toFloat
-        var countedKmers = this.countKmers(kmers, verbose = verbose)
+        val countedKmers = this.countKmers(kmers, verbose = verbose)
 
-        return countedKmers.map { case (kmer, counter) => (kmer, counter.toFloat/numberOfKmers) }
+        countedKmers.map { case (kmer, counter) => (kmer, counter.toFloat/numberOfKmers) }
     }
 
 
     /** Get kmer spectra
      */
     def getKmerSpectra(seq: String,
-                    k: Integer,
-                    verbose: Boolean = logger.isVerbose()): Unit = {
+                    k: Integer): Unit = {
         val frequencies = this.countKmerFrequencies(seq, k, verbose = false)
     }
 }

@@ -1,5 +1,7 @@
 package bio.utils
 
+
+
 object ClusterUtils {
     /*  Divide given array of substrings into clusters
      */
@@ -13,15 +15,14 @@ object ClusterUtils {
         val gCluster = basesCluster.get('G').get
         val tCluster = basesCluster.get('T').get
 
-        return Array(aCluster, cCluster, gCluster, tCluster)
+        Array(aCluster, cCluster, gCluster, tCluster)
     }
 
 
     /* Get GC-content for given sequences
      */
     def getContentFeature(data: Array[String]): Array[Float] = {
-        val featureValues = data.map( str => MetricsUtils.getGcContent(str, verbose = false) )
-        return featureValues
+        data.map(str => MetricsUtils.getGcContent(str))
     }
 
     
@@ -33,7 +34,7 @@ object ClusterUtils {
         val gContent = data.map( str => MetricsUtils.getBasesFrequency('G', str) )
         val tContent = data.map( str => MetricsUtils.getBasesFrequency('T', str) )
 
-        return Array(aContent, cContent, gContent, tContent)
+        Array(aContent, cContent, gContent, tContent)
     }
 
 }
