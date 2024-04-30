@@ -18,7 +18,7 @@ object MsaExample {
 
 
     def heuristicMethod(sequences: Array[String]): Unit = {
-        Config.set()
+        Config.set(_maxNumberOfEpochs= 2000, _maxEpochsInPlateau = 1800, _generationSize = 300)
         GeneticAlgorithm.prepareInitialPoint(sequences)
 
         val mutant = GeneticAlgorithm.start(sequences, 1, false)

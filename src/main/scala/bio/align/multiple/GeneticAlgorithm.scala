@@ -1,15 +1,14 @@
 package bio.align.multiple
 
 /* External imports */
-import types.DistanceType
-import types.DistanceType.DistanceType
-
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
 /* Internal imports */
 import misc.{Constants, Logger}
 import types.Biotype.{Alignment, CurrentPopulation, Population}
+import types.DistanceType
+import types.DistanceType.DistanceType
 
 
 
@@ -49,7 +48,7 @@ object GeneticAlgorithm {
     def prepareInitialPoint(sequences: Array[String],
                             similarityMeasure: DistanceType = DistanceType.LEVENSHTEIN): Array[String] = {
         val distances = sequences.zip(sequences.map(Fitness.getAverageDistance(_, sequences, similarityMeasure))).sortBy(-_._2)
-        return distances.map(_._1).toArray
+        distances.map(_._1)
     }
 
 
@@ -96,7 +95,7 @@ object GeneticAlgorithm {
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
         if (verbose) logger.logInfo(f"Time spent in <generateInitialGeneration> ${duration} ms")
 
-        return generation.result.toArray
+        generation.result.toArray
     }
 
 
@@ -112,7 +111,7 @@ object GeneticAlgorithm {
         val duration: Float = (System.nanoTime() - start) / Constants.NanoInMillis
 
         if (verbose) logger.logInfo(s"Create new ${Config.reproductionSize} mutants in time: ${duration} ms.")
-        return extendedPopulation
+        extendedPopulation
     }
 
 
@@ -128,7 +127,7 @@ object GeneticAlgorithm {
         val duration: Float = (System.nanoTime() - start) / Constants.NanoInMillis
 
         if (verbose) logger.logInfo(s"Create new ${Config.reproductionSize} children in time: ${duration} ms.")
-        return children
+        children
     }
 
 
@@ -144,6 +143,10 @@ object GeneticAlgorithm {
 
         if (Config.preprocess) data = this.prepareInitialPoint(sequences)
         var population: CurrentPopulation = this.generateInitialGeneration(sequences, verbose = true).to[ArrayBuffer]
+
+        println("Initial generation")
+        val example = population.head
+        example.foreach(println)
 
         val rankedInitial = Fitness.rankAlignments(population)
         val initialBestScore = rankedInitial.head._1
@@ -176,6 +179,10 @@ object GeneticAlgorithm {
             }
         }
 
-        return Fitness.getFittestSpecies(population, numberOfSolutions).toArray
+        val solutions: Population = Fitness.getFittestSpecies(population, numberOfSolutions).toArray
+        val finalSolutionScore: Int = Fitness.getAlignmentCost(solutions.head)
+        println(s"Improvement from G0: ${finalSolutionScore-initialBestScore}")
+
+        solutions
     }
 }
