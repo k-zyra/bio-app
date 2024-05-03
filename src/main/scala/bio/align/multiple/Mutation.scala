@@ -1,6 +1,8 @@
 package bio.align.multiple
 
 /* External imports */
+import misc.Constants
+
 import scala.collection.mutable
 import scala.util.Random
 
@@ -38,7 +40,7 @@ object Mutation {
         MutationOperator.RGB -> 0.0,
         MutationOperator.MSG -> 0.0,
         MutationOperator.TRG -> 0.0
-    ).withDefaultValue(1/7)
+    ).withDefaultValue(1/8)
 
 
     private val frequency: mutable.Map[MutationOperator.Value, Int] = mutable.Map(
@@ -54,14 +56,23 @@ object Mutation {
 
 
     def resetProbabilities(): Unit = {
-        probability(MutationOperator.ISG) = 0.5
-        probability(MutationOperator.IG) = 0.6
-        probability(MutationOperator.EG) = 0.7
-        probability(MutationOperator.RG) = 0.75
-        probability(MutationOperator.RSG) = 0.8
-        probability(MutationOperator.RGB) = 0.85
-        probability(MutationOperator.MSG) = 0.9
+        probability(MutationOperator.ISG) = 0.35
+        probability(MutationOperator.IG) = 0.7
+        probability(MutationOperator.EG) = 0.75
+        probability(MutationOperator.RG) = 0.8
+        probability(MutationOperator.RSG) = 0.85
+        probability(MutationOperator.RGB) = 0.9
+        probability(MutationOperator.MSG) = 0.95
         probability(MutationOperator.TRG) = 1.0
+
+//        probability(MutationOperator.ISG) = 0.2
+//        probability(MutationOperator.IG) = 0.4
+//        probability(MutationOperator.EG) = 0.6
+//        probability(MutationOperator.RG) = 0.7
+//        probability(MutationOperator.RSG) = 0.8
+//        probability(MutationOperator.RGB) = 0.85
+//        probability(MutationOperator.MSG) = 0.95
+//        probability(MutationOperator.TRG) = 1.0
     }
 
 
@@ -76,13 +87,17 @@ object Mutation {
     }
 
 
+    def showProbabilities(): Unit = {
+        println("\n=== Probabilities ===")
+        println(probability.mkString("\n"))
+    }
+
     def displayStatus(): Unit = {
         println(s"Epoch: ${Config.epoch}")
         println(s"Evolution progress: ${Config.getEvolutionProgress()} ")
         println(s"Length at the beginning: ${Config.initialAverageLength}")
 
-        println("Probabilities")
-        probability.foreach(println)
+        this.showProbabilities()
     }
 
 
@@ -90,6 +105,10 @@ object Mutation {
     */
     def reevaluteProbabilties(population: CurrentPopulation): Unit = {
         this.displayStatus()
+        if (Config.dynamicCrossover == Constants.DISABLED) {
+            logger.logWarn("Dynamic mutation disabled. Skipping reevaluation")
+            return
+        }
 
         var totalDensity: Double = 0.0
         val averageSolutionLength: Int = Utils.getAverageLength(Random.shuffle(population.result()).take(10))
@@ -101,37 +120,37 @@ object Mutation {
             probability(MutationOperator.TRG) *= 0.5
             println(s"Trim redundant gaps prob increased to: ${probability(MutationOperator.TRG)}")
         }
-        totalDensity += probability(MutationOperator.TRG)
 
+//        var insertGapsWeight: Double = Config.getEvolutionProgress() + relativeLength
         var insertGapsWeight: Double = Config.getEvolutionProgress() * relativeLength
+        println(s"Insert gap weight: ${insertGapsWeight}")
+
         if (insertGapsWeight > 1) insertGapsWeight = scala.math.log10(insertGapsWeight)
         println(s"Inserting gaps weight: ${insertGapsWeight}")
 
         // Chances of inserting gaps are decreasing with number of epochs and solution length
-        probability(MutationOperator.ISG) *= (1 - insertGapsWeight * 0.75)
-        probability(MutationOperator.IG) *= (1 - insertGapsWeight)
-
-        totalDensity += probability(MutationOperator.ISG)
-        totalDensity += probability(MutationOperator.IG)
+        probability(MutationOperator.ISG) *= (1 + insertGapsWeight)
+        probability(MutationOperator.IG) *= (1 + insertGapsWeight)
 
         // Chances of removing gaps are increasing with number of epochs and solution length
-        probability(MutationOperator.EG) *= (1 + insertGapsWeight)
-        probability(MutationOperator.RGB) *= (1 + insertGapsWeight)
-        probability(MutationOperator.RG) *= (1 + insertGapsWeight)
+        probability(MutationOperator.EG) *= (1 + insertGapsWeight * 0.5)
 
-        totalDensity += probability(MutationOperator.RGB)
-        totalDensity += probability(MutationOperator.RG)
+        // We dont need to remove gaps before
+        if (Config.isEndingStage()) {
+            probability(MutationOperator.RGB) *= (1 + insertGapsWeight)
+            probability(MutationOperator.RG) *= (1 + insertGapsWeight)
+        }
 
         // Probability of moving gaps depends on the probabilities of the other mutations
-        probability(MutationOperator.MSG) *= scala.math.log10(Config.epoch)
-        totalDensity += probability(MutationOperator.MSG)
+        probability(MutationOperator.MSG) *= (1 + insertGapsWeight)
+//        probability(MutationOperator.MSG) *= scala.math.log10(insertGapsWeight)
 
-        println(s"Total density: ${totalDensity}")
+        // Calculate new values
+        totalDensity = probability.values.sum
+        println(s"total density: ${totalDensity}")
         probability.transform((_, value) => value/totalDensity)
 
-        println()
-        println("Probability after mutation:")
-        probability.foreach(println)
+        this.showProbabilities()
     }
 
 
@@ -188,7 +207,6 @@ object Mutation {
     */
     def uniform(population: CurrentPopulation): Alignment = {
         var parentId: Int = Random.nextInt(population.size)
-//        println(s"Uniform mutation, parent: ${parentId}")
         var parent: Alignment = population(parentId)
         var mutant: Alignment = parent.clone()
 
@@ -238,17 +256,11 @@ object Mutation {
         val extendedPopulation: CurrentPopulation = population
 
         if (Config.isEarlyStage()) {
-            for (_ <- 0 to Config.reproductionSize) {
-                extendedPopulation += Mutation.uniform(population)
-            }
+            for (_ <- 0 to Config.reproductionSize) extendedPopulation += Mutation.uniform(population)
         } else if (Config.isEndingStage()) {
-            for (_ <- 0 to Config.reproductionSize) {
-                extendedPopulation += Mutation.stochastic(population)
-            }
+            for (_ <- 0 to Config.reproductionSize) extendedPopulation += Mutation.stochastic(population)
         } else {
-            for (_ <- 0 to Config.reproductionSize) {
-                extendedPopulation += Mutation.stochastic(population)
-            }
+            for (_ <- 0 to Config.reproductionSize) extendedPopulation += Mutation.stochastic(population)
         }
 
         extendedPopulation

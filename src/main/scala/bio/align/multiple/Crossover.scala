@@ -74,6 +74,38 @@ object Crossover {
     }
 
 
+    def displayStatus(): Unit = {
+        println("\n=== Selection probabilities ===")
+        println(selectionProbability.mkString("\n"))
+        println()
+
+        println("\n=== Crossover operator probabilities ===")
+        println(methodProbability.mkString("\n"))
+        println()
+    }
+
+
+    /* Increase the number of crossover operations
+    */
+    def reevaluateReproductionSize(): Unit = {
+        this.displayStatus()
+        if (Config.dynamicCrossover == Constants.DISABLED) {
+            logger.logWarn("Dynamic crossover disabled. Skipping reevaluation.")
+            return
+        }
+
+        if (Config.reproductionSize >= Config.generationSize) {
+            logger.logWarn("Reproduction size achieved the 90% of the entire generation size.")
+            logger.logInfo("Dynamic crossover disabled.")
+            Config.dynamicCrossover = Constants.DISABLED
+            return
+        }
+
+        val previousValue = Config.reproductionSize
+        Config.reproductionSize = (1.05  * previousValue).toInt
+        println(s"reproduction size changed from ${previousValue} to ${Config.reproductionSize}")
+    }
+
     /* Adjust possibilities of certain selection methods, based on the evolution progress
     */
     def reevaluteSelectionProbabilties(population: CurrentPopulation): Unit = {
@@ -328,15 +360,9 @@ object Crossover {
 
         val crossoverMethod: CrossoverMethod.CrossoverMethod = this.chooseMethod()
         crossoverMethod match {
-            case CrossoverMethod.ONE_POINT => {
-                for (id <- parents.indices by 2) children += Crossover.onePoint(parents(id), parents(id + 1), verbose = false)
-            }
-            case CrossoverMethod.UNIFORM => {
-                for (id <- parents.indices by 2) children += Crossover.uniform(parents(id), parents(id + 1), verbose = false)
-            }
-            case CrossoverMethod.SEQUENTIAL => {
-                for (id <- parents.indices by 2) children += Crossover.sequential(parents(id), parents(id + 1), verbose = false)
-            }
+            case CrossoverMethod.ONE_POINT => for (id <- parents.indices by 2) children += Crossover.onePoint(parents(id), parents(id + 1), verbose = false)
+            case CrossoverMethod.UNIFORM => for (id <- parents.indices by 2) children += Crossover.uniform(parents(id), parents(id + 1), verbose = false)
+            case CrossoverMethod.SEQUENTIAL => for (id <- parents.indices by 2) children += Crossover.sequential(parents(id), parents(id + 1), verbose = false)
         }
 
         children

@@ -1,7 +1,7 @@
 package bio.align.multiple
 
 /* Internal imports */
-import misc.Logger
+import misc.{Constants, Logger}
 import types.ScoringType
 
 
@@ -13,12 +13,15 @@ object Config {
     final val ENDING_STAGE_PROGRESS: Double = 0.9
 
     private var configured: Boolean = false
-    var preprocess: Boolean = true
+    var preprocess: Boolean = Constants.ENABLED
+    var dynamicCrossover: Boolean = Constants.ENABLED
+    var dynamicMutation: Boolean = Constants.ENABLED
 
     var epoch: Int = 0
     var maxEpoch: Int = 50
     var epochsInPlateau: Int = 0
     var reconfigAtEpoch: Int = 0
+    var numberOfReconfigs: Int = 0
     var maxEpochsInPlateau: Int = 0
 
     var currentBest: Int = Int.MinValue

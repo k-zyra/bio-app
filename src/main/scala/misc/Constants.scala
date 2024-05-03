@@ -26,6 +26,9 @@ object Constants {
     val Failure: Boolean = true
     val Force: Boolean = true
 
+    val DISABLED: Boolean = false
+    val ENABLED: Boolean = true
+
     val NotFoundInteger: Integer = -1
     val NotFoundFloat: Float = -1
 
