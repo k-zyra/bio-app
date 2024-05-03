@@ -83,24 +83,6 @@ object GapMutation {
     }
 
 
-    /* Adjust chosen residues in multiple sequences to keep them in one line
-    */
-    def adjustResidues(specimen: Alignment,
-                   windowSize: Int = 1): Unit = {
-        var maxPosition: Int = specimen(0).length
-        var residueId: Int = Random.nextInt(maxPosition)
-        println(s"First chosen residue ID: ${residueId}, symbol: ${specimen(0)(residueId)}")
-
-        while (specimen(0)(residueId) == '-') {
-            residueId = Random.nextInt(maxPosition)
-            println(s"Next ID: ${residueId}, symbol: ${specimen(0)(residueId)}")
-        }
-
-        println(s"Chosen pos: ${residueId} ")
-        println(s"sequence: ${specimen(0)}, symbol: ${specimen(0)(residueId)}")
-    }
-
-
     /* Extend existing gap
     */
     def extendGap(specimen: Alignment): Alignment = {

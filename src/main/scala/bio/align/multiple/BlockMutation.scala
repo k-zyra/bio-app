@@ -110,4 +110,40 @@ object BlockMutation {
 
         mutant.toArray
     }
+
+
+    /* Adjust chosen residues in multiple sequences to keep them in one line
+    */
+    def adjustResidues(specimen: Alignment,
+                       windowSize: Int = 1): Unit = {
+        var specimenLength: Int = specimen(0).length
+        var maxPosition: Int = specimenLength
+        var residueId: Int = Random.nextInt(maxPosition)
+
+        var maxLength: Int = (specimenLength - residueId).max(specimenLength / 4)
+        println(s"diff: ${specimenLength - residueId}")
+        println(s"div: ${specimenLength / 4}")
+        println(s"Max length: ${maxLength}")
+        var numberOfResidues: Int = Random.nextInt(maxLength)
+        println(s"Number of residues to be adjusted: ${numberOfResidues}")
+
+        println(s"First chosen residue ID: ${residueId}, symbol: ${specimen(0)(residueId)}")
+
+        while (specimen(0)(residueId) == '-') {
+            residueId = Random.nextInt(maxPosition)
+            println(s"Next ID: ${residueId}, symbol: ${specimen(0)(residueId)}")
+        }
+
+        println(s"Chosen pos: ${residueId} ")
+        println(s"sequence: ${specimen(0)}, symbol: ${specimen(0)(residueId)}")
+
+        println(s"Get substring: ${specimen(0).slice(residueId, residueId + numberOfResidues)}")
+    }
+
+
+    /* Find the positions in sequences on which the identical substring occur
+    */
+    private def findCorrespondingSites(alignment: Alignment, substr: String): Unit = {
+
+    }
 }
