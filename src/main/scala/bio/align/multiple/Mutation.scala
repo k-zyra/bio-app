@@ -1,13 +1,11 @@
 package bio.align.multiple
 
 /* External imports */
-import misc.Constants
-
 import scala.collection.mutable
 import scala.util.Random
 
 /* Internal imports */
-import misc.Logger
+import misc.{Constants, Logger}
 import types.Biotype.{Alignment, CurrentPopulation}
 
 
@@ -21,10 +19,12 @@ import types.Biotype.{Alignment, CurrentPopulation}
  *  RGB - remove gap block
  *  TRG - trim redundant gaps
  *  MSG - move single gap
+ *  AR - adjust residues
+ *  RR - realign residues
  */
 object MutationOperator extends Enumeration {
     type MutationOperator = Value
-    val UNDEF, ISG, IG, EG, RG, RSG, RGB, TRG, MSG = Value
+    val UNDEF, ISG, IG, EG, RG, RSG, RGB, TRG, MSG, AR, RR = Value
 }
 
 
@@ -39,29 +39,35 @@ object Mutation {
         MutationOperator.RSG -> 0.0,
         MutationOperator.RGB -> 0.0,
         MutationOperator.MSG -> 0.0,
-        MutationOperator.TRG -> 0.0
-    ).withDefaultValue(1/8)
+        MutationOperator.TRG -> 0.0,
+        MutationOperator.AR -> 0.0,
+        MutationOperator.RR -> 0.0
+    ).withDefaultValue(1/10)
 
 
     private val frequency: mutable.Map[MutationOperator.Value, Int] = mutable.Map(
         MutationOperator.ISG -> 0,
         MutationOperator.IG -> 0,
         MutationOperator.EG -> 0,
-        MutationOperator.RG -> 0,
+//        MutationOperator.RG -> 0,
         MutationOperator.RSG -> 0,
-        MutationOperator.RGB -> 0,
+//        MutationOperator.RGB -> 0,
         MutationOperator.TRG -> 0,
-        MutationOperator.MSG -> 0
+        MutationOperator.MSG -> 0,
+        MutationOperator.AR -> 0,
+        MutationOperator.RR -> 0
     ).withDefaultValue(0)
 
 
     def resetProbabilities(): Unit = {
-        probability(MutationOperator.ISG) = 0.35
-        probability(MutationOperator.IG) = 0.7
+        probability(MutationOperator.ISG) = 0.25
+        probability(MutationOperator.IG) = 0.45
+        probability(MutationOperator.AR) = 0.6
+        probability(MutationOperator.RR) = 0.7
         probability(MutationOperator.EG) = 0.75
-        probability(MutationOperator.RG) = 0.8
+//        probability(MutationOperator.RG) = 0.8
         probability(MutationOperator.RSG) = 0.85
-        probability(MutationOperator.RGB) = 0.9
+//        probability(MutationOperator.RGB) = 0.9
         probability(MutationOperator.MSG) = 0.95
         probability(MutationOperator.TRG) = 1.0
 
@@ -121,28 +127,30 @@ object Mutation {
             println(s"Trim redundant gaps prob increased to: ${probability(MutationOperator.TRG)}")
         }
 
-//        var insertGapsWeight: Double = Config.getEvolutionProgress() + relativeLength
-        var insertGapsWeight: Double = Config.getEvolutionProgress() * relativeLength
+        var insertGapsWeight: Double = Config.getEvolutionProgress() + relativeLength
+//        var insertGapsWeight: Double = Config.getEvolutionProgress() * relativeLength
         println(s"Insert gap weight: ${insertGapsWeight}")
 
         if (insertGapsWeight > 1) insertGapsWeight = scala.math.log10(insertGapsWeight)
         println(s"Inserting gaps weight: ${insertGapsWeight}")
 
         // Chances of inserting gaps are decreasing with number of epochs and solution length
-        probability(MutationOperator.ISG) *= (1 + insertGapsWeight)
-        probability(MutationOperator.IG) *= (1 + insertGapsWeight)
+        probability(MutationOperator.ISG) *= (1 + insertGapsWeight * 0.5)
+        probability(MutationOperator.IG) *= (1 + insertGapsWeight * 0.5)
 
         // Chances of removing gaps are increasing with number of epochs and solution length
         probability(MutationOperator.EG) *= (1 + insertGapsWeight * 0.5)
 
         // We dont need to remove gaps before
         if (Config.isEndingStage()) {
-            probability(MutationOperator.RGB) *= (1 + insertGapsWeight)
-            probability(MutationOperator.RG) *= (1 + insertGapsWeight)
+            probability(MutationOperator.RGB) *= 1.05
+            probability(MutationOperator.RG) *= 0.95
         }
 
         // Probability of moving gaps depends on the probabilities of the other mutations
-        probability(MutationOperator.MSG) *= (1 + insertGapsWeight)
+        probability(MutationOperator.MSG) *= 1 + insertGapsWeight * 0.25
+        probability(MutationOperator.AR)  *= 1 + insertGapsWeight * 0.25
+        probability(MutationOperator.RR)  *= 1 + insertGapsWeight * 0.25
 //        probability(MutationOperator.MSG) *= scala.math.log10(insertGapsWeight)
 
         // Calculate new values
@@ -171,6 +179,12 @@ object Mutation {
             } else if (choice < probability(MutationOperator.IG)) {
                 this.frequency(MutationOperator.IG) += 1
                 mutant = BlockMutation.insertGap(parent)
+            } else if (choice < probability(MutationOperator.AR)) {
+                this.frequency(MutationOperator.AR) += 1
+                mutant = BlockMutation.adjustResidues(parent)
+            } else if (choice < probability(MutationOperator.RR)) {
+                this.frequency(MutationOperator.RR) += 1
+                mutant = BlockMutation.realignResidues(parent)
             } else if (choice < probability(MutationOperator.EG)) {
                 this.frequency(MutationOperator.EG)
                 mutant = GapMutation.extendGap(parent)
@@ -212,7 +226,7 @@ object Mutation {
 
         var attempts: Int = 0
         while (parent sameElements mutant) {
-            val choice: Int = Random.nextInt(6)
+            val choice: Int = Random.nextInt(9)
 
             if (choice == 0) {
                 this.frequency(MutationOperator.ISG) += 1
@@ -221,18 +235,24 @@ object Mutation {
                 this.frequency(MutationOperator.IG) += 1
                 mutant = BlockMutation.insertGap(parent)
             } else if (choice == 2) {
+                this.frequency(MutationOperator.AR) += 1
+                mutant = BlockMutation.adjustResidues(parent)
+            } else if (choice == 3) {
+                this.frequency(MutationOperator.RR) += 1
+                mutant = BlockMutation.realignResidues(parent)
+            } else if (choice == 4) {
                 this.frequency(MutationOperator.EG) += 1
                 mutant = GapMutation.extendGap(parent)
-            } else if (choice == 3) {
+            } else if (choice == 5) {
                 this.frequency(MutationOperator.RG) += 1
                 mutant = GapMutation.removeGap(parent)
-            } else if (choice == 4) {
+            } else if (choice == 6) {
                 this.frequency(MutationOperator.RSG) += 1
                 mutant = GapMutation.removeSingleGap(parent)
-            } else if (choice == 5) {
+            } else if (choice == 7) {
                 this.frequency(MutationOperator.RGB) += 1
                 mutant = BlockMutation.removeGapBlock(parent)
-            } else if (choice == 6) {
+            } else if (choice == 8) {
                 this.frequency(MutationOperator.TRG) += 1
                 mutant = BlockMutation.trimRedundantGaps(parent)
             } else {

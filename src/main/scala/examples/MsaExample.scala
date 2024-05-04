@@ -54,6 +54,7 @@ object MsaExample {
 
         Config.set(_maxNumberOfEpochs= 2000,
                     _maxEpochsInPlateau = 2000,
+                    _epochInPlateauToReconfig = 100,
                     _generationSize = 200)
 
         val mode: String = args(0)
