@@ -2,13 +2,14 @@ package examples
 
 /* External imports */
 import scala.collection.mutable
-import scala.collection.parallel.mutable.{ParArray, ParArrayCombiner}
+import scala.collection.parallel.mutable.ParArray
 
 /* Internal imports */
 import app.SparkController
 import bio.searchers.AlignSearcher
 import bio.utils.{FileUtils, KmerUtils}
 import misc.{Console, Constants}
+
 
 
 object GlobalAlignmentExample {
@@ -30,7 +31,7 @@ object GlobalAlignmentExample {
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) println(f"Time spent in GlobalAlignmentExample: ${duration} ms")
-        return alignments.result()
+        alignments.result()
     }
 
 
@@ -43,7 +44,7 @@ object GlobalAlignmentExample {
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
         
         println(f"Time spent in sequential GlobalAlignmentExample: ${duration} ms")
-        return alignments.result()
+        alignments.result()
     }
 
 
@@ -55,7 +56,7 @@ object GlobalAlignmentExample {
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         println(f"Time spent in parallel GlobalAlignmentExample: ${duration} ms")
-        return alignments.flatten.toArray
+        alignments.flatten.toArray
     }
 
 
@@ -64,7 +65,6 @@ object GlobalAlignmentExample {
         val secondSequence: String = "GAATTC"
         val substitutionMatrix: Array[Array[Int]] =
                                 AlignSearcher.prepareSubstitutionMatrix("substitutionMatrix_global.xml")
-                                AlignSearcher.displaySubstitutionMatrix(substitutionMatrix)
         val alignments: Array[(String, String)] = AlignSearcher.needlemanWunschAlignment(
                                     Array(firstSequence, secondSequence), substitutionMatrix, -5)
 

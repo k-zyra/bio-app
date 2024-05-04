@@ -12,6 +12,7 @@ import bio.utils.{FileUtils, KmerUtils}
 import misc.{Console, Constants}
 
 
+
 object LocalAlignmentExample {
     private var verbose: Boolean = false
 
@@ -32,7 +33,7 @@ object LocalAlignmentExample {
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
 
         if (verbose) println(f"Time spent in GlobalAlignmentExample: ${duration} ms")
-        return alignments.result()
+        alignments.result()
     }
 
 
@@ -45,7 +46,7 @@ object LocalAlignmentExample {
         val duration: Float = (System.nanoTime() - start)/Constants.NanoInMillis
         
         println(f"Time spent in sequential LocalAlignmentExample: ${duration} ms")
-        return alignments.toArray
+        alignments.toArray
     }
 
 
@@ -71,7 +72,7 @@ object LocalAlignmentExample {
         println(f"Alignments for sequences: ${firstSequence} and ${secondSequence}: ${substitutionMatrix.length}")
         for (pair <- alignments) AlignSearcher.displayAlignments(pair)
 
-        return alignments
+        alignments
     }
 
 
@@ -81,10 +82,9 @@ object LocalAlignmentExample {
         val kmersWithCounters = KmerUtils.prepareAllKmers(reads.slice(0, 10), k=13, verbose = true)
         val kmers = KmerUtils.getKmers(kmersWithCounters.slice(0,100))
 
+        this.runSingle()
         this.runSequential(kmers)
         this.runParallel(kmers)
-
-        // ======================================
 
         Console.exiting()
         SparkController.destroy(verbose)
