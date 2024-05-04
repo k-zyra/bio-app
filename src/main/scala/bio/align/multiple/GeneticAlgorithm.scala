@@ -29,9 +29,19 @@ object GeneticAlgorithm {
     /* Verify whether the conditions are met
     */
     private def checkEndCondition(population: CurrentPopulation): Unit = {
-        if (Config.epochsInPlateau == Config.reconfigAtEpoch) {
-            println("Should reevaluate probabilities")
-            Mutation.reevaluteProbabilties(population)
+        if (Config.epochsInPlateau % Config.reconfigAtEpoch == 0) {
+            if (Config.numberOfReconfigs == 10) {
+                logger.logInfo(s"Epoch: ${Config.epoch}, in plateau: ${Config.epochsInPlateau} - Resetting mutation operator probabilities")
+
+                Mutation.resetProbabilities()
+                Crossover.reevaluateReproductionSize()
+                Config.numberOfReconfigs = 0
+            } else {
+                logger.logInfo(s"Epoch: ${Config.epoch}, in plateau: ${Config.epochsInPlateau} - Reevaluating operators probabilities")
+
+                Mutation.reevaluteProbabilties(population)
+                Config.numberOfReconfigs += 1
+            }
         }
 
         if (Config.epoch == Config.maxEpoch || Config.epochsInPlateau == Config.maxEpochsInPlateau) {
@@ -163,6 +173,8 @@ object GeneticAlgorithm {
             population ++= this.breeding(population, verbose = false)
             population = this.mutation(population, verbose = false)
 
+            population = population.map(BlockMutation.trimRedundantGaps)
+
             Config.epoch += 1
             this.checkEndCondition(population)
 
@@ -181,6 +193,7 @@ object GeneticAlgorithm {
 
         val solutions: Population = Fitness.getFittestSpecies(population, numberOfSolutions).toArray
         val finalSolutionScore: Int = Fitness.getAlignmentCost(solutions.head)
+        println(s"Final score: ${finalSolutionScore}")
         println(s"Improvement from G0: ${finalSolutionScore-initialBestScore}")
 
         solutions
