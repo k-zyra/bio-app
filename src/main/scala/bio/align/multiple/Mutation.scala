@@ -49,36 +49,27 @@ object Mutation {
         MutationOperator.ISG -> 0,
         MutationOperator.IG -> 0,
         MutationOperator.EG -> 0,
-//        MutationOperator.RG -> 0,
+        MutationOperator.RG -> 0,
         MutationOperator.RSG -> 0,
-//        MutationOperator.RGB -> 0,
-        MutationOperator.TRG -> 0,
+        MutationOperator.RGB -> 0,
         MutationOperator.MSG -> 0,
+        MutationOperator.TRG -> 0,
         MutationOperator.AR -> 0,
         MutationOperator.RR -> 0
     ).withDefaultValue(0)
 
 
     def resetProbabilities(): Unit = {
-        probability(MutationOperator.ISG) = 0.25
+        probability(MutationOperator.ISG) = 0.4
         probability(MutationOperator.IG) = 0.45
         probability(MutationOperator.AR) = 0.6
         probability(MutationOperator.RR) = 0.7
         probability(MutationOperator.EG) = 0.75
-//        probability(MutationOperator.RG) = 0.8
+        probability(MutationOperator.RG) = 0.8
         probability(MutationOperator.RSG) = 0.85
-//        probability(MutationOperator.RGB) = 0.9
+        probability(MutationOperator.RGB) = 0.9
         probability(MutationOperator.MSG) = 0.95
         probability(MutationOperator.TRG) = 1.0
-
-//        probability(MutationOperator.ISG) = 0.2
-//        probability(MutationOperator.IG) = 0.4
-//        probability(MutationOperator.EG) = 0.6
-//        probability(MutationOperator.RG) = 0.7
-//        probability(MutationOperator.RSG) = 0.8
-//        probability(MutationOperator.RGB) = 0.85
-//        probability(MutationOperator.MSG) = 0.95
-//        probability(MutationOperator.TRG) = 1.0
     }
 
 
@@ -119,43 +110,32 @@ object Mutation {
         var totalDensity: Double = 0.0
         val averageSolutionLength: Int = Utils.getAverageLength(Random.shuffle(population.result()).take(10))
         val relativeLength: Double = averageSolutionLength.toDouble/Config.initialAverageLength.toDouble
-        println(s"Average solution length: ${averageSolutionLength}")
-        println(s"Relative length: ${relativeLength}")
+        val changeFactor: Double = Config.getEvolutionProgress() * relativeLength
 
         if (Config.isEndingStage()) {
             probability(MutationOperator.TRG) *= 0.5
-            println(s"Trim redundant gaps prob increased to: ${probability(MutationOperator.TRG)}")
         }
 
-        var insertGapsWeight: Double = Config.getEvolutionProgress() + relativeLength
-//        var insertGapsWeight: Double = Config.getEvolutionProgress() * relativeLength
-        println(s"Insert gap weight: ${insertGapsWeight}")
-
-        if (insertGapsWeight > 1) insertGapsWeight = scala.math.log10(insertGapsWeight)
-        println(s"Inserting gaps weight: ${insertGapsWeight}")
-
         // Chances of inserting gaps are decreasing with number of epochs and solution length
-        probability(MutationOperator.ISG) *= (1 + insertGapsWeight * 0.5)
-        probability(MutationOperator.IG) *= (1 + insertGapsWeight * 0.5)
+        probability(MutationOperator.ISG) += 0.05
+        probability(MutationOperator.IG) += 0.05
 
         // Chances of removing gaps are increasing with number of epochs and solution length
-        probability(MutationOperator.EG) *= (1 + insertGapsWeight * 0.5)
+        probability(MutationOperator.EG) += 0.1 * changeFactor
 
         // We dont need to remove gaps before
         if (Config.isEndingStage()) {
-            probability(MutationOperator.RGB) *= 1.05
-            probability(MutationOperator.RG) *= 0.95
+            probability(MutationOperator.RGB) *= relativeLength
+            probability(MutationOperator.RG) *= relativeLength
         }
 
         // Probability of moving gaps depends on the probabilities of the other mutations
-        probability(MutationOperator.MSG) *= 1 + insertGapsWeight * 0.25
-        probability(MutationOperator.AR)  *= 1 + insertGapsWeight * 0.25
-        probability(MutationOperator.RR)  *= 1 + insertGapsWeight * 0.25
-//        probability(MutationOperator.MSG) *= scala.math.log10(insertGapsWeight)
+        probability(MutationOperator.MSG) += 0.025
+        probability(MutationOperator.AR) += 0.05
+        probability(MutationOperator.RR) += 0.05
 
         // Calculate new values
         totalDensity = probability.values.sum
-        println(s"total density: ${totalDensity}")
         probability.transform((_, value) => value/totalDensity)
 
         this.showProbabilities()

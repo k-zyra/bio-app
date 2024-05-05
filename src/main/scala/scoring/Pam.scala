@@ -1,9 +1,10 @@
 package scoring
 
 object Pam extends Scoring {
-    var gapOpening: Int = -5
-    var gapExtension: Int = -5
-    var gapEnding: Int = -5
+    var gapOpening: Int = -1
+    var gapExtension: Int = -1
+    var gapEnding: Int = -1
+
 
     def setGapOpeningPenalty(penalty: Int): Unit = {
         this.gapOpening = penalty
