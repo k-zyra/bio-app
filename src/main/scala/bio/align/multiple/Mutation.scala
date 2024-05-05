@@ -116,25 +116,19 @@ object Mutation {
             probability(MutationOperator.TRG) *= 0.5
         }
 
-        // Chances of inserting gaps are decreasing with number of epochs and solution length
         probability(MutationOperator.ISG) += 0.05
         probability(MutationOperator.IG) += 0.05
-
-        // Chances of removing gaps are increasing with number of epochs and solution length
         probability(MutationOperator.EG) += 0.1 * changeFactor
 
-        // We dont need to remove gaps before
         if (Config.isEndingStage()) {
             probability(MutationOperator.RGB) *= relativeLength
             probability(MutationOperator.RG) *= relativeLength
         }
 
-        // Probability of moving gaps depends on the probabilities of the other mutations
         probability(MutationOperator.MSG) += 0.025
         probability(MutationOperator.AR) += 0.05
         probability(MutationOperator.RR) += 0.05
 
-        // Calculate new values
         totalDensity = probability.values.sum
         probability.transform((_, value) => value/totalDensity)
 
