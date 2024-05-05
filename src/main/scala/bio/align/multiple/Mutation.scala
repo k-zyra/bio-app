@@ -116,8 +116,8 @@ object Mutation {
             probability(MutationOperator.TRG) *= 0.5
         }
 
-        probability(MutationOperator.ISG) += 0.05
-        probability(MutationOperator.IG) += 0.05
+        probability(MutationOperator.ISG) *= 0.95
+        probability(MutationOperator.IG) *= 0.95
         probability(MutationOperator.EG) += 0.1 * changeFactor
 
         if (Config.isEndingStage()) {
