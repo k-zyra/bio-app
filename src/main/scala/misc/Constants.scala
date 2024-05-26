@@ -96,8 +96,6 @@ object Constants {
     val DummyEdge: Integer = -1
 
     // Utils
-    val DefaultPrompt: String = "bio-app> "
-
     val DataDir = "C:\\Users\\karzyr\\Desktop\\bio-app\\data"
     val LocaLDefaultMatrix: String = "substitutionMatrix_local.xml"
     val GlobalDefaultMatrix: String = "substitutionMatrix_global.xml"

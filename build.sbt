@@ -30,7 +30,7 @@ lazy val root = project
 
         libraryDependencies += "pl.project13.scala" % "sbt-jmh" % "2.12.1" % "0.4.0",
         libraryDependencies += "org.openjdk.jmh" % "jmh-core" % "1.32" % "test",
-        libraryDependencies +="org.openjdk.jmh" % "jmh-generator-annprocess" % "1.32" % "test",
+        libraryDependencies += "org.openjdk.jmh" % "jmh-generator-annprocess" % "1.32" % "test",
 
         // Bio
         libraryDependencies += "org.biojava" % "biojava-core" % "5.3.0",
